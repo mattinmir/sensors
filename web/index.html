@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Access and Sensor Status</title>
+    <!-- Core CSS - Include with every page -->
+    <link href="assets/plugins/bootstrap/bootstrap.css" rel="stylesheet" />
+    <link href="assets/font-awesome/css/font-awesome.css" rel="stylesheet" />
+    <link href="assets/plugins/pace/pace-theme-big-counter.css" rel="stylesheet" />
+    <link href="assets/css/style.css" rel="stylesheet" />
+    <link href="assets/css/main-style.css" rel="stylesheet" />
+    <!-- Page-Level CSS -->
+    <link href="assets/plugins/morris/morris-0.4.3.min.css" rel="stylesheet" />
+   </head>
+<body>
+    
+   
+
+    <div class="row">
+        <!-- Page Header -->
+        <div class="col-lg-12">
+            <h1 class="page-header">Dashboard</h1>
+        </div>
+        <!--End Page Header -->
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            
+            <!--Simple table example -->
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <i class="fa fa-bar-chart-o fa-fw"></i>Sensor Data
+                    <div class="pull-right">
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
+                                Actions
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu pull-right" role="menu">
+                                <li><a href="#">Action</a>
+                                </li>
+                                <li><a href="#">Another action</a>
+                                </li>
+                                <li><a href="#">Something else here</a>
+                                </li>
+                                <li class="divider"></li>
+                                <li><a href="#">Separated link</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-hover table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Sensor ID</th>
+                                            <th>Timestamp</th>
+                                            <th>Temperature (Celcius)</th>
+                                            <th>Location</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>1</td>
+                                            <td>2016:05:13 06:45:02:13</td>
+                                            <td>23</td>
+                                            <td>$321.33</td>
+                                        </tr>
+                                        <tr>
+                                            <td>2</td>
+                                            <td>2016:05:13 07:45:32:18</td>
+                                            <td>24</td>
+                                            <td>$234.34</td>
+                                        </tr>
+                                        
+
+
+                                    </tbody>
+                                </table>
+                            </div>
+
+                        </div>
+
+                    </div>
+                    <!-- /.row -->
+                </div>
+                <!-- /.panel-body -->
+            </div>
+            <!--End simple table example -->
+
+            <!--Area chart example -->
+           <!-- <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <i class="fa fa-bar-chart-o fa-fw"></i>Area Chart Example
+                    <div class="pull-right">
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
+                                Actions
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu pull-right" role="menu">
+                                <li><a href="#">Action</a>
+                                </li>
+                                <li><a href="#">Another action</a>
+                                </li>
+                                <li><a href="#">Something else here</a>
+                                </li>
+                                <li class="divider"></li>
+                                <li><a href="#">Separated link</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-body">
+                    <div id="morris-area-chart"></div>
+                </div>
+
+            </div>
+            <!--End area chart example -->
+        </div>
+
+
+
+    </div>
+
+    <div class="row">
+        <div class="col-lg-4">
+            <!-- Notifications-->
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <i class="fa fa-bell fa-fw"></i>Notifications Panel
+                </div>
+
+                <div class="panel-body">
+                    <div class="list-group">                    
+                        <div  class="list-group-item">
+                            <i class="fa fa-bolt fa-fw"></i>Sensor ID 12345 Failed!
+                            <span class="pull-right text-muted small"><em>11:13 AM</em>
+                            </span>
+                        </div>
+                        <div class="list-group-item">
+                            <i class="fa fa-warning fa-fw"></i>Abnormal sounds from floor 3!
+                            <span class="pull-right text-muted small"><em>10:57 AM</em>
+                            </span>
+                        </div>
+                       
+                    </div>
+                </div>
+
+            </div>
+            <!--End Notifications-->
+        </div>
+
+
+    </div>
+
+
+         
+
+
+
+
+    <!-- Core Scripts - Include with every page -->
+    <script src="assets/plugins/jquery-1.10.2.js"></script>
+    <script src="assets/plugins/bootstrap/bootstrap.min.js"></script>
+    <script src="assets/plugins/metisMenu/jquery.metisMenu.js"></script>
+    <script src="assets/plugins/pace/pace.js"></script>
+    <script src="assets/scripts/siminta.js"></script>
+    <!-- Page-Level Plugin Scripts-->
+    <script src="assets/plugins/morris/raphael-2.1.0.min.js"></script>
+    <script src="assets/plugins/morris/morris.js"></script>
+    <script src="assets/scripts/dashboard-demo.js"></script>
+
+</body>
+
+</html>
+
