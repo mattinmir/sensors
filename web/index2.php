@@ -51,10 +51,10 @@
 	*/
 
 	$sensorid = mysqli_real_escape_string($link, $_POST['sensorid']); //fix: tell mattin to call variable sensorid
-	$table = 'location'; // temporary variable
+	$table = 'Location'; // temporary variable
 	
 	//storing the result
-	$result = mysqli_query($link, "SELECT* FROM $table WHERE id = '$sensorid'");
+	$result = mysqli_query($link, "SELECT* FROM $table WHERE SensorID = '$sensorid'");
 
 	//error message for result including detailed error
 	if (!result){
@@ -67,8 +67,9 @@
 	{
 		$output .= "<tr>
 			<td> {$row['SensorID']} </td>
-			<td> {$row['Timestamp']} </td>
-			<td> {$row['Temperature']} </td>
+			<td> {$row['Floor']} </td>
+			<td> {$row['Location']} </td>
+			<td> {$row['Active']} </td>
 			</tr>";
 	}
 	
