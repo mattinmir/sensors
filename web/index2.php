@@ -50,8 +50,7 @@
 	- "" use isset for checking blank field 
 	*/
 
-	//$sensorid = mysqli_real_escape_string($link, $_POST['sensorid']); //fix: tell mattin to call variable sensorid
-	$sensorid = '1';
+	$sensorid = mysqli_real_escape_string($link, $_POST['sensorid']); //fix: tell mattin to call variable sensorid
 	$table = 'location'; // temporary variable
 	
 	//storing the result
