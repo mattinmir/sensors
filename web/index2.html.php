@@ -135,18 +135,22 @@
 
         <br>
 
-        <!--Date Range-->
+        <!--Sensor ID-->
         <div class="row">
             <div class="col-lg-8">
                 <div class="input-group input-group-lg">
                         <span class="input-group-addon">
-                            Date range
+                            Sensor ID
                         </span>
-                    <input type="text" class="form-control">
+                    <form action="index2.php" method ="post">
+                    	<input type="text" name="sensorid" id="sensorid" class="form-control">
+                    	<div><input type="submit" value="GO"/></div>
+                    </form>
+                    
                 </div>
             </div>
         </div>
-        <!--End Date Range-->
+        <!--Sensor ID-->
 
         <br>
 
