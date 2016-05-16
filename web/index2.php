@@ -233,9 +233,9 @@
 								while($row = mysqli_fetch_assoc($result))
 								{
 									echo "<tr>";
-									echo "<td>$row['SensorID']";
-									echo "<td>$row['Timestamp']";
-									echo "<td>$row['Temperature']";
+									echo "<td> {$row['SensorID']}";
+									echo "<td> {$row['Timestamp']}";
+									echo "<td> {$row['Temperature']}";
 									echo "</tr>";
 								}
 								
