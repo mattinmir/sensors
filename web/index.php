@@ -52,7 +52,7 @@
 	$table = 'Location'; // temporary variable
 	
 	if(!isset($_POST['sensorid'])){
-		$result = mysqli_query($link, "SELECT* FROM $table");
+		$result = mysqli_query($link, 'SELECT* FROM $table');
 	}
 	
 	else{
