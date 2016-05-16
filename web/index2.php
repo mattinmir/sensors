@@ -18,7 +18,7 @@
 	
 	while($row = mysqli_fetch_assoc($result))
 	{
-		$output = "<tr>
+		$output .= "<tr>
 			<td> {$row['SensorID']} </td>
 			<td> {$row['Timestamp']} </td>
 			<td> {$row['Temperature']} </td>
