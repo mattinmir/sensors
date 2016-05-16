@@ -50,16 +50,16 @@
 	- "" use isset for checking blank field 
 	*/
 	$table = 'Location'; // temporary variable
+	$sensorid = mysqli_real_escape_string($link, $_POST['sensorid']); //fix: tell mattin to call variable sensorid
 	
 	if(!isset($_POST['sensorid'])){
 		$result = mysqli_query($link, 'SELECT* FROM $table');
 	}
 	
 	else{
-	$sensorid = mysqli_real_escape_string($link, $_POST['sensorid']); //fix: tell mattin to call variable sensorid
-	
 	//storing the result
-	$result = mysqli_query($link, "SELECT* FROM $table WHERE SensorID = '$sensorid'");}
+	$result = mysqli_query($link, "SELECT* FROM $table WHERE SensorID = '$sensorid'");
+	}
 
 	//error message for result including detailed error
 	if (!result){
