@@ -135,18 +135,22 @@
 
         <br>
 
-        <!--Date Range-->
+        <!--Sensor ID-->
         <div class="row">
             <div class="col-lg-8">
                 <div class="input-group input-group-lg">
                         <span class="input-group-addon">
-                            Date range
+                            Sensor ID
                         </span>
-                    <input type="text" class="form-control">
+                    <form action="index2.php" method ="post">
+                    	<input type="text" name="sensorid" id="sensorid" class="form-control">
+                    	<div><input type="submit" value="GO"/></div>
+                    </form>
+                    
                 </div>
             </div>
         </div>
-        <!--End Date Range-->
+        <!--Sensor ID-->
 
         <br>
 
@@ -213,33 +217,7 @@
                             </thead>
 							<tbody>
 							<?php    
-								$link = mysqli_connect('localhost', 'root', ''); 
-								
-								if (!$link) 
-								{
-									print("cannot connect");
-									exit(); 
-								}
-								if(!mysqli_select_db($link, 'residential'))
-								{
-									print("cannot find database");
-									exit();
-								}
-								echo '<br>';
-								
-								$sql = "SELECT * FROM Temperature";
-								$result = mysqli_query($link, $sql);
-								
-								while($row = mysqli_fetch_assoc($result))
-								{
-									echo "<tr>";
-									echo "<td> {$row['SensorID']}";
-									echo "<td> {$row['Timestamp']}";
-									echo "<td> {$row['Temperature']}";
-									echo "</tr>";
-								}
-								
-								
+								echo $output;
 							?>
                             </tbody>
                         </table>
