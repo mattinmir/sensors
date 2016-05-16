@@ -4,10 +4,10 @@
 	{
 	 function stripslashes_deep($value)
 	 {
-	 $value = is_array($value) ?
-	 array_map('stripslashes_deep', $value) :
-	 stripslashes($value);
-	 return $value;
+		 $value = is_array($value) ?
+		 array_map('stripslashes_deep', $value) :
+		 stripslashes($value);
+		 return $value;
 	 }
 	 $_POST = array_map('stripslashes_deep', $_POST);
 	 $_GET = array_map('stripslashes_deep', $_GET);
@@ -16,8 +16,8 @@
 	}
 	
 	// Server parameters
-	$servername = localhost;
-	$dbname = residential;
+	$servername = 'localhost';
+	$dbname = 'residential';
 
 	//establish connection 
 	$link = mysqli_connect('localhost', 'root', ''); 
@@ -26,7 +26,6 @@
 	if (!$link){
 		$output = 'Unable to connect to the database server.';
 		include 'output.html.php';
-
 		exit();
 	}
 
@@ -39,7 +38,7 @@
 
 	//selecting the database
 
-	if(!mysqli_select_db($link, $dbname){
+	if(!mysqli_select_db($link, $dbname)){
 		$output = 'Unable to locate the database.';
 		include 'output.html.php';
 		exit(); 
@@ -51,9 +50,9 @@
 	- "" use isset for checking blank field 
 	*/
 
-	$sensorid = mysqli_real_escape_string($link, $_POST['sensorid']); //fix: tell mattin to call variable sensorid
-	
-	$table = location; // temporary variable
+	//$sensorid = mysqli_real_escape_string($link, $_POST['sensorid']); //fix: tell mattin to call variable sensorid
+	$sensorid = '1';
+	$table = 'location'; // temporary variable
 	
 	//storing the result
 	$result = mysqli_query($link, "SELECT* FROM $table WHERE id = '$sensorid'");
@@ -64,9 +63,6 @@
 		include 'output.html.php'; 
 		exit();
 	}
-	
-	$tableformat = array(
-					array()
 	
 	while($row = mysqli_fetch_assoc($result))
 	{
