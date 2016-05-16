@@ -142,15 +142,14 @@
                         <span class="input-group-addon">
                             Sensor ID
                         </span>
-                    <form action="index2.php" method ="post">
+                    <form action="index.php" method ="post">
                     	<input type="text" name="sensorid" id="sensorid" class="form-control">
-                    	<div><input type="submit" value="GO"/></div>
+                     	<div><input type="submit" value="GO"/></div>
                     </form>
-                    
                 </div>
             </div>
         </div>
-        <!--Sensor ID-->
+        <!--End Sensor ID-->
 
         <br>
 
@@ -197,7 +196,7 @@
         </div>
         <!--End Notifications-->
     </div>
-
+	<button id="btn-export">Export To Excel</button>
     <div class="row">
         <div class="col-lg-12">
             <!-- Advanced Tables -->
@@ -210,15 +209,16 @@
                         <table class="table table-striped table-bordered table-hover" id="dataTables-example">
                             <thead>
                             <tr>
-                                <th>Sensor ID</th>
-                                <th>Time</th>
-                                <th>Temperature</th>
+                                <th>SensorID</th>
+                                <th>Timestamp</th>
+                                <th>Value</th>
+
                             </tr>
                             </thead>
-							<tbody>
-							<?php    
-								echo $output;
-							?>
+                            <tbody>
+								<?php    
+									echo $output;
+								?>
                             </tbody>
                         </table>
                     </div>
@@ -240,9 +240,99 @@
 <!-- Page-Level Plugin Scripts-->
 <script src="assets/plugins/dataTables/jquery.dataTables.js"></script>
 <script src="assets/plugins/dataTables/dataTables.bootstrap.js"></script>
+<script type="text/javascript" src="http://www.shieldui.com/shared/components/latest/js/shieldui-all.min.js"></script>
+<script type="text/javascript" src="http://www.shieldui.com/shared/components/latest/js/jszip.min.js"></script>
+
 <script>
     $(document).ready(function () {
         $('#dataTables-example').dataTable();
+    });
+</script>
+
+<script type="text/javascript">
+    jQuery(function ($) {
+        $("#btn-export").click(function () {
+            // parse the HTML table element having an id=dataTables-example
+            var dataSource = shield.DataSource.create({
+                data: "#dataTables-example",
+                schema: {
+                    type: "table",
+					// Add php here
+                    fields: {
+                        SensorID: { type: String },
+                        Timestamp: { type: String },
+                        Value: { type: String },
+						Location: { type: Number },
+						BuildingID: { type: String }
+                    }
+                }
+            });
+
+            // when parsing is done, export the data to Excel
+            dataSource.read().then(function (data) {
+                new shield.exp.OOXMLWorkbook({
+                    author: "PrepBootstrap",
+                    worksheets: [
+                        {
+                            name: "dataTables-example",
+                            rows: [
+                                {
+                                    cells: [
+                                        {
+                                            style: {
+                                                bold: true
+                                            },
+                                            type: String,
+                                            value: "SensorID"
+                                        },
+                                        {
+                                            style: {
+                                                bold: true
+                                            },
+                                            type: String,
+                                            value: "Timestamp"
+                                        },
+                                        {
+                                            style: {
+                                                bold: true
+                                            },
+                                            type: String,
+                                            value: "Value"
+                                        },
+										{
+                                            style: {
+                                                bold: true
+                                            },
+                                            type: Number,
+                                            value: "Location"
+                                        },
+										{
+                                            style: {
+                                                bold: true
+                                            },
+                                            type: String,
+                                            value: "BuildingID"
+                                        }
+                                    ]
+                                }
+                            ].concat($.map(data, function(item) {
+                                return {
+                                    cells: [
+                                        { type: String, value: item.SensorID },
+                                        { type: String, value: item.Timestamp },
+                                        { type: String, value: item.Value },
+										{ type: Number, value: item.Location },
+										{ type: String, value: item.BuildingID }
+                                    ]
+                                };
+                            }))
+                        }
+                    ]
+                }).saveAs({
+                    fileName: "Database_Data"
+                });
+            });
+        });
     });
 </script>
 
