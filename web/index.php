@@ -53,12 +53,11 @@
 	$sensorid = mysqli_real_escape_string($link, $_POST['sensorid']); //fix: tell mattin to call variable sensorid
 	
 	if(!isset($_POST['sensorid'])){
-		$result = mysqli_query($link, 'SELECT* FROM $table');
+		$result = mysqli_query($link, "SELECT* FROM $table");
 	}
-	
 	else{
 	//storing the result
-	$result = mysqli_query($link, "SELECT* FROM $table WHERE SensorID = '$sensorid'");
+		$result = mysqli_query($link, "SELECT* FROM $table WHERE SensorID = '$sensorid'");
 	}
 
 	//error message for result including detailed error
