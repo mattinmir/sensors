@@ -78,5 +78,5 @@
 			</tr>";
 	}
 	
-	include 'index2.html.php';
+	include 'index.html.php';
 ?>
