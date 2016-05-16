@@ -1,5 +1,5 @@
 <?php    
-	$link = mysqli_connect('localhost', 'root', ''); 
+	$linkz = mysqli_connect('localhost', 'root', ''); 
 	
 	if (!$link) 
 	{
