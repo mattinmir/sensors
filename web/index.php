@@ -80,7 +80,7 @@
 		{
 			$result = mysqli_fetch_assoc($link->query("SELECT * FROM Location WHERE SensorID = '$sensorid'"));
 			
-			$output = "table is ".$result[4];
+			$output = "table is ".$result['Type'];
 				include 'output.html.php'; 
 				exit();
 		}
