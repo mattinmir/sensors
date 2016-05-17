@@ -229,7 +229,7 @@ limitations under the License.*/
 }
 
 .chat-panel .panel-body {
-    height: 280px;
+    height: auto;
     overflow-y: scroll;
 }
 
