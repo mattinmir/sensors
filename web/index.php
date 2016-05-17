@@ -51,12 +51,14 @@
 	*/
 	$table = 'Location'; // temporary variable
 	$POSTresult = $_POST['sensorid'];
+	$result = ""; // initialise it to shut it up
 	
 	if(!isset($POSTresult) || strlen(trim($POSTresult)) == 0)
 	{
 		$result = mysqli_query($link, "SELECT* FROM $table");
 	}
-	else{
+	else
+	{
 	//storing the result
 		$sensorid = mysqli_real_escape_string($link, $POSTresult); //fix: tell mattin to call variable sensorid
 		$result = mysqli_query($link, "SELECT* FROM $table WHERE SensorID = '$sensorid'");
@@ -69,6 +71,8 @@
 		exit();
 	}
 	
+	//initialise (as we are concatenating)
+	$output = "";
 	while($row = mysqli_fetch_assoc($result))
 	{
 		$output .= "<tr>
