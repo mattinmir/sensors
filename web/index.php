@@ -98,7 +98,15 @@
 	{
 		foreach($columnformat[$table] as $column)
 		{
-			$output .= "<td>{$row[$column]}</th>";
+			if ($column == "Active")
+			{
+				if ($row[$column])
+					$output .= "<td>Yes</th>";
+				else
+					$output .= "<td>No</th>";
+			}
+			else
+				$output .= "<td>{$row[$column]}</th>";
 		}
 		$output .= "</tr>";
 	}
