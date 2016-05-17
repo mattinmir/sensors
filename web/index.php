@@ -55,7 +55,7 @@
 
 	if(!isset($POST_TABLE) || strlen(trim($POST_TABLE)) == 0)
 	{
-		$table = 'Location'; // temporary variable
+		$table = 'Temperature'; // temporary variable
 	}
 	else
 	{
@@ -101,8 +101,8 @@
 	{
 		$currentID = $row['SensorID'];
 		$location = mysqli_fetch_row($link->query("SELECT Floor,Location FROM Location WHERE SensorID='{$currentID}' AND Active='1'"));
-		$output .= "<td>{$location["Floor"]}</td>
-					<td>{$location["Location"]}</td>";
+		$output .= "<td>{$location[0]}</td>
+					<td>{$location[1]}</td>";
 		foreach($columnformat[$table] as $column)
 		{
 			if ($column == "Active")
