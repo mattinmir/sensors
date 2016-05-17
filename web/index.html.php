@@ -32,177 +32,135 @@
 </div>
 
 <div class="container-fluid">
-
-    <div class="col-lg-8">
-
-        <!--Data Types-->
-        <div class="row">
-            <div class="col-lg-2">
-                <div class="input-group input-group-lg">
-                        <span class="input-group-addon">
-                            <input type="checkbox">
-                        </span>
-                    <p type="text" class="form-control">
-                        Lighting
-                    </p>
-                </div>
-            </div>
-
-            <div class="col-lg-2">
-                <div class="input-group input-group-lg">
-                        <span class="input-group-addon">
-                            <input type="checkbox">
-                        </span>
-                    <p type="text" class="form-control">
-                        Temperature
-                    </p>
-                </div>
-            </div>
-
-            <div class="col-lg-2">
-                <div class="input-group input-group-lg">
-                        <span class="input-group-addon">
-                            <input type="checkbox">
-                        </span>
-                    <p type="text" class="form-control">
-                        Humidity
-                    </p>
-                </div>
-            </div>
-
-            <div class="col-lg-2">
-                <div class="input-group input-group-lg">
-                        <span class="input-group-addon">
-                            <input type="checkbox">
-                        </span>
-                    <p class="form-control">
-                        Occupancy
-                    </p>
-                </div>
-            </div>
-        </div>
-        <!--End Data Types-->
-
-        <br>
-
-        <!--Locations-->
-        <div class="row">
-            <div class="col-lg-2">
-                <div class="input-group input-group-lg">
-                        <span class="input-group-addon">
-                            <input type="checkbox">
-                        </span>
-                    <p type="text" class="form-control">
-                        Lifts
-                    </p>
-                </div>
-            </div>
-
-            <div class="col-lg-2">
-                <div class="input-group input-group-lg">
-                        <span class="input-group-addon">
-                            <input type="checkbox">
-                        </span>
-                    <p type="text" class="form-control">
-                        Corridors
-                    </p>
-                </div>
-            </div>
-
-            <div class="col-lg-2">
-                <div class="input-group input-group-lg">
-                        <span class="input-group-addon">
-                            <input type="checkbox">
-                        </span>
-                    <p type="text" class="form-control">
-                        Stairwells
-                    </p>
-                </div>
-            </div>
-
-            <div class="col-lg-2">
-                <div class="input-group input-group-lg">
-                        <span class="input-group-addon">
-                            <input type="checkbox">
-                        </span>
-                    <p class="form-control">
-                        Parking
-                    </p>
-                </div>
-            </div>
-        </div>
-        <!--End Locations-->
-
-        <br>
-		
-		<form action="index.php" method ="post">
-			<!--Sensor ID-->
-			<div class="row">
-				<div class="col-lg-8">
-					<div class="input-group input-group-lg">
-						<span class="input-group-addon">
-							Sensor ID
-						</span>
-					   
-							<input type="text" name="sensorid" id="sensorid" class="form-control">
-							
-					</div>
+	<div class="row">
+		<!-- Sensor Types -->
+		<div class="col-lg-3">
+			 <div class="form-group">
+				<h3>Sensor Types</h3>
+				<div class="checkbox">
+					<label>
+						<input type="checkbox" value=""><h4>Lighting</h4>
+					</label>
+				</div>
+				<div class="checkbox">
+					<label>
+						<input type="checkbox" value=""><h4>Temperature</h4>
+					</label>
+				</div>
+				<div class="checkbox">
+					<label>
+						<input type="checkbox" value=""><h4>Humidity</h4>
+					</label>
+				</div>
+				<div class="checkbox">
+					<label>
+						<input type="checkbox" value=""><h4>Occupancy</h4>
+					</label>
 				</div>
 			</div>
-			<!--End Sensor ID-->
+		</div>
+		<!-- End Sensor Types -->
 
-			<br>
+		<!-- Locations -->
+		<div class="col-lg-3">	
+			<div class="form-group">
+				<h3>Locations</h3>
+				<div class="checkbox">
+					<label>
+						<input type="checkbox" value=""><h4>Lifts</h4>
+					</label>
+				</div>
+				<div class="checkbox">
+					<label>
+						<input type="checkbox" value=""><h4>Corridors</h4>
+					</label>
+				</div>
+				<div class="checkbox">
+					<label>
+						<input type="checkbox" value=""><h4>Stairwells</h4>
+					</label>
+				</div>
+				<div class="checkbox">
+					<label>
+						<input type="checkbox" value=""><h4>Parking</h4>
+					</label>
+				</div>
+			</div>
+		</div>	
+		<!-- End Locations -->
+		
 
-			<!--Floors-->
-			<div class="row">
-				<div class="col-lg-8">
-					<div class="input-group input-group-lg">
+		
+		<div class="col-lg-3">	
+			<form action="index.php" method ="post">
+				<!--Sensor ID-->
+				<div class="row">
+					<div class="col-lg-8">
+						<div class="input-group input-group-lg">
 							<span class="input-group-addon">
-							   Floors
+								Sensor ID
 							</span>
-						<input type="text" name="floors" id="floors" class="form-control">
+						   
+								<input type="text" name="sensorid" id="sensorid" class="form-control">
+								
+						</div>
 					</div>
 				</div>
-			</div>
-			<!--End Floors-->
+				<!--End Sensor ID-->
+
+				<br>
+
+				<!--Floors-->
+				<div class="row">
+					<div class="col-lg-8">
+						<div class="input-group input-group-lg">
+								<span class="input-group-addon">
+								   Floors
+								</span>
+							<input type="text" name="floors" id="floors" class="form-control">
+						</div>
+					</div>
+				</div>
+				<!--End Floors-->
+				
+				<br>
+				
+				<div>
+					<input type="submit" value="Submit Query"/>
+				</div>
+			</form>
 			
-			<br>
-			
-			<div>
-				<input type="submit" value="Submit Query"/>
-			</div>
-		</form>
 		
-	<br>
+		</div>
 	
+
+		<div class="col-lg-3">
+			<!-- Notifications-->
+			<div class="panel panel-primary">
+				<div class="panel-heading">
+					<i class="fa fa-bell fa-fw"></i>Notifications Panel
+				</div>
+
+				<div class="panel-body">
+					<div class="list-group">
+						<div  class="list-group-item">
+							<i class="fa fa-bolt fa-fw"></i>Sensor ID 12345 Failed!
+										<span class="pull-right text-muted small"><em>11:13 AM</em>
+										</span>
+						</div>
+						<div class="list-group-item">
+							<i class="fa fa-warning fa-fw"></i>Abnormal sounds from floor 3!
+										<span class="pull-right text-muted small"><em>10:57 AM</em>
+										</span>
+						</div>
+
+					</div>
+				</div>
+
+			</div>
+			<!--End Notifications-->
+		</div>
 	</div>
-
-    <div class="col-lg-4">
-        <!-- Notifications-->
-        <div class="panel panel-primary">
-            <div class="panel-heading">
-                <i class="fa fa-bell fa-fw"></i>Notifications Panel
-            </div>
-
-            <div class="panel-body">
-                <div class="list-group">
-                    <div  class="list-group-item">
-                        <i class="fa fa-bolt fa-fw"></i>Sensor ID 12345 Failed!
-                                    <span class="pull-right text-muted small"><em>11:13 AM</em>
-                                    </span>
-                    </div>
-                    <div class="list-group-item">
-                        <i class="fa fa-warning fa-fw"></i>Abnormal sounds from floor 3!
-                                    <span class="pull-right text-muted small"><em>10:57 AM</em>
-                                    </span>
-                    </div>
-
-                </div>
-            </div>
-
-        </div>
-        <!--End Notifications-->
-    </div>
 	
 	<div class="col-lg-12">
 		<button id="btn-export">Export To Excel</button>
