@@ -72,17 +72,15 @@
 	{
 	//storing the result
 		$sensorid = mysqli_real_escape_string($link, $POST_ID);
+		
 		if($tabledef)
 		{
 			$result = mysqli_query($link, "SELECT* FROM $table WHERE SensorID = '$sensorid'");
 		}
 		else
 		{
-			$result = mysqli_fetch_assoc($link->query("SELECT * FROM Location WHERE SensorID = '$sensorid'"));
-			
-			$output = "table is ".$result['Type'];
-				include 'output.html.php'; 
-				exit();
+			$result = mysqli_fetch_assoc($link->query("SELECT * FROM Location WHERE SensorID = '$sensorid'"));	
+			$table = $result['Type'];
 		}
 	}
 
