@@ -100,7 +100,7 @@
 	while($row = mysqli_fetch_assoc($result))
 	{
 		$currentID = $row['SensorID'];
-		$location = $link->query("SELECT Floor,Location FROM Location WHERE SensorID='{$currentID}' AND Active='1'");
+		$location = mysqli_fetch_row($link->query("SELECT Floor,Location FROM Location WHERE SensorID='{$currentID}' AND Active='1'"));
 		$output .= "<td>{$location['Floor']}</td>
 					<td>{$location['Location']}</td>";
 		foreach($columnformat[$table] as $column)
