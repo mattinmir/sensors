@@ -101,12 +101,12 @@
 			if ($column == "Active")
 			{
 				if ($row[$column])
-					$output .= "<td>Yes</th>";
+					$output .= "<td>Yes</td>";
 				else
-					$output .= "<td>No</th>";
+					$output .= "<td>No</td>";
 			}
 			else
-				$output .= "<td>{$row[$column]}</th>";
+				$output .= "<td>{$row[$column]}</td>";
 		}
 		$output .= "</tr>";
 	}
