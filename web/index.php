@@ -78,10 +78,9 @@
 		}
 		else
 		{
-			$result = $link->query("SELECT * FROM `Lighting` WHERE SensorID='{$POST_ID}' 
-									UNION SELECT * FROM `Humidity` WHERE SensorID='{$POST_ID}' 
-									UNION SELECT * FROM `Temperature` WHERE SensorID='{$POST_ID}'");
-			$output = "table is ".mysqli_fetch_field_direct($result, 2)->name;
+			$result = mysqli_fetch_assoc($link->query("SELECT * FROM Location WHERE SensorID = '$sensorid'"));
+			
+			$output = "table is ".mysqli_fetch_field_direct($result[4], 2)->name;
 				include 'output.html.php'; 
 				exit();
 		}
