@@ -119,7 +119,7 @@
 	{
 		while($row = mysqli_fetch_assoc($result))
 		{
-			$failure_output .= '<div class="list-group-item"><i class="fa fa-bolt fa-fw"></i>Sensor ID '.$row["SensorID"].' has failed! 
+			$failure_output .= '<div class="list-group-item" style="overflow:hidden"><i class="fa fa-bolt fa-fw"></i>Sensor ID '.$row["SensorID"].' has failed! 
 				<span class="pull-right text-muted small"><em>'.$row["Timestamp"].'</em></span></div>';
 		}
 	}
