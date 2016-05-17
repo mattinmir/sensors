@@ -101,7 +101,8 @@
 	{
 		$currentID = $row['SensorID'];
 		$location = mysqli_fetch_row($link->query("SELECT Floor,Location FROM Location WHERE SensorID='{$currentID}' AND Active='1'"));
-		$output .= "<td>{$location[0]}</td>
+		$output .= "<td>{$currentID}</td>
+					<td>{$location[0]}</td>
 					<td>{$location[1]}</td>";
 		foreach($columnformat[$table] as $column)
 		{
