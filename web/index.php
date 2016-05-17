@@ -51,7 +51,6 @@
 	*/
 	$table = 'Location'; // temporary variable
 	$POSTresult = $_POST['sensorid'];
-	$result = ""; // initialise it to shut it up
 	
 	if(!isset($POSTresult) || strlen(trim($POSTresult)) == 0)
 	{
@@ -65,7 +64,8 @@
 	}
 
 	//error message for result including detailed error
-	if (!result){
+	if ($result != "")
+	{
 		$output = 'Error fetching sensorid:' . mysqli_error($link);
 		include 'output.html.php'; 
 		exit();
