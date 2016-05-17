@@ -52,7 +52,7 @@
 	$table = 'Location'; // temporary variable
 	$sensorid = mysqli_real_escape_string($link, $_POST['sensorid']); //fix: tell mattin to call variable sensorid
 	
-	if(!isset($_POST['sensorid']) or ''){
+	if(!isset($_POST['sensorid']) || empty($_POST['sensorid']){
 		$result = mysqli_query($link, "SELECT* FROM $table");
 	}
 	else{
