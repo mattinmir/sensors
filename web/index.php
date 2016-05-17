@@ -70,17 +70,27 @@
 		include 'output.html.php'; 
 		exit();
 	}
+	$columnformat = array(
+						"Temperature" 	=> array("SensorID", "Timestamp", "Temperature"),
+						"Location"		=> array("SensorID", "Floor", "Location", "Active"),
+						"Humidity"		=> array("SensorID", "Timestamp", "Humidity"));
 	
 	//initialise (as we are concatenating)
 	$output = "";
+	
+	foreach($columnformat["Temperature"] as $column)
+	{
+		$output .= "<th>{$columnformat}</th>"
+	}
+	$output .= "</tr></thead><tbody><tr>";
+			
 	while($row = mysqli_fetch_assoc($result))
 	{
-		$output .= "<tr>
-			<td> {$row['SensorID']} </td>
-			<td> {$row['Floor']} </td>
-			<td> {$row['Location']} </td>
-			<td> {$row['Active']} </td>
-			</tr>";
+		foreach($columnformat["Temperature"] as $column)
+		{
+			$output .= "<td>{$row[$columnformat}</th>"
+		}
+		$output .= "</tr>";
 	}
 	
 	include 'index.html.php';
