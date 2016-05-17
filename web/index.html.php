@@ -134,41 +134,48 @@
         <!--End Locations-->
 
         <br>
+		
+		<form action="index.php" method ="post">
+			<!--Sensor ID-->
+			<div class="row">
+				<div class="col-lg-8">
+					<div class="input-group input-group-lg">
+						<span class="input-group-addon">
+							Sensor ID
+						</span>
+					   
+							<input type="text" name="sensorid" id="sensorid" class="form-control">
+							
+					</div>
+				</div>
+			</div>
+			<!--End Sensor ID-->
 
-        <!--Sensor ID-->
-        <div class="row">
-            <div class="col-lg-8">
-                <div class="input-group input-group-lg">
-                        <span class="input-group-addon">
-                            Sensor ID
-                        </span>
-                    <form action="index.php" method ="post">
-                    	<input type="text" name="sensorid" id="sensorid" class="form-control">
-                     	<div><input type="submit" value="GO"/></div>
-                    </form>
-                </div>
-            </div>
-        </div>
-        <!--End Sensor ID-->
+			<br>
 
-        <br>
-
-        <!--Floors-->
-        <div class="row">
-            <div class="col-lg-8">
-                <div class="input-group input-group-lg">
-                        <span class="input-group-addon">
-                           Floors
-                        </span>
-                    <input type="text" class="form-control">
-                </div>
-            </div>
-        </div>
-        <!--End Floors-->
-
-        <br>
-
-    </div>
+			<!--Floors-->
+			<div class="row">
+				<div class="col-lg-8">
+					<div class="input-group input-group-lg">
+							<span class="input-group-addon">
+							   Floors
+							</span>
+						<input type="text" name="floors" id="floors" class="form-control">
+					</div>
+				</div>
+			</div>
+			<!--End Floors-->
+			
+			<br>
+			
+			<div>
+				<input type="submit" value="Submit Query"/>
+			</div>
+		</form>
+		
+	<br>
+	
+	</div>
 
     <div class="col-lg-4">
         <!-- Notifications-->
@@ -196,9 +203,10 @@
         </div>
         <!--End Notifications-->
     </div>
-	<button id="btn-export">Export To Excel</button>
-    <div class="row">
-        <div class="col-lg-12">
+	
+	<div class="col-lg-12">
+		<button id="btn-export">Export To Excel</button>
+		<div class="row">
             <!-- Advanced Tables -->
             <div class="panel panel-default">
                 <div class="panel-heading">
