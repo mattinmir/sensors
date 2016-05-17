@@ -83,7 +83,8 @@
 	$columnformat = array(
 						"Temperature" 	=> array("SensorID", "Timestamp", "Temperature"),
 						"Location"		=> array("SensorID", "Floor", "Location", "Active"),
-						"Humidity"		=> array("SensorID", "Timestamp", "Humidity"));
+						"Humidity"		=> array("SensorID", "Timestamp", "Humidity"),
+						"Lighting"		=> array("SensorID", "Timestamp", "Lux", "Active"));
 	
 	//initialise (as we are concatenating)
 	$output = "";
