@@ -88,7 +88,7 @@
 	{
 		foreach($columnformat["Temperature"] as $column)
 		{
-			$output .= "<td>{$row[$columnformat}</th>";
+			$output .= "<td>{$row[$columnformat]}</th>";
 		}
 		$output .= "</tr>";
 	}
