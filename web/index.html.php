@@ -139,6 +139,7 @@
 					<div class="list-group">
 						<div  class="list-group-item">
 							<i class="fa fa-bolt fa-fw"></i>Sensor ID 12345 Failed!
+							<?php echo $output; ?>
 										<span class="pull-right text-muted small"><em>11:13 AM</em>
 										</span>
 						</div>
@@ -169,9 +170,7 @@
                         <table class="table table-striped table-bordered table-hover" id="dataTables-example">
                             <thead>
                             <tr>
-								<?php    
-									echo $output;
-								?>
+								<?php echo $output; ?>
                             </tbody>
                         </table>
                     </div>
