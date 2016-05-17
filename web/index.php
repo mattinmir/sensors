@@ -49,7 +49,7 @@
 	- "" ensures the variable value not variable 
 	- "" use isset for checking blank field 
 	*/
-	$table = 'Location'; // temporary variable
+	$table = 'Temperature'; // temporary variable
 	$POSTresult = $_POST['sensorid'];
 	
 	if(!isset($POSTresult) || strlen(trim($POSTresult)) == 0)
