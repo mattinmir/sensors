@@ -64,7 +64,7 @@
 	}
 
 	//error message for result including detailed error
-	if ($result != "")
+	if ($result == false)
 	{
 		$output = 'Error fetching sensorid:' . mysqli_error($link);
 		include 'output.html.php'; 
