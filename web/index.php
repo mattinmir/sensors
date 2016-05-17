@@ -49,17 +49,27 @@
 	- "" ensures the variable value not variable 
 	- "" use isset for checking blank field 
 	*/
-	$table = 'Temperature'; // temporary variable
-	$POSTresult = $_POST['sensorid'];
 	
-	if(!isset($POSTresult) || strlen(trim($POSTresult)) == 0)
+	$POST_ID = $_POST['sensorid'];
+	$POST_TABLE = $_POST['tableref'];
+
+	if(!isset($POST_TABLE) || strlen(trim($POST_TABLE)) == 0)
+	{
+		$table = 'Location'; // temporary variable
+	}
+	else
+	{
+		$table = mysqli_real_escape_string($link, $POST_TABLE); //fix: tell mattin to call variable sensorid
+	}	
+
+	if(!isset($POST_ID) || strlen(trim($POST_ID)) == 0)
 	{
 		$result = mysqli_query($link, "SELECT* FROM $table");
 	}
 	else
 	{
 	//storing the result
-		$sensorid = mysqli_real_escape_string($link, $POSTresult); //fix: tell mattin to call variable sensorid
+		$sensorid = mysqli_real_escape_string($link, $POST_ID); //fix: tell mattin to call variable sensorid
 		$result = mysqli_query($link, "SELECT* FROM $table WHERE SensorID = '$sensorid'");
 	}
 
@@ -78,7 +88,7 @@
 	//initialise (as we are concatenating)
 	$output = "";
 	
-	foreach($columnformat["Temperature"] as $column)
+	foreach($columnformat[$table] as $column)
 	{
 		$output .= "<th>{$column}</th>";
 	}

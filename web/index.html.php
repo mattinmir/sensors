@@ -34,27 +34,28 @@
 <div class="container-fluid">
 	<div class="row">
 		<!-- Sensor Types -->
+		<form action="index.php" method ="post">
 		<div class="col-lg-3">
 			 <div class="form-group">
 				<h3>Sensor Types</h3>
-				<div class="checkbox">
+				<div class="radio">
 					<label>
-						<input type="checkbox" value=""><h4>Lighting</h4>
+						<input type="radio" name="tableref" value="Lighting"><h4>Lighting</h4>
 					</label>
 				</div>
-				<div class="checkbox">
+				<div class="radio">
 					<label>
-						<input type="checkbox" value=""><h4>Temperature</h4>
+						<input type="radio" name="tableref" value="Temperature"><h4>Temperature</h4>
 					</label>
 				</div>
-				<div class="checkbox">
+				<div class="radio">
 					<label>
-						<input type="checkbox" value=""><h4>Humidity</h4>
+						<input type="radio" name="tableref" value="Humidity"><h4>Humidity</h4>
 					</label>
 				</div>
-				<div class="checkbox">
+				<div class="radio">
 					<label>
-						<input type="checkbox" value=""><h4>Occupancy</h4>
+						<input type="radio" name="tableref" value="Location"><h4>Location</h4>
 					</label>
 				</div>
 			</div>
@@ -92,7 +93,7 @@
 
 		
 		<div class="col-lg-3">	
-			<form action="index.php" method ="post">
+			
 				<!--Sensor ID-->
 				<div class="row">
 					<div class="col-lg-8">
