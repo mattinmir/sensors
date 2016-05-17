@@ -51,7 +51,7 @@
 	*/
 	
 	$POST_ID = $_POST['sensorid'];
-	if(isset($POST_TABLE)) $POST_TABLE = $_POST['tableref'];
+	$POST_TABLE = $_POST['tableref'];
 
 	if(!isset($POST_TABLE) || strlen(trim($POST_TABLE)) == 0)
 	{
