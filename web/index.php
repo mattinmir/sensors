@@ -51,25 +51,35 @@
 	*/
 	
 	$POST_ID = $_POST['sensorid'];
-	$POST_TABLE = $_POST['tableref'];
+	if(isset($POST_TABLE)) $POST_TABLE = $_POST['tableref'];
 
 	if(!isset($POST_TABLE) || strlen(trim($POST_TABLE)) == 0)
 	{
 		$table = 'Temperature'; // temporary variable
+		$tabledef = FALSE;
 	}
 	else
 	{
-		$table = mysqli_real_escape_string($link, $POST_TABLE); //fix: tell mattin to call variable sensorid
+		$table = mysqli_real_escape_string($link, $POST_TABLE); 
+		$tabledef = TRUE;
 	}	
 
 	if(!isset($POST_ID) || strlen(trim($POST_ID)) == 0)
 	{
-		$result = mysqli_query($link, "SELECT* FROM $table");
+		if($tabledef)
+			$result = mysqli_query($link, "SELECT* FROM $table");
+		else
+		{
+			$result = $link->query("SELECT * FROM `Lighting` WHERE SensorID='{$POST_ID}' 
+									UNION SELECT * FROM `Humidity` WHERE SensorID='{$POST_ID}' 
+									UNION SELECT * FROM `Temperature` WHERE SensorID='{$POST_ID}'");
+			$table = mysqli_fetch_field_direct($result, 2)->name;
+		}
 	}
 	else
 	{
 	//storing the result
-		$sensorid = mysqli_real_escape_string($link, $POST_ID); //fix: tell mattin to call variable sensorid
+		$sensorid = mysqli_real_escape_string($link, $POST_ID);
 		$result = mysqli_query($link, "SELECT* FROM $table WHERE SensorID = '$sensorid'");
 	}
 
@@ -84,7 +94,7 @@
 						"Temperature" 	=> array("Timestamp", "Temperature"),
 						"Location"		=> array("Floor", "Location", "Active"),
 						"Humidity"		=> array("Timestamp", "Humidity"),
-						"Lighting"		=> array("Timestamp", "Lux", "Active"));
+						"Lighting"		=> array("Timestamp", "Lux"));
 	
 	//initialise (as we are concatenating)
 	$output = "<th>SensorID</th>
