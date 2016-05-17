@@ -112,5 +112,17 @@
 		$output .= "</tr>";
 	}
 	
+	// Check for failures!!!
+	$result = mysqli_query($link, "SELECT* FROM Failures");
+	$failure_output = "";
+	if ($result->num_rows != 0)
+	{
+		while($row = mysqli_fetch_assoc($result))
+		{
+			$failure_output .= '<div class="list-group-item"><i class="fa fa-bolt fa-fw"></i>Sensor ID {$row["SensorID"]} failure 
+				<span class="pull-right text-muted small"><em>{$row["Timestamp"]}</em></span></div>';
+		}
+	}
+	
 	include 'index.html.php';
 ?>

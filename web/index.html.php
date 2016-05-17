@@ -137,18 +137,7 @@
 
 				<div class="panel-body">
 					<div class="list-group">
-						<div  class="list-group-item">
-							<i class="fa fa-bolt fa-fw"></i>Sensor ID 12345 Failed!
-							<?php echo $output; ?>
-										<span class="pull-right text-muted small"><em>11:13 AM</em>
-										</span>
-						</div>
-						<div class="list-group-item">
-							<i class="fa fa-warning fa-fw"></i>Abnormal sounds from floor 3!
-										<span class="pull-right text-muted small"><em>10:57 AM</em>
-										</span>
-						</div>
-
+						<?php echo $failure_output; ?>
 					</div>
 				</div>
 
