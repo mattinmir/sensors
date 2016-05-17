@@ -66,8 +66,14 @@
 
 	if(!isset($POST_ID) || strlen(trim($POST_ID)) == 0)
 	{
+		$result = mysqli_query($link, "SELECT* FROM $table");
+	}
+	else
+	{
+	//storing the result
 		if($tabledef)
-			$result = mysqli_query($link, "SELECT* FROM $table");
+			$sensorid = mysqli_real_escape_string($link, $POST_ID);
+			$result = mysqli_query($link, "SELECT* FROM $table WHERE SensorID = '$sensorid'");
 		else
 		{
 			$result = $link->query("SELECT * FROM `Lighting` WHERE SensorID='{$POST_ID}' 
@@ -77,12 +83,6 @@
 				include 'output.html.php'; 
 				exit();
 		}
-	}
-	else
-	{
-	//storing the result
-		$sensorid = mysqli_real_escape_string($link, $POST_ID);
-		$result = mysqli_query($link, "SELECT* FROM $table WHERE SensorID = '$sensorid'");
 	}
 
 	//error message for result including detailed error
