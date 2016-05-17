@@ -55,7 +55,7 @@
 					</div>
 					<div class="radio">
 						<label>
-							<input type="radio" name="tableref" value="Location" checked><h4>Location</h4>
+							<input type="radio" name="tableref" value="Location"><h4>Location</h4>
 						</label>
 					</div>
 				</div>
