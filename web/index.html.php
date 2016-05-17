@@ -217,13 +217,6 @@
                         <table class="table table-striped table-bordered table-hover" id="dataTables-example">
                             <thead>
                             <tr>
-                                <th>SensorID</th>
-                                <th>Timestamp</th>
-                                <th>Value</th>
-
-                            </tr>
-                            </thead>
-                            <tbody>
 								<?php    
 									echo $output;
 								?>
