@@ -256,7 +256,7 @@
                                             style: {
                                                 bold: true
                                             },
-                                            type: Number,
+                                            type: String,
                                             value: "Location"
                                         },
 										{

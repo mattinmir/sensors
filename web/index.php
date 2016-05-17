@@ -96,7 +96,7 @@
 			
 	while($row = mysqli_fetch_assoc($result))
 	{
-		foreach($columnformat["Temperature"] as $column)
+		foreach($columnformat[$table] as $column)
 		{
 			$output .= "<td>{$row[$column]}</th>";
 		}
