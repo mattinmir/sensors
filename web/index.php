@@ -1,4 +1,4 @@
-<?php    
+<?php     
 	//strips magic quotes away
 	if (get_magic_quotes_gpc())
 	{
