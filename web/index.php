@@ -81,13 +81,15 @@
 		exit();
 	}
 	$columnformat = array(
-						"Temperature" 	=> array("SensorID", "Timestamp", "Temperature"),
-						"Location"		=> array("SensorID", "Floor", "Location", "Active"),
-						"Humidity"		=> array("SensorID", "Timestamp", "Humidity"),
-						"Lighting"		=> array("SensorID", "Timestamp", "Lux", "Active"));
+						"Temperature" 	=> array("Timestamp", "Temperature"),
+						"Location"		=> array("Floor", "Location", "Active"),
+						"Humidity"		=> array("Timestamp", "Humidity"),
+						"Lighting"		=> array("Timestamp", "Lux", "Active"));
 	
 	//initialise (as we are concatenating)
-	$output = "";
+	$output = "<th>SensorID</th>
+				<th>Floor</th>
+				<th>Location</th>";
 	
 	foreach($columnformat[$table] as $column)
 	{
@@ -97,6 +99,10 @@
 			
 	while($row = mysqli_fetch_assoc($result))
 	{
+		$currentID = $row['SensorID'];
+		$location = $link->query("SELECT Floor,Location FROM Location WHERE SensorID='{$currentID}' AND Active='1'");
+		$output .= "<td>{$location['Floor']}</td>
+					<td>{$location['Location']}</td>";
 		foreach($columnformat[$table] as $column)
 		{
 			if ($column == "Active")
