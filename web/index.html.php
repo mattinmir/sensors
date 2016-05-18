@@ -156,49 +156,45 @@
                 <div class="panel-heading">
                     Database Data
                 </div>
-				
-                <div class="panel-body">
-					<ul class="nav nav-tabs">
-						<li class="active"><a href="#lighting" data-toggle="tab">Lighting</a>
-						</li>
-						<li><a href="#temperature" data-toggle="tab">Temperature</a>
-						</li>
-						<li><a href="#humidity" data-toggle="tab">Humidity</a>
-						</li>
-						<li><a href="#occupancy" data-toggle="tab">Occupancy</a>
-						</li>
-					</ul>
-					
 					<div class="tab-content">
 					<?php 
 						if(sizeof($output) == 1)
 						{
 							echo '<div class="table-responsive"><table class="table table-striped table-bordered table-hover" id="databaseTable">
-								<thead><tr>'.$output[1].'</tbody></table></div>';
+								<thead><tr>'.$output[0].'</tbody></table></div>';
 						}
 						else
 						{
+							$tabout = '<div class="panel-body"><ul class="nav nav-tabs">';
+							$tableout = "";
+							
 							if(array_key_exists("Lighting", $output))
 							{
-								echo '<div class="tab-pane fade in active" id="lighting">
+								$tabout .= '<li class="active"><a href="#lighting" data-toggle="tab">Lighting</a></li>';
+								$tableout .= '<div class="tab-pane fade in active" id="lighting">
 							<div class="table-responsive"><table class="table table-striped table-bordered table-hover" id="databaseTable">
 									<thead><tr>'.$output["Lighting"].'</tbody></table></div></div>';
 							}
 							
 							if(array_key_exists("Temperature", $output))
 							{
-								echo '<div class="tab-pane fade in active" id="temperature">
+								$tabout .= '<li><a href="#temperature" data-toggle="tab">Temperature</a></li>';
+								$tableout .= '<div class="tab-pane fade in active" id="temperature">
 							<div class="table-responsive"><table class="table table-striped table-bordered table-hover" id="databaseTable">
 									<thead><tr>'.$output["Temperature"].'</tbody></table></div></div>';
 							}
 							
 							if(array_key_exists("Humidity", $output))
 							{
-								echo '<div class="tab-pane fade in active" id="humidity">
+								$tabout .= '<li><a href="#humidity" data-toggle="tab">Humidity</a></li>';
+								$tableout .= '<div class="tab-pane fade in active" id="humidity">
 							<div class="table-responsive"><table class="table table-striped table-bordered table-hover" id="databaseTable">
 									<thead><tr>'.$output["Humidity"].'</tbody></table></div></div>';
 							}
 						}
+						
+						echo $tabout."</ul>";
+						echo $output;
 					?>
 					</div>				
                 </div>
