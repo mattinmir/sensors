@@ -156,7 +156,7 @@
                 <div class="panel-heading">
                     Database Data
                 </div>
-					<div class="tab-content">
+					
 					<?php 
 						if(sizeof($output) == 1)
 						{
@@ -167,7 +167,7 @@
 						else
 						{
 							$tabout = '<div class="panel-body"><ul class="nav nav-tabs">';
-							$tableout = "";
+							$tableout = '<div class="tab-content">';
 							
 							if(array_key_exists("Lux", $output))
 							{
