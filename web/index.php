@@ -132,8 +132,10 @@ function PrintAllTables($link)
 	foreach($alltables as $tablename)
 	{
 		$queryresult = $link->query("SELECT * FROM $tablename JOIN Location USING (SensorID)"); 	
-		$output_temp[$tablename] = PrintSingleTable($queryresult, $table, $sensorid);
+		$HTMLstring[$tablename] = PrintSingleTable($queryresult, $table, $sensorid);
 	}
+	
+	return $HTMLstring;
 }
 
 function PrintSingleTable($queryresult, $table)
