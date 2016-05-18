@@ -180,7 +180,7 @@
 							if(array_key_exists("Temperature", $output))
 							{
 								$tabout .= '<li><a href="#temperature" data-toggle="tab">Temperature</a></li>';
-								$tableout .= '<div class="tab-pane fade in active" id="temperature">
+								$tableout .= '<div class="tab-pane fade" id="temperature">
 							<div class="table-responsive"><table class="table table-striped table-bordered table-hover" id="tableTemperature">
 									<thead><tr>'.$output["Temperature"].'</tbody></table></div></div>';
 							}
@@ -188,7 +188,7 @@
 							if(array_key_exists("Humidity", $output))
 							{
 								$tabout .= '<li><a href="#humidity" data-toggle="tab">Humidity</a></li>';
-								$tableout .= '<div class="tab-pane fade in active" id="humidity">
+								$tableout .= '<div class="tab-pane fade" id="humidity">
 							<div class="table-responsive"><table class="table table-striped table-bordered table-hover" id="tableHumidity">
 									<thead><tr>'.$output["Humidity"].'</tbody></table></div></div>';
 							}
