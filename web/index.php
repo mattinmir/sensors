@@ -62,11 +62,11 @@ $columnformat = array(
 				"Temperature" 	=> array("Timestamp", "Temperature"),
 				"Location"		=> array("Floor", "Location", "Active"),
 				"Humidity"		=> array("Timestamp", "Humidity"),
-				"Lighting"		=> array("Timestamp", "Lux"));
+				"Lux"		=> array("Timestamp", "Lux"));
 $tableunit	=	array(
 				"Temperature" 	=> "&deg;C",
 				"Humidity"		=> "%",
-				"Lighting" 		=> "Lux",
+				"Lux" 		=> "Lux",
 				"Timestamp"		=> "");
 
 $output = array();				
@@ -126,7 +126,7 @@ function PrintAllTables($link)
 {
 	global $columnformat, $tableunit;
 
-	$alltables = array("Temperature", "Lighting", "Humidity");
+	$alltables = array("Temperature", "Lux", "Humidity");
 	$HTMLstring = array();
 	
 	foreach($alltables as $tablename)

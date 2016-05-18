@@ -41,7 +41,7 @@
 					<h3>Sensor Types</h3>
 					<div class="radio">
 						<label>
-							<input type="radio" name="tableref" value="Lighting"><h4>Lighting</h4>
+							<input type="radio" name="tableref" value="Lux"><h4>Lighting</h4>
 						</label>
 					</div>
 					<div class="radio">
@@ -169,12 +169,12 @@
 							$tabout = '<div class="panel-body"><ul class="nav nav-tabs">';
 							$tableout = "";
 							
-							if(array_key_exists("Lighting", $output))
+							if(array_key_exists("Lux", $output))
 							{
 								$tabout .= '<li class="active"><a href="#lighting" data-toggle="tab">Lighting</a></li>';
 								$tableout .= '<div class="tab-pane fade in active" id="lighting">
 							<div class="table-responsive"><table class="table table-striped table-bordered table-hover" id="databaseTable">
-									<thead><tr>'.$output["Lighting"].'</tbody></table></div></div>';
+									<thead><tr>'.$output["Lux"].'</tbody></table></div></div>';
 							}
 							
 							if(array_key_exists("Temperature", $output))
