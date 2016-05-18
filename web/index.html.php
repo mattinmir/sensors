@@ -151,24 +151,72 @@
 	<div class="col-lg-12">
 		<button id="btn-export">Export To Excel</button>
 		<div class="row">
-            <!-- Advanced Tables -->
+            <!-- Database Output -->
             <div class="panel panel-default">
                 <div class="panel-heading">
                     Database Data
                 </div>
+				
                 <div class="panel-body">
-                    <div class="table-responsive">
-                        <table class="table table-striped table-bordered table-hover" id="databaseTable">
-                            <thead>
-                            <tr>
-								<?php echo $output; ?>
-                            </tbody>
-                        </table>
-                    </div>
-
+					<ul class="nav nav-tabs">
+						<li class="active"><a href="#lighting" data-toggle="tab">Lighting</a>
+						</li>
+						<li><a href="#temperature" data-toggle="tab">Temperature</a>
+						</li>
+						<li><a href="#humidity" data-toggle="tab">Humidity</a>
+						</li>
+						<li><a href="#occupancy" data-toggle="tab">Occupancy</a>
+						</li>
+					</ul>
+					
+					<div class="tab-content">
+						<div class="tab-pane fade in active" id="lighting">
+							<div class="table-responsive">
+								<table class="table table-striped table-bordered table-hover" id="databaseTable">
+									<thead>
+									<tr>
+										<?php echo $output; ?>
+									</tbody>
+								</table>
+							</div>
+						</div>
+						
+						<div class="tab-pane fade" id="temperature">
+							<div class="table-responsive">
+								<table class="table table-striped table-bordered table-hover" id="databaseTable">
+									<thead>
+									<tr>
+										<?php echo $output; ?>
+									</tbody>
+								</table>
+							</div>
+						</div>
+						
+						<div class="tab-pane fade" id="humidity">
+							<div class="table-responsive">
+								<table class="table table-striped table-bordered table-hover" id="databaseTable">
+									<thead>
+									<tr>
+										<?php echo $output; ?>
+									</tbody>
+								</table>
+							</div>
+						</div>
+						
+						<div class="tab-pane fade" id="occupancy">
+							<div class="table-responsive">
+								<table class="table table-striped table-bordered table-hover" id="databaseTable">
+									<thead>
+									<tr>
+										<?php echo $output; ?>
+									</tbody>
+								</table>
+							</div>					
+						</div>
+					</div>				
                 </div>
             </div>
-            <!--End Advanced Tables -->
+            <!--End Database output -->
         </div>
     </div>
 </div>
