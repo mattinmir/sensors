@@ -178,21 +178,21 @@
 						}
 						else
 						{
-							if(array_key_exists("Lighting", $output)
+							if(array_key_exists("Lighting", $output))
 							{
 								echo '<div class="tab-pane fade in active" id="lighting">
 							<div class="table-responsive"><table class="table table-striped table-bordered table-hover" id="databaseTable">
 									<thead><tr>'.$output["Lighting"].'</tbody></table></div></div>';
 							}
 							
-							if(array_key_exists("Temperature", $output)
+							if(array_key_exists("Temperature", $output))
 							{
 								echo '<div class="tab-pane fade in active" id="temperature">
 							<div class="table-responsive"><table class="table table-striped table-bordered table-hover" id="databaseTable">
 									<thead><tr>'.$output["Temperature"].'</tbody></table></div></div>';
 							}
 							
-							if(array_key_exists("Humidity", $output)
+							if(array_key_exists("Humidity", $output))
 							{
 								echo '<div class="tab-pane fade in active" id="humidity">
 							<div class="table-responsive"><table class="table table-striped table-bordered table-hover" id="databaseTable">
