@@ -1,5 +1,4 @@
 <?php     
-
 // ----------- Strips magic quotes away -----------
 if (get_magic_quotes_gpc())
 {
@@ -23,7 +22,7 @@ $servername = 'localhost';
 $dbname = 'residential';
 
 // ----------- Establish connection -----------
-$link = mysqli_connect('localhost', 'root', ''); 
+$link = mysqli_connect('localhost', 'root', 'root'); 
 
 // Connect to the server which contains the DB
 if (!$link){
