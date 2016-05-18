@@ -162,13 +162,13 @@ function PrintSingleTable($queryresult, $table)
 	// Finish the column HTML with some spicy end tags
 	$HTMLstring .= "</tr></thead><tbody><tr>";
 
-	// Error message if query fails including detailed error
-	if ($result == false)
+	// Error message if query fails including detailed error 
+/*	if ($result == false)
 	{
 		$output = 'Error executing query: ' . mysqli_error($link). '</br>Please report this error to the administrator.';
 		include 'output.html.php'; 
 		exit();
-	}
+	}*/
 	
 	// Now iterate through each row returned from the query	
 	while($row = $queryresult->fetch_assoc())
