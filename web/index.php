@@ -3,17 +3,17 @@
 // ----------- Strips magic quotes away -----------
 if (get_magic_quotes_gpc())
 {
- function stripslashes_deep($value)
- {
-	 $value = is_array($value) ?
-	 array_map('stripslashes_deep', $value) :
-	 stripslashes($value);
-	 return $value;
- }
- $_POST = array_map('stripslashes_deep', $_POST);
- $_GET = array_map('stripslashes_deep', $_GET);
- $_COOKIE = array_map('stripslashes_deep', $_COOKIE);
- $_REQUEST = array_map('stripslashes_deep', $_REQUEST);
+	function stripslashes_deep($value)
+	{
+		$value = is_array($value) ?
+		array_map('stripslashes_deep', $value) :
+		stripslashes($value);
+		return $value;
+	}
+	$_POST = array_map('stripslashes_deep', $_POST);
+	$_GET = array_map('stripslashes_deep', $_GET);
+	$_COOKIE = array_map('stripslashes_deep', $_COOKIE);
+	$_REQUEST = array_map('stripslashes_deep', $_REQUEST);
 }
 
 // ====================== Server Connection ======================
@@ -57,57 +57,50 @@ if(!mysqli_select_db($link, $dbname)){
 $POST_ID = $_POST['sensorid'];
 $POST_TABLE = $_POST['tableref'];
 
+// This defines what rows are found in each SQL table (SensorID is implied)
+$columnformat = array(
+				"Temperature" 	=> array("Timestamp", "Temperature"),
+				"Location"		=> array("Floor", "Location", "Active"),
+				"Humidity"		=> array("Timestamp", "Humidity"),
+				"Lighting"		=> array("Timestamp", "Lux"));
+$tableunit	=	array(
+				"Temperature" 	=> "&deg;C",
+				"Humidity"		=> "%",
+				"Lighting" 		=> "Lux",
+				"Timestamp"		=> "");
+
+$output = array();				
+
 // Check if the table selection is blank or is just whitespace
 if(!isset($POST_TABLE) || strlen(trim($POST_TABLE)) == 0) 
 {
-	$table = '';	// If it is, then pick a default table (temp)
-	$tabledef = FALSE;		// Keep track that there was no selection
+	if(!isset($POST_ID) || strlen(trim($POST_ID)) == 0)
+		$output = PrintAllTables($link);
+	else
+	{
+		$sensorid = mysqli_real_escape_string($link, $POST_ID);
+		$result = mysqli_fetch_assoc($link->query("SELECT * FROM Location WHERE SensorID = '$sensorid'"));	
+		$table = $result['Type']; // Get the Location table, and find out what type of sensor is (same as table name)
+		$result->free();
+		$result = $link->query("SELECT * FROM $table JOIN Location USING (SensorID) WHERE SensorID=$sensorid");
+		$output[$table] = PrintSingleTable($result, $table);
+	}
 }
 else
 {
 	$table = mysqli_real_escape_string($link, $POST_TABLE); // Get the POST and set the table variable
-	$tabledef = TRUE;
-}	
-
-// Check if the SensorID field is blank or is just whitespace
-if(!isset($POST_ID) || strlen(trim($POST_ID)) == 0)
-{
-	$result = $link->query("SELECT* FROM $table"); // If blank, then just select all rows from previously defined table
-}
-else
-{
 	$sensorid = mysqli_real_escape_string($link, $POST_ID);
-	
-	if(!$tabledef)	// If the table was not defined, but the SensorID was 
-	{				// we need to find the table where that sensor data is located
-		$result = mysqli_fetch_assoc($link->query("SELECT * FROM Location WHERE SensorID = '$sensorid'"));	
-		$table = $result['Type']; // Get the Location table, and find out what type of sensor is (same as table name)
+	if(!isset($POST_ID) || strlen(trim($POST_ID)) == 0)
+	{
+		$result = $link->query("SELECT * FROM $table JOIN Location USING (SensorID)"); 
+		$output[$table] = PrintSingleTable($result, $table);
 	}
-	$result = $link->query("SELECT* FROM $table WHERE SensorID='$sensorid'"); // Find the relevant rows
-}
-
-// Error message if query fails including detailed error
-if ($result == false)
-{
-	$output = 'Error executing query: ' . mysqli_error($link). '</br>Please report this error to the administrator.';
-	include 'output.html.php'; 
-	exit();
-}
-
-// This defines what rows are found in each SQL table (SensorID is implied)
-$columnformat = array(
-					"Temperature" 	=> array("Timestamp", "Temperature"),
-					"Location"		=> array("Floor", "Location", "Active"),
-					"Humidity"		=> array("Timestamp", "Humidity"),
-					"Lighting"		=> array("Timestamp", "Lux"));
-$tableunit	=	array(
-					"Temperature" 	=> "&deg;C",
-					"Humidity"		=> "%",
-					"Lighting" 		=> "Lux");
-// Initialise output with implied columns
-$output =  "<th>SensorID</th>
-			<th>Floor</th>
-			<th>Location</th>";
+	else
+	{
+		$result = $link->query("SELECT * FROM $table JOIN Location USING (SensorID) WHERE SensorID=$sensorid");
+		$output[$table] = PrintSingleTable($result, $table);
+	}
+}	
 
 // ========================================== NOTIFICATIONS ==========================================
 // Check for failures!!!
@@ -129,21 +122,36 @@ include 'index.html.php';	// Now ready for HTML
 // =====================================================================================================
 // ========================================= FUNCTIONS ================================================
 // =====================================================================================================
-function PrintAllTables($HTMLstring)
+function PrintAllTables($link)
 {
-	global $columnformat, $table, $tableunit;
+	global $columnformat, $tableunit;
+
 	$alltables = array("Temperature", "Lighting", "Humidity");
+	$HTMLstring = array();
 	
 	foreach($alltables as $tablename)
 	{
-		$HTMLstring .= "<th>Timestamp</th><th>Sensor Data</th></tr></thead><tbody><tr>";
-		$HTMLstring .= "<td>{$row['Timestamp']}</td><td>{$row[$table]$tableunit[$tablename]}</td>";
+		$queryresult = $link->query("SELECT * FROM $tablename JOIN Location USING (SensorID)"); 
+		// Error message if query fails including detailed error
+		if ($result == false)
+		{
+			$output = 'Error executing query: ' . mysqli_error($link). '</br>Please report this error to the administrator.';
+			include 'output.html.php'; 
+			exit();
+		}
+	
+		$output_temp[$tablename] = PrintSingleTable($queryresult, $table, $sensorid);
 	}
 }
 
-function PrintSingleTable($queryresult, $HTMLstring)
+function PrintSingleTable($queryresult, $table)
 {
-	global $columnformat, $table;
+	global $columnformat, $tableunit;
+	
+	// Initialise output with implied columns
+	$HTMLstring =  "<th>SensorID</th>
+					<th>Floor</th>
+					<th>Location</th>";
 	
 	// Now add on relevant columns from the previously defined columnformat array
 	foreach($columnformat[$table] as $column)
@@ -153,22 +161,21 @@ function PrintSingleTable($queryresult, $HTMLstring)
 	
 	// Finish the column HTML with some spicy end tags
 	$HTMLstring .= "</tr></thead><tbody><tr>";
-	
-	$queryresult = $link->query("SELECT * FROM $table JOIN Location USING (SensorID) WHERE SensorID=$sensorid"); // Find the relevant rows
-	
-	// Now iterate through each row returned from the query
-	while($row = $queryresult->fetch_assoc())
-	$output .= "</tr></thead><tbody><tr>";
-	
-			
-	while($row = mysqli_fetch_assoc($result))
+
+	// Error message if query fails including detailed error
+	if ($result == false)
 	{
-		// We have to cross-reference the SensorID with the Location table to obtain its location
-		$currentID = $row['SensorID'];	// Store the SensorID and find its location where the sensor is ACTIVE (not replaced)
-		$location = mysqli_fetch_row($link->query("SELECT Floor,Location FROM Location WHERE SensorID='{$currentID}' AND Active='1'"));
-		$HTMLstring .= "<td>{$currentID}</td>		
-					<td>{$location[0]}</td>
-					<td>{$location[1]}</td>";	// Since we only select two columns, its just the 0th and 1st columns
+		$output = 'Error executing query: ' . mysqli_error($link). '</br>Please report this error to the administrator.';
+		include 'output.html.php'; 
+		exit();
+	}
+	
+	// Now iterate through each row returned from the query	
+	while($row = $queryresult->fetch_assoc())
+	{
+		$HTMLstring .= "<td>{$row['SensorID']}</td>		
+					<td>{$row['Floor']}</td>
+					<td>{$row['Location']}</td>";	// Since we only select two columns, its just the 0th and 1st columns
 					
 		// Now start printing the data from the rows. Row data key is equivalent to the data in the columnformat array
 		foreach($columnformat[$table] as $column)
@@ -181,11 +188,12 @@ function PrintSingleTable($queryresult, $HTMLstring)
 					$HTMLstring .= "<td>No</td>";	// 0 = Nein
 			}
 			else
-				$HTMLstring .= "<td>{$row[$column]}</td>";	
+				$HTMLstring .= "<td>{$row[$column]$tableunit[$column]}</td>";	
 		}
 
 		$HTMLstring .= "</tr>"; // End each row with a row end tag
 	}
+	return $HTMLstring;
 }
 
 ?>
