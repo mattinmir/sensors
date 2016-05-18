@@ -33,10 +33,10 @@
 
 <div class="container-fluid">
 	<div class="row">
-		<!-- Sensor Types -->
 		<form action="index.php" method ="post">
+			<!-- Sensor Types -->
 			<div class="col-lg-3">
-				 <div class="form-group">
+				<div class="form-group">
 					<h3>Sensor Types</h3>
 					<div class="radio">
 						<label>
@@ -60,7 +60,7 @@
 					</div>
 				</div>
 			</div>
-		<!-- End Sensor Types -->
+			<!-- End Sensor Types -->
 
 			<!-- Locations -->
 			<div class="col-lg-3">	
@@ -89,21 +89,8 @@
 				</div>
 			</div>	
 			<!-- End Locations -->
-		<div class="col-lg-3">	
-			<!--Sensor ID-->
-			<div class="row">
-				<div class="col-lg-8">
-					<div class="input-group input-group-lg">
-						<span class="input-group-addon">
-							Sensor ID
-						</span>
-							<input type="text" name="sensorid" id="sensorid" class="form-control">
-					</div>
-				</div>
-			</div>
-			<!--End Sensor ID-->
-				<br>
-
+			
+			<div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">	
 				<!--Floors-->
 				<div class="row">
 					<div class="col-lg-8">
@@ -117,19 +104,14 @@
 				</div>
 				<!--End Floors-->
 				
-				<br>
-				
 				<div>
 					<input type="submit" value="Submit Query"/>
 				</div>
-			</form>
-			
+			</div>
+		</form>
 		
-		</div>
-	
-
-		<div class="col-lg-3">
-			<!-- Notifications-->
+		<!-- Notifications-->	
+		<div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
 			<div class="panel panel-primary">
 				<div class="panel-heading">
 					<i class="fa fa-bell fa-fw"></i>Notifications Panel
@@ -146,17 +128,36 @@
 		</div>
 	</div>
 	
+	<form action="index.php" method ="post">
+		<!--Sensor ID-->
+		<div class="row col-lg-3 col-md-3 col-sm-3 col-xs-3">
+			<div class="input-group input-group-lg">
+				<span class="input-group-addon">
+					Sensor ID
+				</span>
+				<input type="text" name="sensorid" id="sensorid" class="form-control">
+			</div>
+		
+		<!--End Sensor ID-->
+			
+			<div>
+				<input type="submit" value="Submit Sensor ID"/>
+			</div>
+			<br>
+		</div>
+	</form>	
+	
 	<div class="col-lg-12">
 		<button id="btn-export">Export To Excel</button>
 		<div class="row">
             <!-- Advanced Tables -->
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    Advanced Tables
+                    Database Data
                 </div>
                 <div class="panel-body">
                     <div class="table-responsive">
-                        <table class="table table-striped table-bordered table-hover" id="dataTables-example">
+                        <table class="table table-striped table-bordered table-hover" id="databaseTable">
                             <thead>
                             <tr>
 								<?php echo $output; ?>
@@ -186,16 +187,16 @@
 
 <script>
     $(document).ready(function () {
-        $('#dataTables-example').dataTable();
+        $('#databaseTable').dataTable();
     });
 </script>
 
 <script type="text/javascript">
     jQuery(function ($) {
         $("#btn-export").click(function () {
-            // parse the HTML table element having an id=dataTables-example
+            // parse the HTML table element having an id=databaseTable
             var dataSource = shield.DataSource.create({
-                data: "#dataTables-example",
+                data: "#databaseTable",
                 schema: {
                     type: "table",
 					// Add php here
