@@ -171,8 +171,8 @@
 							
 							if(array_key_exists("Lux", $output))
 							{
-								$tabout .= '<li class="active"><a href="#lighting" data-toggle="tab">Lighting</a></li>';
-								$tableout .= '<div class="tab-pane fade in active" id="lighting">
+								$tabout .= '<li><a href="#lighting" data-toggle="tab">Lighting</a></li>';
+								$tableout .= '<div class="tab-pane fade" id="lighting">
 							<div class="table-responsive"><table class="table table-striped table-bordered table-hover" id="tableLux">
 									<thead><tr>'.$output["Lux"].'</tbody></table></div></div>';
 							}
