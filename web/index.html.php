@@ -224,6 +224,10 @@
 </script>
 
 <script type="text/javascript">
+    jQuery(document).ready(function ($) {
+        $('#tabs').tab();
+    });
+	
     jQuery(function ($) {
         $("#btn-export").click(function () {
             // parse the HTML table element having an id=databaseTable
