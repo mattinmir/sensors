@@ -173,7 +173,7 @@
 							{
 								$tabout .= '<li class="active"><a href="#lighting" data-toggle="tab">Lighting</a></li>';
 								$tableout .= '<div class="tab-pane fade in active" id="lighting">
-							<div class="table-responsive"><table class="table table-striped table-bordered table-hover" id="databaseTable">
+							<div class="table-responsive"><table class="table table-striped table-bordered table-hover" id="tableLux">
 									<thead><tr>'.$output["Lux"].'</tbody></table></div></div>';
 							}
 							
@@ -181,7 +181,7 @@
 							{
 								$tabout .= '<li><a href="#temperature" data-toggle="tab">Temperature</a></li>';
 								$tableout .= '<div class="tab-pane fade in active" id="temperature">
-							<div class="table-responsive"><table class="table table-striped table-bordered table-hover" id="databaseTable">
+							<div class="table-responsive"><table class="table table-striped table-bordered table-hover" id="tableTemperature">
 									<thead><tr>'.$output["Temperature"].'</tbody></table></div></div>';
 							}
 							
@@ -189,11 +189,11 @@
 							{
 								$tabout .= '<li><a href="#humidity" data-toggle="tab">Humidity</a></li>';
 								$tableout .= '<div class="tab-pane fade in active" id="humidity">
-							<div class="table-responsive"><table class="table table-striped table-bordered table-hover" id="databaseTable">
+							<div class="table-responsive"><table class="table table-striped table-bordered table-hover" id="tableHumidity">
 									<thead><tr>'.$output["Humidity"].'</tbody></table></div></div>';
 							}
 							echo $tabout."</ul>";
-							echo $tableout;
+							echo $tableout.;
 						}
 					?>
 					</div>				
@@ -220,6 +220,9 @@
 <script>
     $(document).ready(function () {
         $('#databaseTable').dataTable();
+		$('#tableTemperature').dataTable();
+		$('#tableLux').dataTable();
+		$('#tableHumidity').dataTable();
     });
 </script>
 
