@@ -34,6 +34,7 @@
 <div class="container-fluid">
 	<div class="row">
 		<form action="index.php" method ="post">
+			
 			<!-- Sensor Types -->
 			<div class="col-lg-3">
 				<div class="form-group">
@@ -130,7 +131,7 @@
 	
 	<form action="index.php" method ="post">
 		<!--Sensor ID-->
-		<div class="row col-lg-3 col-md-3 col-sm-3 col-xs-3">
+		<div class="panel panel-primary row col-lg-3 col-md-3 col-sm-3 col-xs-3">
 			<div class="input-group input-group-lg">
 				<span class="input-group-addon">
 					Sensor ID
