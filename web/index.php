@@ -131,15 +131,7 @@ function PrintAllTables($link)
 	
 	foreach($alltables as $tablename)
 	{
-		$queryresult = $link->query("SELECT * FROM $tablename JOIN Location USING (SensorID)"); 
-		// Error message if query fails including detailed error
-		if ($result == false)
-		{
-			$output = 'Error executing query: ' . mysqli_error($link). '</br>Please report this error to the administrator.';
-			include 'output.html.php'; 
-			exit();
-		}
-	
+		$queryresult = $link->query("SELECT * FROM $tablename JOIN Location USING (SensorID)"); 	
 		$output_temp[$tablename] = PrintSingleTable($queryresult, $table, $sensorid);
 	}
 }
