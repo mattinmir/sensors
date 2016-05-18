@@ -41,7 +41,7 @@
 					<h3>Sensor Types</h3>
 					<div class="radio">
 						<label>
-							<input type="radio" name="tableref" value="Lighting"><h4>Lighting</h4>
+							<input type="radio" name="tableref" value="Lux"><h4>Lighting</h4>
 						</label>
 					</div>
 					<div class="radio">
@@ -149,26 +149,55 @@
 	</form>	
 	
 	<div class="col-lg-12">
-		<button id="btn-export">Export To Excel</button>
 		<div class="row">
-            <!-- Advanced Tables -->
+            <!-- Database Output -->
             <div class="panel panel-default">
                 <div class="panel-heading">
                     Database Data
                 </div>
-                <div class="panel-body">
-                    <div class="table-responsive">
-                        <table class="table table-striped table-bordered table-hover" id="databaseTable">
-                            <thead>
-                            <tr>
-								<?php echo $output; ?>
-                            </tbody>
-                        </table>
-                    </div>
-
-                </div>
+					
+					<?php 
+						if(sizeof($output) == 1)
+						{
+							reset($output);
+							echo '<div class="panel-body"><div class="table-responsive"><table class="table table-striped table-bordered table-hover" id="databaseTable">
+								<thead><tr>'.current($output).'</tbody></table></div></div>';
+						}
+						else
+						{
+							$tabout = '<div class="panel-body"><ul class="nav nav-tabs">';
+							$tableout = '<div class="tab-content"></br>';
+							
+							if(array_key_exists("Lux", $output))
+							{
+								$tabout .= '<li><a href="#lighting" data-toggle="tab">Lighting</a></li>';
+								$tableout .= '<div class="tab-pane fade" id="lighting">
+							<div class="table-responsive"><table class="table table-striped table-bordered table-hover" id="tableLux">
+									<thead><tr>'.$output["Lux"].'</tbody></table></div></div>';
+							}
+							
+							if(array_key_exists("Temperature", $output))
+							{
+								$tabout .= '<li><a href="#temperature" data-toggle="tab">Temperature</a></li>';
+								$tableout .= '<div class="tab-pane fade" id="temperature">
+							<div class="table-responsive"><table class="table table-striped table-bordered table-hover" id="tableTemperature">
+									<thead><tr>'.$output["Temperature"].'</tbody></table></div></div>';
+							}
+							
+							if(array_key_exists("Humidity", $output))
+							{
+								$tabout .= '<li><a href="#humidity" data-toggle="tab">Humidity</a></li>';
+								$tableout .= '<div class="tab-pane fade" id="humidity">
+							<div class="table-responsive"><table class="table table-striped table-bordered table-hover" id="tableHumidity">
+									<thead><tr>'.$output["Humidity"].'</tbody></table></div></div>';
+							}
+							echo $tabout."</ul>";
+							echo $tableout."</div>";
+						}
+					?>
+				</br><button id="btn-export">Export To Excel</button><button id="btn-graph">View Graph</button>
             </div>
-            <!--End Advanced Tables -->
+            <!--End Database output -->
         </div>
     </div>
 </div>
@@ -189,10 +218,17 @@
 <script>
     $(document).ready(function () {
         $('#databaseTable').dataTable();
+		$('#tableTemperature').dataTable();
+		$('#tableLux').dataTable();
+		$('#tableHumidity').dataTable();
     });
 </script>
 
 <script type="text/javascript">
+    jQuery(document).ready(function ($) {
+        $('#tabs').tab();
+    });
+	
     jQuery(function ($) {
         $("#btn-export").click(function () {
             // parse the HTML table element having an id=databaseTable
@@ -200,13 +236,12 @@
                 data: "#databaseTable",
                 schema: {
                     type: "table",
-					// Add php here
                     fields: {
-                        SensorID: { type: String },
+                        SensorID: { type: Number },
+						Floor: { type: Number },
+						Location: { type: String },
                         Timestamp: { type: String },
-                        Value: { type: String },
-						Location: { type: Number },
-						BuildingID: { type: String }
+                        Value: { type: String }
                     }
                 }
             });
@@ -222,39 +257,29 @@
                                 {
                                     cells: [
                                         {
-                                            style: {
-                                                bold: true
-                                            },
-                                            type: String,
+                                            style: { bold: true },
+                                            type: Number,
                                             value: "SensorID"
                                         },
+										{
+                                            style: { bold: true },
+                                            type: Number,
+                                            value: "Floor"
+                                        },
+										{
+                                            style: { bold: true },
+                                            type: String,
+                                            value: "Location"
+                                        },
                                         {
-                                            style: {
-                                                bold: true
-                                            },
+                                            style: { bold: true },
                                             type: String,
                                             value: "Timestamp"
                                         },
                                         {
-                                            style: {
-                                                bold: true
-                                            },
+                                            style: { bold: true },
                                             type: String,
                                             value: "Value"
-                                        },
-										{
-                                            style: {
-                                                bold: true
-                                            },
-                                            type: String,
-                                            value: "Location"
-                                        },
-										{
-                                            style: {
-                                                bold: true
-                                            },
-                                            type: String,
-                                            value: "BuildingID"
                                         }
                                     ]
                                 }
