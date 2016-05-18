@@ -149,12 +149,19 @@ function PrintSingleTable($queryresult, $HTMLstring)
 	{
 		$HTMLstring .= "<th>{$column}</th>";
 	}
+<<<<<<< HEAD
 	
 	// Finish the column HTML with some spicy end tags
 	$HTMLstring .= "</tr></thead><tbody><tr>";
 	
 	// Now iterate through each row returned from the query
 	while($row = $queryresult->fetch_assoc())
+=======
+	$output .= "</tr></thead><tbody><tr>";
+	
+			
+	while($row = mysqli_fetch_assoc($result))
+>>>>>>> origin/master
 	{
 		// We have to cross-reference the SensorID with the Location table to obtain its location
 		$currentID = $row['SensorID'];	// Store the SensorID and find its location where the sensor is ACTIVE (not replaced)
