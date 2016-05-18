@@ -126,6 +126,8 @@ $result->free(); // I think that's all the query results
 include 'index.html.php';	// Now ready for HTML
 
 // =====================================================================================================
+// ========================================= FUNCTIONS ================================================
+// =====================================================================================================
 function PrintAllTables($HTMLstring)
 {
 	global $columnformat, $table, $tableunit;
@@ -138,7 +140,6 @@ function PrintAllTables($HTMLstring)
 	}
 }
 
-// =====================================================================================================
 function PrintSingleTable($queryresult, $HTMLstring)
 {
 	global $columnformat, $table;
@@ -148,19 +149,18 @@ function PrintSingleTable($queryresult, $HTMLstring)
 	{
 		$HTMLstring .= "<th>{$column}</th>";
 	}
-<<<<<<< HEAD
 	
 	// Finish the column HTML with some spicy end tags
 	$HTMLstring .= "</tr></thead><tbody><tr>";
 	
+	$queryresult = $link->query("SELECT * FROM $table JOIN Location USING (SensorID) WHERE SensorID=$sensorid"); // Find the relevant rows
+	
 	// Now iterate through each row returned from the query
 	while($row = $queryresult->fetch_assoc())
-=======
 	$output .= "</tr></thead><tbody><tr>";
 	
 			
 	while($row = mysqli_fetch_assoc($result))
->>>>>>> origin/master
 	{
 		// We have to cross-reference the SensorID with the Location table to obtain its location
 		$currentID = $row['SensorID'];	// Store the SensorID and find its location where the sensor is ACTIVE (not replaced)
