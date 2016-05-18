@@ -161,7 +161,7 @@
 						if(sizeof($output) == 1)
 						{
 							echo '<div class="table-responsive"><table class="table table-striped table-bordered table-hover" id="databaseTable">
-								<thead><tr>'.$output[0].'</tbody></table></div>';
+								<thead><tr>'.$output.'</tbody></table></div>';
 						}
 						else
 						{
@@ -191,10 +191,9 @@
 							<div class="table-responsive"><table class="table table-striped table-bordered table-hover" id="databaseTable">
 									<thead><tr>'.$output["Humidity"].'</tbody></table></div></div>';
 							}
+							echo $tabout."</ul>";
+							echo $tableout;
 						}
-						
-						echo $tabout."</ul>";
-						echo $output;
 					?>
 					</div>				
                 </div>
