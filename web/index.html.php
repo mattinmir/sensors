@@ -149,7 +149,6 @@
 	</form>	
 	
 	<div class="col-lg-12">
-		<button id="btn-export">Export To Excel</button>
 		<div class="row">
             <!-- Database Output -->
             <div class="panel panel-default">
@@ -167,7 +166,7 @@
 						else
 						{
 							$tabout = '<div class="panel-body"><ul class="nav nav-tabs">';
-							$tableout = '<div class="tab-content">';
+							$tableout = '<div class="tab-content"></br>';
 							
 							if(array_key_exists("Lux", $output))
 							{
@@ -196,6 +195,7 @@
 							echo $tableout."</div>";
 						}
 					?>
+				</br><button id="btn-export">Export To Excel</button><button id="btn-graph">View Graph</button>
             </div>
             <!--End Database output -->
         </div>
@@ -236,13 +236,12 @@
                 data: "#databaseTable",
                 schema: {
                     type: "table",
-					// Add php here
                     fields: {
-                        SensorID: { type: String },
+                        SensorID: { type: Number },
+						Floor: { type: Number },
+						Location: { type: String },
                         Timestamp: { type: String },
-                        Value: { type: String },
-						Location: { type: Number },
-						BuildingID: { type: String }
+                        Value: { type: String }
                     }
                 }
             });
@@ -258,39 +257,29 @@
                                 {
                                     cells: [
                                         {
-                                            style: {
-                                                bold: true
-                                            },
-                                            type: String,
+                                            style: { bold: true },
+                                            type: Number,
                                             value: "SensorID"
                                         },
+										{
+                                            style: { bold: true },
+                                            type: Number,
+                                            value: "Floor"
+                                        },
+										{
+                                            style: { bold: true },
+                                            type: String,
+                                            value: "Location"
+                                        },
                                         {
-                                            style: {
-                                                bold: true
-                                            },
+                                            style: { bold: true },
                                             type: String,
                                             value: "Timestamp"
                                         },
                                         {
-                                            style: {
-                                                bold: true
-                                            },
+                                            style: { bold: true },
                                             type: String,
                                             value: "Value"
-                                        },
-										{
-                                            style: {
-                                                bold: true
-                                            },
-                                            type: String,
-                                            value: "Location"
-                                        },
-										{
-                                            style: {
-                                                bold: true
-                                            },
-                                            type: String,
-                                            value: "BuildingID"
                                         }
                                     ]
                                 }
