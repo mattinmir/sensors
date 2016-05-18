@@ -66,7 +66,7 @@ $columnformat = array(
 $tableunit	=	array(
 				"Temperature" 	=> "&deg;C",
 				"Humidity"		=> "%",
-				"Lux" 		=> "Lux",
+				"Lux" 		=> " Lux",
 				"Timestamp"		=> "");
 
 $output = array();				
@@ -81,7 +81,6 @@ if(!isset($POST_TABLE) || strlen(trim($POST_TABLE)) == 0)
 		$sensorid = mysqli_real_escape_string($link, $POST_ID);
 		$result = mysqli_fetch_assoc($link->query("SELECT * FROM Location WHERE SensorID = '$sensorid'"));	
 		$table = $result['Type']; // Get the Location table, and find out what type of sensor is (same as table name)
-		$result->free();
 		$result = $link->query("SELECT * FROM $table JOIN Location USING (SensorID) WHERE SensorID=$sensorid");
 		$output[$table] = PrintSingleTable($result, $table);
 	}
