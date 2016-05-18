@@ -188,7 +188,7 @@ function PrintSingleTable($queryresult, $table)
 					$HTMLstring .= "<td>No</td>";	// 0 = Nein
 			}
 			else
-				$HTMLstring .= "<td>{$row[$column]$tableunit[$column]}</td>";	
+				$HTMLstring .= "<td>{$row[$column]}{$tableunit[$column]}</td>";	
 		}
 
 		$HTMLstring .= "</tr>"; // End each row with a row end tag
