@@ -103,6 +103,7 @@
 		$output .= "<th>{$column}</th>";
 	}
 	$output .= "</tr></thead><tbody><tr>";
+	
 			
 	while($row = mysqli_fetch_assoc($result))
 	{
