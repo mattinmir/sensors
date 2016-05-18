@@ -193,7 +193,7 @@
 									<thead><tr>'.$output["Humidity"].'</tbody></table></div></div>';
 							}
 							echo $tabout."</ul>";
-							echo $tableout.;
+							echo $tableout."</div>";
 						}
 					?>
 					</div>				
