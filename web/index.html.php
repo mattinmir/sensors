@@ -161,8 +161,8 @@
 						if(sizeof($output) == 1)
 						{
 							reset($output);
-							echo '<div class="table-responsive"><table class="table table-striped table-bordered table-hover" id="databaseTable">
-								<thead><tr>'.current($output).'</tbody></table></div>';
+							echo '<div class="panel-body"><div class="table-responsive"><table class="table table-striped table-bordered table-hover" id="databaseTable">
+								<thead><tr>'.current($output).'</tbody></table></div></div>';
 						}
 						else
 						{
