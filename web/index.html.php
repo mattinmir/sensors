@@ -32,36 +32,36 @@
 </div>
 
 <div class="container-fluid">
-	<div class="row">
-		<form action="index.php" method ="post">
-			
-			<!-- Sensor Types -->
-			<div class="col-lg-3">
-				<div class="form-group">
-					<h3>Sensor Types</h3>
-					<div class="radio">
-						<label>
-							<input type="radio" name="tableref" value="Lux"><h4>Lighting</h4>
-						</label>
-					</div>
-					<div class="radio">
-						<label>
-							<input type="radio" name="tableref" value="Temperature"><h4>Temperature</h4>
-						</label>
-					</div>
-					<div class="radio">
-						<label>
-							<input type="radio" name="tableref" value="Humidity"><h4>Humidity</h4>
-						</label>
-					</div>
-					<div class="radio">
-						<label>
-							<input type="radio" name="tableref" value="Location"><h4>Location</h4>
-						</label>
+	<div class="row ">
+		<div class="col-lg-9 alert alert-success">
+			<form action="index.php" method ="post">
+				<!-- Sensor Types -->
+				<div class="col-xs-4">
+					<div class="form-group">
+						<h3>Sensor Types</h3>
+						<div class="radio">
+							<label>
+								<input type="radio" name="tableref" value="Lux"><h4>Lighting</h4>
+							</label>
+						</div>
+						<div class="radio">
+							<label>
+								<input type="radio" name="tableref" value="Temperature"><h4>Temperature</h4>
+							</label>
+						</div>
+						<div class="radio">
+							<label>
+								<input type="radio" name="tableref" value="Humidity"><h4>Humidity</h4>
+							</label>
+						</div>
+						<div class="radio">
+							<label>
+								<input type="radio" name="tableref" value="Location"><h4>Location</h4>
+							</label>
+						</div>
 					</div>
 				</div>
-			</div>
-			<!-- End Sensor Types -->
+				<!-- End Sensor Types -->
 
 			<!-- Locations -->
 			<div class="col-lg-3">	
@@ -100,16 +100,32 @@
 								   Floors
 								</span>
 							<input type="text" name="floors" id="floors" class="form-control">
+
 						</div>
 					</div>
-				</div>
-				<!--End Floors-->
+				</div>	
+				<!-- End Locations -->
 				
-				<div>
-					<input type="submit" value="Submit Query"/>
+				<div class="col-xs-4">	
+					<!--Floors-->
+					<div class="row">
+						<div class="col-lg-8">
+							<div class="input-group input-group-lg">
+									<span class="input-group-addon">
+									   Floors
+									</span>
+								<input type="text" name="floors" id="floors" class="form-control">
+							</div>
+						</div>
+					</div>
+					<!--End Floors-->
+					
+					<div>
+						<input type="submit" value="Submit Query"/>
+					</div>
 				</div>
-			</div>
-		</form>
+			</form>
+		</div>
 		
 		<!-- Notifications-->	
 		<div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
@@ -131,7 +147,7 @@
 	
 	<form action="index.php" method ="post">
 		<!--Sensor ID-->
-		<div class="panel panel-primary row col-lg-3 col-md-3 col-sm-3 col-xs-3">
+		<div class="alert alert-success row col-lg-3 col-md-3 col-sm-3 col-xs-3">
 			<div class="input-group input-group-lg">
 				<span class="input-group-addon">
 					Sensor ID
