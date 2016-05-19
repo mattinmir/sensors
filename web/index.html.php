@@ -64,7 +64,6 @@
 					</div>
 					<!-- End Sensor Types -->
 
-<<<<<<< HEAD
 					<!-- Locations -->
 					<div class="col-xs-4">	
 						<div class="form-group">
@@ -88,60 +87,6 @@
 								<label>
 									<input type="checkbox" value=""><h4>Parking</h4>
 								</label>
-=======
-			<!-- Locations -->
-			<div class="col-lg-3">	
-				<div class="form-group">
-					<h3>Locations</h3>
-					<div class="checkbox">
-						<label>
-							<input type="checkbox" name="Lifts" value="Lifts"><h4>Lifts</h4>
-						</label>
-					</div>
-					<div class="checkbox">
-						<label>
-							<input type="checkbox" name="Corridors" value="Corridors"><h4>Corridors</h4>
-						</label>
-					</div>
-					<div class="checkbox">
-						<label>
-							<input type="checkbox" name="Stairwells" value="Stairwells"><h4>Stairwells</h4>
-						</label>
-					</div>
-					<div class="checkbox">
-						<label>
-							<input type="checkbox" name="Parking" value="Parking"><h4>Parking</h4>
-						</label>
-					</div>
-				</div>
-			</div>	
-			<!-- End Locations -->
-			
-			<div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">	
-				<!--Floors-->
-				<div class="row">
-					<div class="col-lg-8">
-						<div class="input-group input-group-lg">
-								<span class="input-group-addon">
-								   Floors
-								</span>
-							<input type="text" name="floors" id="floors" class="form-control">
-
-						</div>
-					</div>
-				</div>	
-				<!-- End Locations -->
-				
-				<div class="col-xs-4">	
-					<!--Floors-->
-					<div class="row">
-						<div class="col-lg-8">
-							<div class="input-group input-group-lg">
-									<span class="input-group-addon">
-									   Floors
-									</span>
-								<input type="text" name="floors" id="floors" class="form-control">
->>>>>>> 666bb7cbea84d2030d1b18ab7aeb105b05ac3ae6
 							</div>
 						</div>
 					</div>	
@@ -292,6 +237,48 @@
             // parse the HTML table element having an id=databaseTable
             var dataSource = shield.DataSource.create({
                 data: "#databaseTable",
+                schema: {
+                    type: "table",
+                    fields: {
+                        SensorID: { type: Number },
+						Floor: { type: Number },
+						Location: { type: String },
+                        Timestamp: { type: String },
+                        Value: { type: String }
+                    }
+                }
+            });
+			
+			var dataSource = shield.DataSource.create({
+                data: "#tableLux",
+                schema: {
+                    type: "table",
+                    fields: {
+                        SensorID: { type: Number },
+						Floor: { type: Number },
+						Location: { type: String },
+                        Timestamp: { type: String },
+                        Value: { type: String }
+                    }
+                }
+            });
+			
+			var dataSource = shield.DataSource.create({
+                data: "#tableTemperature",
+                schema: {
+                    type: "table",
+                    fields: {
+                        SensorID: { type: Number },
+						Floor: { type: Number },
+						Location: { type: String },
+                        Timestamp: { type: String },
+                        Value: { type: String }
+                    }
+                }
+            });
+			
+			var dataSource = shield.DataSource.create({
+                data: "#tableHumidity",
                 schema: {
                     type: "table",
                     fields: {
