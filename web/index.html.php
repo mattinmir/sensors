@@ -69,22 +69,22 @@
 					<h3>Locations</h3>
 					<div class="checkbox">
 						<label>
-							<input type="checkbox" value=""><h4>Lifts</h4>
+							<input type="checkbox" name="Lifts" value="Lifts"><h4>Lifts</h4>
 						</label>
 					</div>
 					<div class="checkbox">
 						<label>
-							<input type="checkbox" value=""><h4>Corridors</h4>
+							<input type="checkbox" name="Corridors" value="Corridors"><h4>Corridors</h4>
 						</label>
 					</div>
 					<div class="checkbox">
 						<label>
-							<input type="checkbox" value=""><h4>Stairwells</h4>
+							<input type="checkbox" name="Stairwells" value="Stairwells"><h4>Stairwells</h4>
 						</label>
 					</div>
 					<div class="checkbox">
 						<label>
-							<input type="checkbox" value=""><h4>Parking</h4>
+							<input type="checkbox" name="Parking" value="Parking"><h4>Parking</h4>
 						</label>
 					</div>
 				</div>
