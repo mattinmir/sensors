@@ -36,7 +36,7 @@
 		<div class="col-lg-9 alert alert-success">
 			<form action="index.php" method ="post">
 				<!-- Sensor Types -->
-				<div class="col-lg-3">
+				<div class="col-xs-4">
 					<div class="form-group">
 						<h3>Sensor Types</h3>
 						<div class="radio">
@@ -64,7 +64,7 @@
 				<!-- End Sensor Types -->
 
 				<!-- Locations -->
-				<div class="col-lg-3">	
+				<div class="col-xs-4">	
 					<div class="form-group">
 						<h3>Locations</h3>
 						<div class="checkbox">
@@ -91,7 +91,7 @@
 				</div>	
 				<!-- End Locations -->
 				
-				<div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">	
+				<div class="col-xs-4">	
 					<!--Floors-->
 					<div class="row">
 						<div class="col-lg-8">
