@@ -1,5 +1,4 @@
 <?php     
-
 // ----------- Strips magic quotes away -----------
 if (get_magic_quotes_gpc())
 {
@@ -20,10 +19,10 @@ if (get_magic_quotes_gpc())
 
 // ----------- Connection parameters -----------
 $servername = 'localhost';
-$dbname = 'residential';
+$dbname = 'project';
 
 // ----------- Establish connection -----------
-$link = mysqli_connect('localhost', 'root', ''); 
+$link = mysqli_connect('localhost', 'root', 'root'); 
 
 // Connect to the server which contains the DB
 if (!$link){
@@ -51,142 +50,167 @@ if(!mysqli_select_db($link, $dbname)){
 /*tips:
 - "" ensures the variable value not variable 
 - "" use isset for checking blank field 
+- Query is always left with a blank space at the end and trim at the end 
 */
 
+/*
 // Defining shorthand variables
 $POST_ID = $_POST['sensorid'];
 $POST_TABLE = $_POST['tableref'];
+$POST_FLOORS = $_POST['floors'];
+$POST_LIFTS = $_POST['Lifts'];
+$POST_STAIRWELLS = $_POST['Stairwells'];
+$POST_CORRIDORS = $_POST['Corridors'];
+$POST_PARKING = $_POST['Parking'];
+*/
 
-// This defines what rows are found in each SQL table (SensorID is implied)
-$columnformat = array(
-				"Temperature" 	=> array("Timestamp", "Temperature"),
-				"Location"		=> array("Floor", "Location", "Active"),
-				"Humidity"		=> array("Timestamp", "Humidity"),
-				"Lux"		=> array("Timestamp", "Lux"));
-$tableunit	=	array(
-				"Temperature" 	=> "&deg;C",
-				"Humidity"		=> "%",
-				"Lux" 		=> " Lux",
-				"Timestamp"		=> "");
+//$POST_ID = '67';
+$POST_TABLE = 'Temperature';
+$POST_FLOORS = '1, 6-8';
+$POST_LIFTS = "lifts";
+$POST_STAIRWELLS = 'stairwells';
+$POST_CORRIDORS = FALSE;
+$POST_PARKING = FALSE;
 
-$output = array();				
 
-// Check if the table selection is blank or is just whitespace
-if(!isset($POST_TABLE) || strlen(trim($POST_TABLE)) == 0) 
-{
-	if(!isset($POST_ID) || strlen(trim($POST_ID)) == 0)
-		$output = PrintAllTables($link);
-	else
-	{
-		$sensorid = mysqli_real_escape_string($link, $POST_ID);
-		$result = mysqli_fetch_assoc($link->query("SELECT * FROM Location WHERE SensorID = '$sensorid'"));	
-		$table = $result['Type']; // Get the Location table, and find out what type of sensor is (same as table name)
-		$result = $link->query("SELECT * FROM $table JOIN Location USING (SensorID) WHERE SensorID=$sensorid");
-		$output[$table] = PrintSingleTable($result, $table);
-	}
-}
-else
-{
-	$table = mysqli_real_escape_string($link, $POST_TABLE); // Get the POST and set the table variable
-	$sensorid = mysqli_real_escape_string($link, $POST_ID);
-	if(!isset($POST_ID) || strlen(trim($POST_ID)) == 0)
-	{
-		$result = $link->query("SELECT * FROM $table JOIN Location USING (SensorID)"); 
-		$output[$table] = PrintSingleTable($result, $table);
-	}
-	else
-	{
-		$result = $link->query("SELECT * FROM $table JOIN Location USING (SensorID) WHERE SensorID=$sensorid");
-		$output[$table] = PrintSingleTable($result, $table);
-	}
-}	
+/*********************************SENSOR ID CHOSEN********************************/
 
-// ========================================== NOTIFICATIONS ==========================================
-// Check for failures!!!
-$result = mysqli_query($link, "SELECT* FROM Failures");
-$failure_output = "";
-if ($result->num_rows != 0)	// If there is a row in Failures, then there is a failure. Unless the SQL database fails. Or maybe they both failed?
-{
-	while($row = mysqli_fetch_assoc($result))	// Print the data in the row with HTML
-	{
-		$failure_output .= '<div class="list-group-item" style="overflow:hidden"><i class="fa fa-bolt fa-fw"></i>Sensor ID '.$row["SensorID"].' has failed! 
-			<span class="pull-right text-muted small"><em>'.$row["Timestamp"].'</em></span></div>'; 
-	} // This looks like garbage but because html has "" in it, need to switch up the syntax
+//ID has been selected 
+if(isset($POST_ID) || !strlen(trim($POST_ID)) == 0){
+	
+	/*$sensorid = mysqli_real_escape_string($link, $POST_ID);
+	$result = mysqli_fetch_assoc($link->query("SELECT * FROM Location WHERE SensorID = '$sensorid'"));	
+	$table = $result['Type']; // Get the Location table, and find out what type of sensor is (same as table name)
+	$result = $link->query("SELECT * FROM $table JOIN Location USING (SensorID) WHERE SensorID=$sensorid");
+	$output[$table] = PrintSingleTable($result, $table);*/
+	
+	$output = 'SENSORID chosen'; 
+	include 'output.html.php';
+	exit();
+	
 }
 
-$result->free(); // I think that's all the query results
-
-include 'index.html.php';	// Now ready for HTML
-
-// =====================================================================================================
-// ========================================= FUNCTIONS ================================================
-// =====================================================================================================
-function PrintAllTables($link)
-{
-	global $columnformat, $tableunit;
-
-	$alltables = array("Temperature", "Lux", "Humidity");
-	$HTMLstring = array();
+/*********************************GENERIC QUERY - NO SENSOR ID *******************************/
+else{
 	
-	foreach($alltables as $tablename)
-	{
-		$queryresult = $link->query("SELECT * FROM $tablename JOIN Location USING (SensorID)"); 	
-		$HTMLstring[$tablename] = PrintSingleTable($queryresult, $tablename);
-	}
-	
-	return $HTMLstring;
-}
-
-function PrintSingleTable($queryresult, $table)
-{
-	global $columnformat, $tableunit;
-	
-	// Initialise output with implied columns
-	$HTMLstring =  "<th>SensorID</th>
-					<th>Floor</th>
-					<th>Location</th>";
-	
-	// Now add on relevant columns from the previously defined columnformat array
-	foreach($columnformat[$table] as $column)
-	{
-		$HTMLstring .= "<th>{$column}</th>";
-	}
-	
-	// Finish the column HTML with some spicy end tags
-	$HTMLstring .= "</tr></thead><tbody><tr>";
-
-	// Error message if query fails including detailed error 
-/*	if ($result == false)
-	{
-		$output = 'Error executing query: ' . mysqli_error($link). '</br>Please report this error to the administrator.';
-		include 'output.html.php'; 
+	/********************************NO SELECTION - POST ALL RESULTS*****************************************/
+	//No selection is made. 
+	//ask alex if post-lifts will be blank or false
+	if(!isset($POST_TABLE) && !isset($POST_LIFTS) && !($POST_PARKING) && !($POST_STAIRWELLS) && !($POST_CORRIDORS) && !isset($POST_FLOORS) && strlen(trim($POST_FLOORS)) == 0){
+		$query1 = 'SELECT* FROM Location JOIN Temperature USING (SensorID) </br>'; 
+		$query2 = 'SELECT* FROM Location JOIN Humidity USING (SensorID) </br>'; 
+		$query3 = 'SELECT* FROM Location JOIN Lux USING (SensorID) </br>'; 
+		$output = $query1 . $query2 . $query3;
+		include 'output.html.php';
 		exit();
-	}*/
-	
-	// Now iterate through each row returned from the query	
-	while($row = $queryresult->fetch_assoc())
-	{
-		$HTMLstring .= "<td>{$row['SensorID']}</td>		
-					<td>{$row['Floor']}</td>
-					<td>{$row['Location']}</td>";	// Since we only select two columns, its just the 0th and 1st columns
-					
-		// Now start printing the data from the rows. Row data key is equivalent to the data in the columnformat array
-		foreach($columnformat[$table] as $column)
-		{
-			if ($column == "Active")	// The Active column is a Boolean so convert it from machine-lingo into simple English
-			{
-				if ($row[$column])
-					$HTMLstring .= "<td>Yes</td>";	// 1 = Oui
-				else
-					$HTMLstring .= "<td>No</td>";	// 0 = Nein
-			}
-			else
-				$HTMLstring .= "<td>{$row[$column]}{$tableunit[$column]}</td>";	
-		}
-
-		$HTMLstring .= "</tr>"; // End each row with a row end tag
+		
 	}
-	return $HTMLstring;
-}
+
+	/********************************A SELECTION HAS BEEN MADE**************************************/
+	else{
+		
+		/******************************** NO TABLE SELECTION****************************************/
+		//need to write this 
+		if(!isset($POST_TABLE)){
+		
+			$output = '3 queries need - successfull'; 
+			include 'output.html.php';
+			exit();
+			
+		}	
+		
+		/********************************TABLE SELECTION****************************************/
+		else{
+			$query = "SELECT* FROM $POST_TABLE JOIN Location USING(SensorID) "; 
+			//ask alex if this values can be put into an array like this"
+			
+			/******************************** START LOCATIONS ********************************/
+			$locationarray = array ($POST_LIFTS, $POST_CORRIDORS, $POST_STAIRWELLS, $POST_PARKING);
+			$loc_query = '';
+			//check if any locations have been selected. 
+			foreach($locationarray as $singleloc){
+			
+				//ask alex if post-lists will be false or blank 
+				if(strlen(trim($singleloc)) !=0){
+					$loc_query .= "OR location = '$singleloc' "; 
+				}
+				
+				
+			}
+			
+			//check to see if location has been selected at all. 
+			if(strlen(trim($loc_query)) !=0){
+				$loc_query = substr($loc_query, 3);
+				$query = $query . 'WHERE ' . $loc_query; 
+			}
+			/******************************** END LOCATIONS ********************************/
+			
+			
+			
+			/******************************** START FLOORS ********************************/
+			if(isset($POST_FLOORS) || !strlen(trim($POST_FLOORS)) == 0){
+			//if the string does contain a comma, it may be of two forms 
+				if(!strpos($POST_FLOORS, ',')){
+		
+					//form 1: just a single digit
+					if(!strpos($POST_FLOORS, '-')){
+						//leave a space at the end 
+						$floor_query = "OR floor = $POST_FLOORS ";
+					}
+		
+					//form 2: between two floors e.g. 6-8
+					else{
+						$sepfloor = explode("-", $POST_FLOORS); 
+						$floor_query = "OR floor BETWEEN $sepfloor[0] AND $sepfloor[1] ";
+					}
+				}
+	
+				//if the floor does contain a comma 
+				else{
+		
+					//seperate the string
+					$sepfloor = explode(",", $POST_FLOORS);
+		
+					//The sub strings may be single digits or of form 6-8
+					foreach($sepfloor as $newvar){
+			
+						//single digits
+						if(!strpos($newvar, '-')){	
+							$floor_query .=  "OR floor = $newvar ";
+						}
+			
+						//of form 6-8
+						//ask alex if this works?
+						//otherwise put in an strnlen test and chose 0 and 2
+						else{
+							$temparray = explode("-", $newvar);
+							$floor_query .= "OR floor BETWEEN $temparray[0] AND $temparray[1] ";
+						}
+					}
+				}
+	
+				$floor_query = substr($floor_query, 3); // remvoves OR and space 
+	
+				//check if WHERE has already been used 
+				if(!strpos($query, 'WHERE')){
+					$query = $query. 'WHERE ' . $floor_query;
+				}
+			
+				//if WHERE has already been used i.e. location was selected
+				else{
+					$query = $query. 'AND ' . $floor_query;
+				}
+			}
+			/******************************** END FLOORS ********************************/
+			/******************************** START DATES ********************************/
+			/******************************** END DATES ********************************/
+			
+		}//table selection
+	}//a selection of somekind has been made
+}//generic query
+
+$output = $query;
+include 'output.html.php';
+exit();  					
 
 ?>
