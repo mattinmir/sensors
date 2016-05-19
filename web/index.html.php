@@ -106,9 +106,38 @@
 						</div>
 						<!--End Floors-->
 						
+						<br/>
+						
+						<!--Date From-->
+						<div class="row">
+							<div class="col-lg-8">
+								<div class="input-group input-group-lg">
+										<span class="input-group-addon">
+										   Date From
+										</span>
+									<input type="text" name="floors" id="floors" class="form-control">
+								</div>
+							</div>
+						</div>
+						<!--End Date From-->
+						
+						<!--Date To-->
+						<div class="row">
+							<div class="col-lg-8">
+								<div class="input-group input-group-lg">
+										<span class="input-group-addon">
+										   Date To
+										</span>
+									<input type="text" name="floors" id="floors" class="form-control">
+								</div>
+							</div>
+						</div>
+						<!--End Date To-->
+						
 						<div>
 							<input type="submit" value="Submit Query"/>
 						</div>
+						
 					</div>
 				</form>
 			</div>
