@@ -70,22 +70,22 @@
 							<h3>Locations</h3>
 							<div class="checkbox">
 								<label>
-									<input type="checkbox" value=""><h4>Lifts</h4>
+									<input type="checkbox" name="Lifts" value="Lifts"><h4>Lifts</h4>
 								</label>
 							</div>
 							<div class="checkbox">
 								<label>
-									<input type="checkbox" value=""><h4>Corridors</h4>
+									<input type="checkbox" name="Corridors" value="Corridors"><h4>Corridors</h4>
 								</label>
 							</div>
 							<div class="checkbox">
 								<label>
-									<input type="checkbox" value=""><h4>Stairwells</h4>
+									<input type="checkbox" name="Stairwells" value="Stairwells"><h4>Stairwells</h4>
 								</label>
 							</div>
 							<div class="checkbox">
 								<label>
-									<input type="checkbox" value=""><h4>Parking</h4>
+									<input type="checkbox" name="Parking" value="Parking"><h4>Parking</h4>
 								</label>
 							</div>
 						</div>
@@ -115,7 +115,7 @@
 										<span class="input-group-addon">
 										   Date From
 										</span>
-									<input type="text" name="floors" id="floors" class="form-control">
+									<input type="text" name="datefrom" id="datefrom" class="form-control">
 								</div>
 							</div>
 						</div>
@@ -128,7 +128,7 @@
 										<span class="input-group-addon">
 										   Date To
 										</span>
-									<input type="text" name="floors" id="floors" class="form-control">
+									<input type="text" name="dateto" id="dateto" class="form-control">
 								</div>
 							</div>
 						</div>
