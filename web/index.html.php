@@ -15,6 +15,11 @@
     <!-- Page-Level CSS -->
     <link href="assets/plugins/morris/morris-0.4.3.min.css" rel="stylesheet" />
     <link href="assets/plugins/dataTables/dataTables.bootstrap.css" rel="stylesheet" />
+    
+     <!-- DATE -->
+   <!--<link rel="stylesheet" type="text/css" href="cdn.jsdelivr.net/bootstrap/latest/css/bootstrap.css" />-->
+    <link rel="stylesheet" type="text/css" href="http://cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
+
 
 </head>
 
@@ -115,7 +120,8 @@
 										<span class="input-group-addon">
 										   Date From
 										</span>
-									<input type="text" name="datefrom" id="datefrom" class="form-control">
+										<input type="text" name="daterange" value="" />
+									<!--<input type="text" name="datefrom" id="datefrom" class="form-control">-->
 								</div>
 							</div>
 						</div>
@@ -247,12 +253,21 @@
 <script type="text/javascript" src="http://www.shieldui.com/shared/components/latest/js/shieldui-all.min.js"></script>
 <script type="text/javascript" src="http://www.shieldui.com/shared/components/latest/js/jszip.min.js"></script>
 
+<!-- Include Required Prerequisites -->
+<script type="text/javascript" src="http://cdn.jsdelivr.net/jquery/1/jquery.min.js"></script>
+<script type="text/javascript" src="http://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+
+ 
+<!-- Include Date Range Picker -->
+<script type="text/javascript" src="http://cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
+
 <script>
     $(document).ready(function () {
         $('#databaseTable').dataTable();
 		$('#tableTemperature').dataTable();
 		$('#tableLux').dataTable();
 		$('#tableHumidity').dataTable();
+		$('input[name="daterange"]').daterangepicker();
     });
 </script>
 
@@ -377,6 +392,8 @@
         });
     });
 </script>
+
+
 
 </body>
 
