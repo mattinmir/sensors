@@ -75,7 +75,7 @@ $POST_PARKING = $_POST['Parking'];
 // This defines what rows are found in each SQL table (SensorID is implied)
 $columnformat = array(
 				"Temperature" 	=> array("Timestamp", "Temperature"),
-				"Location"		=> array("Floor", "Location", "Active"),
+				"Location"		=> array("Floor", "Located", "Active"),
 				"Humidity"		=> array("Timestamp", "Humidity"),
 				"Lux"		=> array("Timestamp", "Lux"));
 				
@@ -96,9 +96,9 @@ if(isset($POST_ID) && (strlen(trim($POST_ID)) != 0)){
 	if(is_numeric($POST_ID)){
 	
 		$sensorid = mysqli_real_escape_string($link, $POST_ID);
-		$result = mysqli_fetch_assoc($link->query("SELECT * FROM Location WHERE SensorID = '$sensorid'"));	
+		$result = mysqli_fetch_assoc($link->query("SELECT * FROM Location WHERE sensorID = '$sensorid'"));	
 		$table = $result['Type']; // Get the Location table, and find out what type of sensor is (same as table name)
-		$result = $link->query("SELECT * FROM $table JOIN Location USING (SensorID) WHERE SensorID=$sensorid");
+		$result = $link->query("SELECT * FROM $table JOIN Location USING (sensorID) WHERE sensorID=$sensorid");
 		$output[$table] = PrintSingleTable($result, $table);
 	}
 	
@@ -119,14 +119,14 @@ else{
 	//test empty
 	//if(!isset($POST_TABLE) && empty($POST_LOCATIONS) && !isset($POST_FLOORS) && strlen(trim($POST_FLOORS)) == 0){
 	if(!isset($POST_TABLE) && !($POST_LIFTS) && !($POST_PARKING) && !($POST_STAIRWELLS) && !($POST_CORRIDORS) && !isset($POST_FLOORS) && strlen(trim($POST_FLOORS)) == 0){
-		$query = "SELECT* FROM temp JOIN Location USING(SensorID)";
+		$query = "SELECT* FROM temporary JOIN Location USING(sensorID)";
 		$output = PrintAllTables($link, $query);
 		
 	}
 
 	/********************************A SELECTION HAS BEEN MADE**************************************/
 	else{
-		$query = "SELECT* FROM temp JOIN Location USING(SensorID) ";
+		$query = "SELECT* FROM temporary JOIN Location USING(sensorID) ";
 		/******************************** START LOCATIONS ********************************/
 		$locationarray = array ($POST_LIFTS, $POST_CORRIDORS, $POST_STAIRWELLS, $POST_PARKING);
 		$loc_query = '';
@@ -135,7 +135,7 @@ else{
 			
 			//ask alex if post-lists will be false or blank 
 			if(strlen(trim($singleloc)) !=0){
-				$loc_query .= "OR location = '$singleloc' "; 
+				$loc_query .= "OR located = '$singleloc' "; 
 			}
 				
 				
@@ -251,6 +251,9 @@ else{
 		//need to write this 
 		if(!isset($POST_TABLE)){
 			$output = PrintAllTables($link, $query);
+			/*$output = $query;
+			include 'output.html.php';
+			exit();*/
 		}
 			
 		
@@ -316,7 +319,7 @@ function PrintSingleTable($queryresult, $table)
 	// Initialise output with implied columns
 	$HTMLstring =  "<th>SensorID</th>
 					<th>Floor</th>
-					<th>Location</th>"; // add timestamp
+					<th>Located</th>"; // add timestamp
 	
 	// Now add on relevant columns from the previously defined columnformat array
 	foreach($columnformat[$table] as $column)
@@ -341,7 +344,7 @@ function PrintSingleTable($queryresult, $table)
 	{
 		$HTMLstring .= "<td>{$row['SensorID']}</td>		
 					<td>{$row['Floor']}</td>
-					<td>{$row['Location']}</td>";	// Since we only select two columns, its just the 0th and 1st columns
+					<td>{$row['Located']}</td>";	// Since we only select two columns, its just the 0th and 1st columns
 					
 		// Now start printing the data from the rows. Row data key is equivalent to the data in the columnformat array
 		foreach($columnformat[$table] as $column)
