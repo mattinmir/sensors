@@ -1,4 +1,5 @@
 <?php     
+
 // ----------- Strips magic quotes away -----------
 if (get_magic_quotes_gpc())
 {
@@ -19,10 +20,10 @@ if (get_magic_quotes_gpc())
 
 // ----------- Connection parameters -----------
 $servername = 'localhost';
-$dbname = 'project';
+$dbname = 'residential';
 
 // ----------- Establish connection -----------
-$link = mysqli_connect('localhost', 'root', 'root'); 
+$link = mysqli_connect('localhost', 'root', ''); 
 
 // Connect to the server which contains the DB
 if (!$link){
@@ -85,8 +86,9 @@ $tableunit	=	array(
 				"Lux" 		=> " Lux",
 				"Timestamp"		=> "");
 //for somereason output array at the end 
-//$output = array();	
 
+//$output = array();				
+$JSONtable = array( "Temperature" => array(), "Humidity" => array(), "Lux" => array() );
 
 /*********************************SENSOR ID CHOSEN********************************/
 
@@ -285,6 +287,7 @@ if ($result->num_rows != 0)	// If there is a row in Failures, then there is a fa
 }
 
 $result->free(); // I think that's all the query results
+echo '<div id="JSON-datatable" style="display: none;">'.htmlspecialchars(json_encode($JSONtable)).'</div>';
 
 include 'index.html.php';	// Now ready for HTML
 
@@ -293,8 +296,6 @@ include 'index.html.php';	// Now ready for HTML
 // =====================================================================================================
 function PrintAllTables($link, $query)
 {
-	//global $columnformat, $tableunit;
-	 
 	$alltables = array("Temperature", "Lux", "Humidity");
 	$HTMLstring = array();
 	
@@ -310,7 +311,7 @@ function PrintAllTables($link, $query)
 
 function PrintSingleTable($queryresult, $table)
 {
-	global $columnformat, $tableunit;
+	global $columnformat, $tableunit, $JSONtable;
 	
 	if(!$queryresult){
 		return '';
@@ -361,6 +362,8 @@ function PrintSingleTable($queryresult, $table)
 		}
 
 		$HTMLstring .= "</tr>"; // End each row with a row end tag
+		$JSONtable[$table][] = array("SensorID" => (int)$row['SensorID'], "Floor" => (int)$row['Floor'], 
+			"Location" => $row['Location'], "Timestamp" => strtotime($row['Timestamp']), "Value" => (double)$row[$table]);
 	}
 	return $HTMLstring;
 }  					

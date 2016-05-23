@@ -15,7 +15,8 @@
     <!-- Page-Level CSS -->
     <link href="assets/plugins/morris/morris-0.4.3.min.css" rel="stylesheet" />
     <link href="assets/plugins/dataTables/dataTables.bootstrap.css" rel="stylesheet" />
-
+	
+	<style>#flotTip {z-index:2000 !important;}</style>
 </head>
 
 <body>
@@ -193,7 +194,8 @@
 						{
 							reset($output);
 							echo '<div class="panel-body"><div class="table-responsive"><table class="table table-striped table-bordered table-hover" id="databaseTable">
-								<thead><tr>'.current($output).'</tbody></table></div></div>';
+								<thead><tr>'.current($output).'</tbody></table></div>
+								<button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal" id="graph'.key($output).'">Show Graph</button></div>';
 						}
 						else
 						{
@@ -205,7 +207,8 @@
 								$tabout .= '<li><a href="#lighting" data-toggle="tab">Lighting</a></li>';
 								$tableout .= '<div class="tab-pane fade" id="lighting">
 							<div class="table-responsive"><table class="table table-striped table-bordered table-hover" id="tableLux">
-									<thead><tr>'.$output["Lux"].'</tbody></table></div></div>';
+									<thead><tr>'.$output["Lux"].'</tbody></table></div>
+									<button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal" id="graphLux">Show Graph</button></div>';
 							}
 							
 							if(array_key_exists("Temperature", $output))
@@ -213,7 +216,8 @@
 								$tabout .= '<li><a href="#temperature" data-toggle="tab">Temperature</a></li>';
 								$tableout .= '<div class="tab-pane fade" id="temperature">
 							<div class="table-responsive"><table class="table table-striped table-bordered table-hover" id="tableTemperature">
-									<thead><tr>'.$output["Temperature"].'</tbody></table></div></div>';
+									<thead><tr>'.$output["Temperature"].'</tbody></table></div>
+									<button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal" id="graphTemperature">Show Graph</button></div>';
 							}
 							
 							if(array_key_exists("Humidity", $output))
@@ -221,14 +225,38 @@
 								$tabout .= '<li><a href="#humidity" data-toggle="tab">Humidity</a></li>';
 								$tableout .= '<div class="tab-pane fade" id="humidity">
 							<div class="table-responsive"><table class="table table-striped table-bordered table-hover" id="tableHumidity">
-									<thead><tr>'.$output["Humidity"].'</tbody></table></div></div>';
+									<thead><tr>'.$output["Humidity"].'</tbody></table></div>
+									<button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal" id="graphHumidity">Show Graph</button></div>';
+								
 							}
 							echo $tabout."</ul>";
 							echo $tableout."</div>";
 						}
 					?>
-				</br><button id="btn-export">Export To Excel</button><button id="btn-graph">View Graph</button>
+				</br><button id="btn-export">Export To Excel</button>  <!-- Trigger the modal with a button -->
+				
+				<!-- GRAPH MODAL -->
+				<div class="modal fade" id="myModal" role="dialog">
+					<div class="modal-dialog" style="width:80%;height:80%">
+						<!-- Modal content-->
+						<div class="modal-content">
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal">&times;</button>
+								<h4 class="modal-title">Modal Header</h4>
+							</div>
+							
+							<div class="modal-body">
+								<div id="graphdiv" style="width:100%;margin:0 auto;height:80%"></div>
+							</div>
+							
+							<div class="modal-footer">
+								<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+							</div>
+						</div>
+					</div>
+				</div>
             </div>
+			<div id="grid"></div>
             <!--End Database output -->
         </div>
     </div>
@@ -237,6 +265,7 @@
 
 <!-- Core Scripts - Include with every page -->
 <script src="assets/plugins/jquery-1.10.2.js"></script>
+<script language="javascript" type="text/javascript" src="../../jquery.flot.js"></script>
 <script src="assets/plugins/bootstrap/bootstrap.min.js"></script>
 <script src="assets/plugins/metisMenu/jquery.metisMenu.js"></script>
 <script src="assets/plugins/pace/pace.js"></script>
@@ -247,135 +276,177 @@
 <script type="text/javascript" src="http://www.shieldui.com/shared/components/latest/js/shieldui-all.min.js"></script>
 <script type="text/javascript" src="http://www.shieldui.com/shared/components/latest/js/jszip.min.js"></script>
 
-<script>
-    $(document).ready(function () {
-        $('#databaseTable').dataTable();
-		$('#tableTemperature').dataTable();
-		$('#tableLux').dataTable();
-		$('#tableHumidity').dataTable();
-    });
-</script>
+<script src="assets/plugins/flot.tooltip/js/jquery.flot.tooltip.js"></script>
+
+    <script src="assets/plugins/flot/jquery.flot.js"></script>
+    <script src="assets/plugins/flot/jquery.flot.tooltip.min.js"></script>
+    <script src="assets/plugins/flot/jquery.flot.resize.js"></script>
+    <script src="assets/plugins/flot/jquery.flot.pie.js"></script>
+	<script src="assets/plugins/flot/jquery.flot.time.js"></script>
 
 <script type="text/javascript">
-    jQuery(document).ready(function ($) {
-        $('#tabs').tab();
-    });
-	
-    jQuery(function ($) {
-        $("#btn-export").click(function () {
-            // parse the HTML table element having an id=databaseTable
-            var dataSource = shield.DataSource.create({
-                data: "#databaseTable",
-                schema: {
-                    type: "table",
-                    fields: {
-                        SensorID: { type: Number },
-						Floor: { type: Number },
-						Location: { type: String },
-                        Timestamp: { type: String },
-                        Value: { type: String }
-                    }
-                }
-            });
-			
-			var dataSource = shield.DataSource.create({
-                data: "#tableLux",
-                schema: {
-                    type: "table",
-                    fields: {
-                        SensorID: { type: Number },
-						Floor: { type: Number },
-						Location: { type: String },
-                        Timestamp: { type: String },
-                        Value: { type: String }
-                    }
-                }
-            });
-			
-			var dataSource = shield.DataSource.create({
-                data: "#tableTemperature",
-                schema: {
-                    type: "table",
-                    fields: {
-                        SensorID: { type: Number },
-						Floor: { type: Number },
-						Location: { type: String },
-                        Timestamp: { type: String },
-                        Value: { type: String }
-                    }
-                }
-            });
-			
-			var dataSource = shield.DataSource.create({
-                data: "#tableHumidity",
-                schema: {
-                    type: "table",
-                    fields: {
-                        SensorID: { type: Number },
-						Floor: { type: Number },
-						Location: { type: String },
-                        Timestamp: { type: String },
-                        Value: { type: String }
-                    }
-                }
-            });
 
-            // when parsing is done, export the data to Excel
-            dataSource.read().then(function (data) {
-                new shield.exp.OOXMLWorkbook({
-                    author: "PrepBootstrap",
-                    worksheets: [
-                        {
-                            name: "dataTables-example",
-                            rows: [
-                                {
-                                    cells: [
-                                        {
-                                            style: { bold: true },
-                                            type: Number,
-                                            value: "SensorID"
-                                        },
-										{
-                                            style: { bold: true },
-                                            type: Number,
-                                            value: "Floor"
-                                        },
-										{
-                                            style: { bold: true },
-                                            type: String,
-                                            value: "Location"
-                                        },
-                                        {
-                                            style: { bold: true },
-                                            type: String,
-                                            value: "Timestamp"
-                                        },
-                                        {
-                                            style: { bold: true },
-                                            type: String,
-                                            value: "Value"
-                                        }
-                                    ]
-                                }
-                            ].concat($.map(data, function(item) {
-                                return {
-                                    cells: [
-                                        { type: String, value: item.SensorID },
-                                        { type: String, value: item.Timestamp },
-                                        { type: String, value: item.Value },
-										{ type: Number, value: item.Location },
-										{ type: String, value: item.BuildingID }
-                                    ]
-                                };
-                            }))
-                        }
-                    ]
-                }).saveAs({
-                    fileName: "Database_Data"
-                });
-            });
-        });
+jQuery(document).ready(function ($) {
+	$('#databaseTable').dataTable();
+	$('#tableTemperature').dataTable();
+	$('#tableLux').dataTable();
+	$('#tableHumidity').dataTable();
+	$('#tabs').tab();
+	
+	var values = document.getElementById("JSON-datatable");
+	var JSONvalue = values.textContent;
+	JSONobj = $.parseJSON(JSONvalue);
+	
+	//alert(JSON.stringify(JSONobj));
+	
+	var arrcnt = -1;
+	var currentSensorID = -1;			
+	
+	if(JSONobj.Temperature.length > 0)
+	{
+		FlotTemp = [];
+		currentSensorID = -1;			
+		arrcnt = -1;
+		for (var i in JSONobj.Temperature)
+		{
+			if (currentSensorID != JSONobj.Temperature[i].SensorID)
+			{
+				currentSensorID = JSONobj.Temperature[i].SensorID;
+				FlotTemp.push( {label:"SensorID " + currentSensorID.toString(), data:[]} );
+				++arrcnt;
+			}
+			FlotTemp[arrcnt].data.push([JSONobj.Temperature[i].Timestamp *1000, JSONobj.Temperature[i].Value]);
+		}	
+	}
+	
+	if(JSONobj.Humidity.length > 0)
+	{
+		FlotHumidity = [];
+		currentSensorID = -1;
+		arrcnt = -1;			
+		for (var i in JSONobj.Humidity)
+		{
+			if (currentSensorID != JSONobj.Humidity[i].SensorID)
+			{
+				currentSensorID = JSONobj.Humidity[i].SensorID;
+				FlotHumidity.push( {label:"SensorID " + currentSensorID.toString(), data:[]} );
+				++arrcnt;
+			}
+			FlotHumidity[arrcnt].data.push([JSONobj.Humidity[i].Timestamp *1000, JSONobj.Humidity[i].Value]);
+		}	
+	}
+	
+	if(JSONobj.Lux.length > 0)
+	{
+		FlotLux = [];
+		currentSensorID = -1;
+		arrcnt = -1;			
+		for (var i in JSONobj.Lux)
+		{
+			if (currentSensorID != JSONobj.Lux[i].SensorID)
+			{
+				currentSensorID = JSONobj.Lux[i].SensorID;
+				FlotLux.push( {label:"SensorID " + currentSensorID.toString(), data:[]} );
+				++arrcnt;
+			}
+			FlotLux[arrcnt].data.push([JSONobj.Lux[i].Timestamp *1000, JSONobj.Lux[i].Value]);
+		}	
+	}
+	flotplot = $.plot($("#graphdiv"), [ [[0.5,0.5], [2,5]] ], { xaxis:{ mode:"time",timeformat: "%Y/%m/%d %H:%M:%S" }, 
+		series:{ points:{ symbol:"circle",show:"true" }, lines:{ show:"true"} }, grid: { hoverable: true }, tooltip:{ show:true, defaultTheme:false} } );
+});
+
+$( "#graphLux" ).click(function() {
+	
+	flotplot.setData(FlotLux);
+	flotplot.setupGrid();
+	flotplot.draw();
+	//alert("hi");
+});
+
+$( "#graphTemperature" ).click(function() {
+	flotplot.setData(FlotTemp);
+	flotplot.setupGrid();
+	flotplot.draw();
+});
+
+$( "#graphHumidity" ).click(function() {
+	flotplot.setData(FlotHumidity);
+	flotplot.setupGrid();
+	flotplot.draw();
+});
+// Simple type mapping; dates can be hard
+// and I would prefer to simply use `datevalue`
+// ... you could even add the formula in here.
+
+testTypes = {
+    "SensorID": "Number",
+    "Floor": "Number",
+    "Location": "String",
+    "Timestamp": "String",
+    "Value": "Number"
+};
+
+emitXmlHeader = function () {
+    var headerRow =  '<ss:Row>\n';
+    for (var colName in testTypes) {
+        headerRow += '  <ss:Cell>\n';
+        headerRow += '    <ss:Data ss:Type="String">';
+        headerRow += colName + '</ss:Data>\n';
+        headerRow += '  </ss:Cell>\n';        
+    }
+    headerRow += '</ss:Row>\n';    
+    return '<?xml version="1.0"?>\n' +
+           '<ss:Workbook xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">\n' +
+           '<ss:Worksheet ss:Name="Sheet1">\n' +
+           '<ss:Table>\n\n' + headerRow;
+};
+
+emitXmlFooter = function() {
+    return '\n</ss:Table>\n' +
+           '</ss:Worksheet>\n' +
+           '</ss:Workbook>\n';
+};
+
+jsonToSsXml = function (jsonObject) {
+    var row;
+    var col;
+    var xml;
+    var data = typeof jsonObject != "object" 
+             ? JSON.parse(jsonObject) 
+             : jsonObject;
+
+    xml = emitXmlHeader();
+
+    for (row = 0; row < data.length; row++) {
+        xml += '<ss:Row>\n';
+
+        for (col in data[row]) {
+            xml += '  <ss:Cell>\n';
+            xml += '    <ss:Data ss:Type="' + testTypes[col]  + '">';
+            xml += data[row][col] + '</ss:Data>\n';
+            xml += '  </ss:Cell>\n';
+        }
+
+        xml += '</ss:Row>\n';
+    }
+
+    xml += emitXmlFooter();
+    return xml;  
+};
+
+download = function (content, filename, contentType) {
+    if (!contentType) contentType = 'application/octet-stream';
+    var a = document.getElementById('grid');
+    var blob = new Blob([content], {
+        'type': contentType
     });
+    a.href = window.URL.createObjectURL(blob);
+    a.download = filename;
+};
+
+download(jsonToSsXml(testJson), 'test.xls', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+
 </script>
 
 </body>
