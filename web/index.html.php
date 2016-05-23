@@ -294,16 +294,13 @@
 <script type="text/javascript">
 
 $(function() {
-		$('#daterange').daterangepicker(
+	$('#daterange').daterangepicker(
 	{
 		locale: {
-		  format: 'YYYY-MM-DD'
+		  format: 'DD-MM-YYYY'
 		},
-		startDate: '2013-01-01',
-		endDate: '2013-12-31'
-	}, 
-	function(start, end, label) {
-		alert("A new date range was chosen: " + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD'));
+		startDate: moment().subtract(1, 'week').format('DD-MM-YYYY'),
+		endDate: moment().format('DD-MM-YYYY')
 	});
 });
 
@@ -318,7 +315,7 @@ jQuery(document).ready(function ($) {
 	var JSONvalue = values.textContent;
 	JSONobj = $.parseJSON(JSONvalue);
 	
-	alert(JSON.stringify(JSONobj));
+	//alert(JSON.stringify(JSONobj));
 	
 	var arrcnt = -1;
 	var currentSensorID = -1;			

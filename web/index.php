@@ -87,7 +87,7 @@ $tableunit	=	array(
 				"Timestamp"		=> "");
 //for somereason output array at the end 
 
-//$output = array();				
+$output = array();				
 $JSONtable = array( "Temperature" => array(), "Humidity" => array(), "Lux" => array() );
 
 /*********************************SENSOR ID CHOSEN********************************/
@@ -121,14 +121,14 @@ else{
 	//test empty
 	//if(!isset($POST_TABLE) && empty($POST_LOCATIONS) && !isset($POST_FLOORS) && strlen(trim($POST_FLOORS)) == 0){
 	if(!isset($POST_TABLE) && !($POST_LIFTS) && !($POST_PARKING) && !($POST_STAIRWELLS) && !($POST_CORRIDORS) && !isset($POST_FLOORS) && strlen(trim($POST_FLOORS)) == 0){
-		$query = "SELECT* FROM temporary JOIN Location USING(sensorID)";
+		$query = "SELECT* FROM temp JOIN Location USING(sensorID)";
 		$output = PrintAllTables($link, $query);
 		
 	}
 
 	/********************************A SELECTION HAS BEEN MADE**************************************/
 	else{
-		$query = "SELECT* FROM temporary JOIN Location USING(sensorID) ";
+		$query = "SELECT* FROM temp JOIN Location USING(sensorID) ";
 		/******************************** START LOCATIONS ********************************/
 		$locationarray = array ($POST_LIFTS, $POST_CORRIDORS, $POST_STAIRWELLS, $POST_PARKING);
 		$loc_query = '';
@@ -301,8 +301,12 @@ function PrintAllTables($link, $query)
 	
 	foreach($alltables as $tablename)
 	{
-		$queryresult = $link->query(str_replace("temp", $tablename, $query)); 	
-		$HTMLstring[$tablename] = PrintSingleTable($queryresult, $tablename);
+		var_dump(str_replace("temp", $tablename, $query));
+		$queryresult = $link->query(str_replace("temp", $tablename, $query));
+		if($queryresult->num_rows != 0){
+			$HTMLstring[$tablename] = PrintSingleTable($queryresult, $tablename);
+			//var_dump($queryresult);
+		}		
 	}
 	
 	return $HTMLstring;
@@ -345,7 +349,7 @@ function PrintSingleTable($queryresult, $table)
 	{
 		$HTMLstring .= "<td>{$row['SensorID']}</td>		
 					<td>{$row['Floor']}</td>
-					<td>{$row['Located']}</td>";	// Since we only select two columns, its just the 0th and 1st columns
+					<td>{$row['Location']}</td>";	// Since we only select two columns, its just the 0th and 1st columns
 					
 		// Now start printing the data from the rows. Row data key is equivalent to the data in the columnformat array
 		foreach($columnformat[$table] as $column)
