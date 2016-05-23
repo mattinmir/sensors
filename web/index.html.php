@@ -16,6 +16,10 @@
     <link href="assets/plugins/morris/morris-0.4.3.min.css" rel="stylesheet" />
     <link href="assets/plugins/dataTables/dataTables.bootstrap.css" rel="stylesheet" />
 	
+	<script type="text/javascript" src="http://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+ 
+		
+	
 	<style>#flotTip {z-index:2000 !important;}</style>
 </head>
 
@@ -116,7 +120,8 @@
 										<span class="input-group-addon">
 										   Date From
 										</span>
-									<input type="text" name="datefrom" id="datefrom" class="form-control">
+									<!-- <input type="text" name="datefrom" id="datefrom" class="form-control"> -->
+									<input type="text" id="daterange" value="01/01/2015 - 01/31/2015" />
 								</div>
 							</div>
 						</div>
@@ -283,8 +288,24 @@
     <script src="assets/plugins/flot/jquery.flot.resize.js"></script>
     <script src="assets/plugins/flot/jquery.flot.pie.js"></script>
 	<script src="assets/plugins/flot/jquery.flot.time.js"></script>
+	<script type="text/javascript" src="http://cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
+		<link rel="stylesheet" type="text/css" href="http://cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
 
 <script type="text/javascript">
+
+$(function() {
+		$('#daterange').daterangepicker(
+	{
+		locale: {
+		  format: 'YYYY-MM-DD'
+		},
+		startDate: '2013-01-01',
+		endDate: '2013-12-31'
+	}, 
+	function(start, end, label) {
+		alert("A new date range was chosen: " + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD'));
+	});
+});
 
 jQuery(document).ready(function ($) {
 	$('#databaseTable').dataTable();
@@ -297,7 +318,7 @@ jQuery(document).ready(function ($) {
 	var JSONvalue = values.textContent;
 	JSONobj = $.parseJSON(JSONvalue);
 	
-	//alert(JSON.stringify(JSONobj));
+	alert(JSON.stringify(JSONobj));
 	
 	var arrcnt = -1;
 	var currentSensorID = -1;			
