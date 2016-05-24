@@ -59,6 +59,7 @@ if(!mysqli_select_db($link, $dbname)){
 $POST_ID = $_POST['sensorid'];
 $POST_TABLE = $_POST['tableref'];
 $POST_FLOORS = $_POST['floors'];
+$POST_DATE = $_POSt['daterange'];
 //$POST_LOCATIONS = $_POST['Locations'];
 
 
@@ -245,6 +246,21 @@ else{
 		}
 		/******************************** END FLOORS ********************************/
 		/******************************** START DATES ********************************/
+		if(isset(P
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
 		/******************************** END DATES ********************************/
 		
 		/******************************** NO TABLE SELECTION****************************************/

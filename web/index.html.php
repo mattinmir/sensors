@@ -17,7 +17,6 @@
     <link href="assets/plugins/dataTables/dataTables.bootstrap.css" rel="stylesheet" />
     
      <!-- DATE -->
-   <!--<link rel="stylesheet" type="text/css" href="cdn.jsdelivr.net/bootstrap/latest/css/bootstrap.css" />-->
     <link rel="stylesheet" type="text/css" href="http://cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
 
 
@@ -254,7 +253,6 @@
 <script type="text/javascript" src="http://www.shieldui.com/shared/components/latest/js/jszip.min.js"></script>
 
 <!-- Include Required Prerequisites -->
-<script type="text/javascript" src="http://cdn.jsdelivr.net/jquery/1/jquery.min.js"></script>
 <script type="text/javascript" src="http://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
 
  
