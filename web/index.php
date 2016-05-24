@@ -1,4 +1,5 @@
 <?php     
+
 // ----------- Strips magic quotes away -----------
 if (get_magic_quotes_gpc())
 {
@@ -19,10 +20,10 @@ if (get_magic_quotes_gpc())
 
 // ----------- Connection parameters -----------
 $servername = 'localhost';
-$dbname = 'project';
+$dbname = 'residential';
 
 // ----------- Establish connection -----------
-$link = mysqli_connect('localhost', 'root', 'root'); 
+$link = mysqli_connect('localhost', 'root', ''); 
 
 // Connect to the server which contains the DB
 if (!$link){
@@ -86,8 +87,9 @@ $tableunit	=	array(
 				"Lux" 		=> " Lux",
 				"Timestamp"		=> "");
 //for somereason output array at the end 
-//$output = array();	
 
+$output = array();				
+$JSONtable = array( "Temperature" => array(), "Humidity" => array(), "Lux" => array() );
 
 /*********************************SENSOR ID CHOSEN********************************/
 
@@ -120,14 +122,14 @@ else{
 	//test empty
 	//if(!isset($POST_TABLE) && empty($POST_LOCATIONS) && !isset($POST_FLOORS) && strlen(trim($POST_FLOORS)) == 0){
 	if(!isset($POST_TABLE) && !($POST_LIFTS) && !($POST_PARKING) && !($POST_STAIRWELLS) && !($POST_CORRIDORS) && !isset($POST_FLOORS) && strlen(trim($POST_FLOORS)) == 0){
-		$query = "SELECT* FROM temporary JOIN Location USING(sensorID)";
+		$query = "SELECT* FROM temp JOIN Location USING(sensorID)";
 		$output = PrintAllTables($link, $query);
 		
 	}
 
 	/********************************A SELECTION HAS BEEN MADE**************************************/
 	else{
-		$query = "SELECT* FROM temporary JOIN Location USING(sensorID) ";
+		$query = "SELECT* FROM temp JOIN Location USING(sensorID) ";
 		/******************************** START LOCATIONS ********************************/
 		$locationarray = array ($POST_LIFTS, $POST_CORRIDORS, $POST_STAIRWELLS, $POST_PARKING);
 		$loc_query = '';
@@ -301,6 +303,7 @@ if ($result->num_rows != 0)	// If there is a row in Failures, then there is a fa
 }
 
 $result->free(); // I think that's all the query results
+echo '<div id="JSON-datatable" style="display: none;">'.htmlspecialchars(json_encode($JSONtable)).'</div>';
 
 include 'index.html.php';	// Now ready for HTML
 
@@ -309,15 +312,17 @@ include 'index.html.php';	// Now ready for HTML
 // =====================================================================================================
 function PrintAllTables($link, $query)
 {
-	//global $columnformat, $tableunit;
-	 
 	$alltables = array("Temperature", "Lux", "Humidity");
 	$HTMLstring = array();
 	
 	foreach($alltables as $tablename)
 	{
-		$queryresult = $link->query(str_replace("temp", $tablename, $query)); 	
-		$HTMLstring[$tablename] = PrintSingleTable($queryresult, $tablename);
+		var_dump(str_replace("temp", $tablename, $query));
+		$queryresult = $link->query(str_replace("temp", $tablename, $query));
+		if($queryresult->num_rows != 0){
+			$HTMLstring[$tablename] = PrintSingleTable($queryresult, $tablename);
+			//var_dump($queryresult);
+		}		
 	}
 	
 	return $HTMLstring;
@@ -326,7 +331,7 @@ function PrintAllTables($link, $query)
 
 function PrintSingleTable($queryresult, $table)
 {
-	global $columnformat, $tableunit;
+	global $columnformat, $tableunit, $JSONtable;
 	
 	if(!$queryresult){
 		return '';
@@ -360,7 +365,7 @@ function PrintSingleTable($queryresult, $table)
 	{
 		$HTMLstring .= "<td>{$row['SensorID']}</td>		
 					<td>{$row['Floor']}</td>
-					<td>{$row['Located']}</td>";	// Since we only select two columns, its just the 0th and 1st columns
+					<td>{$row['Location']}</td>";	// Since we only select two columns, its just the 0th and 1st columns
 					
 		// Now start printing the data from the rows. Row data key is equivalent to the data in the columnformat array
 		foreach($columnformat[$table] as $column)
@@ -377,6 +382,8 @@ function PrintSingleTable($queryresult, $table)
 		}
 
 		$HTMLstring .= "</tr>"; // End each row with a row end tag
+		$JSONtable[$table][] = array("SensorID" => (int)$row['SensorID'], "Floor" => (int)$row['Floor'], 
+			"Location" => $row['Location'], "Timestamp" => strtotime($row['Timestamp']), "Value" => (double)$row[$table]);
 	}
 	return $HTMLstring;
 }  					
