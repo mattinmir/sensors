@@ -64,8 +64,8 @@ $POST_DATE = $_POST['daterange'];
 $POST_LIFTS = $_POST['Lifts'];
 $POST_STAIRWELLS = $_POST['Stairwells'];
 $POST_CORRIDORS = $_POST['Corridors'];
-$POST_PARKING = $_POST['Parking'];*/
-
+$POST_PARKING = $_POST['Parking'];
+*/
 
 
 //$POST_ID = '3';
@@ -76,7 +76,7 @@ $POST_LIFTS = FALSE;
 $POST_STAIRWELLS = FALSE;
 $POST_CORRIDORS = FALSE;
 $POST_PARKING = FALSE;
-//$POST_LOCATIONS = $_POST['Locations'];
+//$POST_LOCATIONS = $_POST['Locations'];*/
 
 
 // This defines what rows are found in each SQL table (SensorID is implied)
@@ -298,6 +298,10 @@ else{
 		else{
 			$result = $link->query(str_replace("temp", $POST_TABLE, $query)); 
 			$output[$POST_TABLE] = PrintSingleTable($result, $POST_TABLE);
+			/*str_replace("temp", $POST_TABLE, $query);
+			$output = $query;
+			include 'output.html.php';
+			exit();*/
 		}	
 	
 	}//a selection of somekind has been made
@@ -336,7 +340,7 @@ function PrintAllTables($link, $query)
 	
 	foreach($alltables as $tablename)
 	{
-		var_dump(str_replace("temp", $tablename, $query));
+		//var_dump(str_replace("temp", $tablename, $query));
 		$queryresult = $link->query(str_replace("temp", $tablename, $query));
 		if($queryresult->num_rows != 0){
 			$HTMLstring[$tablename] = PrintSingleTable($queryresult, $tablename);

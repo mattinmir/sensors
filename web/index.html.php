@@ -126,21 +126,7 @@
 								</div>
 							</div>
 						</div>
-						<!--End Date From-->
-						<!--
-						<!--Date To-->
-						<div class="row">
-							<div class="col-lg-8">
-								<div class="input-group input-group-lg">
-										<span class="input-group-addon">
-										   Date To
-										</span>
-									<input type="text" name="dateto" id="dateto" class="form-control">
-								</div>
-							</div>
-						</div>
-						<!--End Date To-->-->
-						
+						<!--End Date Range-->
 						<div>
 							<input type="submit" value="Submit Query"/>
 						</div>
@@ -308,7 +294,7 @@
     <script src="assets/plugins/flot/jquery.flot.pie.js"></script>
 	<script src="assets/plugins/flot/jquery.flot.time.js"></script>
 	<script type="text/javascript" src="http://cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
-		<link rel="stylesheet" type="text/css" href="http://cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
+	<link rel="stylesheet" type="text/css" href="http://cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
 
 
 <script type="text/javascript">
@@ -413,77 +399,6 @@ $( "#graphHumidity" ).click(function() {
 	flotplot.setupGrid();
 	flotplot.draw();
 });
-// Simple type mapping; dates can be hard
-// and I would prefer to simply use `datevalue`
-// ... you could even add the formula in here.
-
-testTypes = {
-    "SensorID": "Number",
-    "Floor": "Number",
-    "Location": "String",
-    "Timestamp": "String",
-    "Value": "Number"
-};
-
-emitXmlHeader = function () {
-    var headerRow =  '<ss:Row>\n';
-    for (var colName in testTypes) {
-        headerRow += '  <ss:Cell>\n';
-        headerRow += '    <ss:Data ss:Type="String">';
-        headerRow += colName + '</ss:Data>\n';
-        headerRow += '  </ss:Cell>\n';        
-    }
-    headerRow += '</ss:Row>\n';    
-    return '<?xml version="1.0"?>\n' +
-           '<ss:Workbook xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">\n' +
-           '<ss:Worksheet ss:Name="Sheet1">\n' +
-           '<ss:Table>\n\n' + headerRow;
-};
-
-emitXmlFooter = function() {
-    return '\n</ss:Table>\n' +
-           '</ss:Worksheet>\n' +
-           '</ss:Workbook>\n';
-};
-
-jsonToSsXml = function (jsonObject) {
-    var row;
-    var col;
-    var xml;
-    var data = typeof jsonObject != "object" 
-             ? JSON.parse(jsonObject) 
-             : jsonObject;
-
-    xml = emitXmlHeader();
-
-    for (row = 0; row < data.length; row++) {
-        xml += '<ss:Row>\n';
-
-        for (col in data[row]) {
-            xml += '  <ss:Cell>\n';
-            xml += '    <ss:Data ss:Type="' + testTypes[col]  + '">';
-            xml += data[row][col] + '</ss:Data>\n';
-            xml += '  </ss:Cell>\n';
-        }
-
-        xml += '</ss:Row>\n';
-    }
-
-    xml += emitXmlFooter();
-    return xml;  
-};
-
-download = function (content, filename, contentType) {
-    if (!contentType) contentType = 'application/octet-stream';
-    var a = document.getElementById('grid');
-    var blob = new Blob([content], {
-        'type': contentType
-    });
-    a.href = window.URL.createObjectURL(blob);
-    a.download = filename;
-};
-
-download(jsonToSsXml(testJson), 'test.xls', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 
 </script>
 
