@@ -57,11 +57,10 @@ if(!mysqli_select_db($link, $dbname)){
 
 
 // Defining shorthand variables
-/*//$POST_ID = $_POST['sensorid'];
-//$POST_TABLE = $_POST['tableref'];
+/*$POST_ID = $_POST['sensorid'];
+$POST_TABLE = $_POST['tableref'];
 $POST_FLOORS = $_POST['floors'];
 $POST_DATE = $_POST['daterange'];
-//$POST_LOCATIONS = $_POST['Locations'];
 $POST_LIFTS = $_POST['Lifts'];
 $POST_STAIRWELLS = $_POST['Stairwells'];
 $POST_CORRIDORS = $_POST['Corridors'];
@@ -77,7 +76,7 @@ $POST_LIFTS = FALSE;
 $POST_STAIRWELLS = FALSE;
 $POST_CORRIDORS = FALSE;
 $POST_PARKING = FALSE;
-
+//$POST_LOCATIONS = $_POST['Locations'];
 
 
 // This defines what rows are found in each SQL table (SensorID is implied)
@@ -257,7 +256,7 @@ else{
 		/******************************** END FLOORS ********************************/
 		/******************************** START DATES ********************************/
 		if(isset($POST_DATE)){
-			//what if u just want all the data?
+			//TODO: what if u just want all the data?
 			//explode to seperate date from and date to 
 			$daterange = explode("-", $POST_DATE); 
 		
