@@ -23,7 +23,7 @@ $servername = 'localhost';
 $dbname = 'residential';
 
 // ----------- Establish connection -----------
-$link = mysqli_connect('localhost', 'root', 'root'); 
+$link = mysqli_connect('localhost', 'root', ''); 
 
 // Connect to the server which contains the DB
 if (!$link){
@@ -57,32 +57,26 @@ if(!mysqli_select_db($link, $dbname)){
 
 
 // Defining shorthand variables
-/*$POST_ID = $_POST['sensorid'];
+$POST_ID = $_POST['sensorid'];
 $POST_TABLE = $_POST['tableref'];
 $POST_FLOORS = $_POST['floors'];
-$POST_DATE = $_POST['daterange'];
-$POST_LIFTS = $_POST['Lifts'];
-$POST_STAIRWELLS = $_POST['Stairwells'];
-$POST_CORRIDORS = $_POST['Corridors'];
-$POST_PARKING = $_POST['Parking'];*/
-
-
-
-//$POST_ID = '3';
-$POST_TABLE = 'Lux';
-$POST_FLOORS = '3';
-$POST_DATE = '20/05/2016 - 24/05/2016';
-$POST_LIFTS = FALSE;
-$POST_STAIRWELLS = FALSE;
-$POST_CORRIDORS = FALSE;
-$POST_PARKING = FALSE;
 //$POST_LOCATIONS = $_POST['Locations'];
+
+
+//$POST_ID = '45';
+//$POST_TABLE = 'Lux';
+//$POST_FLOORS = '3';
+$POST_LIFTS = $_POST['Lift'];
+$POST_STAIRWELLS = $_POST['Stairwell'];
+$POST_CORRIDORS = $_POST['Corridor'];
+$POST_PARKING = $_POST['Parking'];
+
 
 
 // This defines what rows are found in each SQL table (SensorID is implied)
 $columnformat = array(
 				"Temperature" 	=> array("Timestamp", "Temperature"),
-				"Location"		=> array("Floor", "Located", "Active"),
+				"Location"		=> array("Floor", "Location", "Active"),
 				"Humidity"		=> array("Timestamp", "Humidity"),
 				"Lux"		=> array("Timestamp", "Lux"));
 				
@@ -108,7 +102,6 @@ if(isset($POST_ID) && (strlen(trim($POST_ID)) != 0)){
 		$table = $result['Type']; // Get the Location table, and find out what type of sensor is (same as table name)
 		$result = $link->query("SELECT * FROM $table JOIN Location USING (sensorID) WHERE sensorID=$sensorid");
 		$output[$table] = PrintSingleTable($result, $table);
-		
 	}
 	
 	//fix:
@@ -131,7 +124,6 @@ else{
 		$query = "SELECT* FROM temp JOIN Location USING(sensorID)";
 		$output = PrintAllTables($link, $query);
 		
-		
 	}
 
 	/********************************A SELECTION HAS BEEN MADE**************************************/
@@ -139,13 +131,14 @@ else{
 		$query = "SELECT* FROM temp JOIN Location USING(sensorID) ";
 		/******************************** START LOCATIONS ********************************/
 		$locationarray = array ($POST_LIFTS, $POST_CORRIDORS, $POST_STAIRWELLS, $POST_PARKING);
+		var_dump($locationarray);
 		$loc_query = '';
 		//check if any locations have been selected. 
 		foreach($locationarray as $singleloc){
 			
 			//ask alex if post-lists will be false or blank 
 			if(strlen(trim($singleloc)) !=0){
-				$loc_query .= "OR located = '$singleloc' "; 
+				$loc_query .= "OR Location = '$singleloc' "; 
 			}
 				
 				
@@ -255,42 +248,15 @@ else{
 		}
 		/******************************** END FLOORS ********************************/
 		/******************************** START DATES ********************************/
-		if(isset($POST_DATE)){
-			//TODO: what if u just want all the data?
-			//explode to seperate date from and date to 
-			$daterange = explode("-", $POST_DATE); 
-		
-			//explode each date to seperate the MM, DD and YYYY
-			$datefromarray = explode ("/", $daterange[0]);
-			$datetoarray = explode ("/", $daterange[1]);
-		
-			//Put into the format of the database
-			$datefrom = trim($datefromarray[2]) . '-' . $datefromarray[1] . '-' . $datefromarray[0] . ' ' . '00:00:00';
-			$dateto = $datetoarray[2] . '-' . $datetoarray[1] . '-' . trim($datetoarray[0]) . ' ' . '23:59:59';
-		
-			//Form sub date query
-			$date_query = "timestamp BETWEEN '$datefrom' AND '$dateto'";
-		
-			//check if WHERE has already been used  
-			if(!strpos($query, 'WHERE')){
-				$query = $query. 'WHERE ' . $date_query;
-			}
-			
-			//if WHERE has already been used i.e. location was selected
-			else{
-				$query = $query. 'AND ' . $date_query;
-				
-			}
-			
-		}	
-		
 		/******************************** END DATES ********************************/
 		
 		/******************************** NO TABLE SELECTION****************************************/
 		//need to write this 
 		if(!isset($POST_TABLE)){
 			$output = PrintAllTables($link, $query);
-			
+			/*$output = $query;
+			include 'output.html.php';
+			exit();*/
 		}
 			
 		
