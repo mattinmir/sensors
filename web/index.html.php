@@ -113,12 +113,12 @@
 						
 						<br/>
 						
-						<!--Date From-->
+						<!--Date Range-->
 						<div class="row">
 							<div class="col-lg-8">
 								<div class="input-group input-group-lg">
 										<span class="input-group-addon">
-										   Date From
+										   Date Range
 										</span>
 									<!-- <input type="text" name="datefrom" id="datefrom" class="form-control"> -->
 									<input type="text" id="daterange" value="01/01/2015 - 01/31/2015" />
@@ -127,7 +127,7 @@
 							</div>
 						</div>
 						<!--End Date From-->
-						
+						<!--
 						<!--Date To-->
 						<div class="row">
 							<div class="col-lg-8">
@@ -139,7 +139,7 @@
 								</div>
 							</div>
 						</div>
-						<!--End Date To-->
+						<!--End Date To-->-->
 						
 						<div>
 							<input type="submit" value="Submit Query"/>
