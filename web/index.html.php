@@ -15,12 +15,12 @@
     <!-- Page-Level CSS -->
     <link href="assets/plugins/morris/morris-0.4.3.min.css" rel="stylesheet" />
     <link href="assets/plugins/dataTables/dataTables.bootstrap.css" rel="stylesheet" />
-
+	
 	<script type="text/javascript" src="http://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
  
+		
+	
 	<style>#flotTip {z-index:2000 !important;}</style>
-
-
 </head>
 
 <body>
@@ -37,14 +37,14 @@
 </div>
 
 <div class="container-fluid">
-	<div class="row ">
-		<div class="col-lg-9">
+	<div class="row" style="display:table">
+		<div class="col-lg-6" style="display:table-cell">
 			<div class="col-lg-12 alert alert-success">
 				<form action="index.php" method ="post">
 					<!-- Sensor Types -->
-					<div class="col-xs-4">
+					<div class="col-xs-3">
 						<div class="form-group">
-							<h3>Sensor Types</h3>
+							<h3>Sensor</h3>
 							<div class="radio">
 								<label>
 									<input type="radio" name="tableref" value="Lux"><h4>Lighting</h4>
@@ -70,37 +70,37 @@
 					<!-- End Sensor Types -->
 
 					<!-- Locations -->
-					<div class="col-xs-4">	
+					<div class="col-xs-3" style="display:table-cell">	
 						<div class="form-group">
 							<h3>Locations</h3>
 							<div class="checkbox">
 								<label>
-									<input type="checkbox" name="Lifts" value="Lifts"><h4>Lifts</h4>
+									<input type="checkbox" name="lift" value="lift"><h4>Lifts</h4>
 								</label>
 							</div>
 							<div class="checkbox">
 								<label>
-									<input type="checkbox" name="Corridors" value="Corridors"><h4>Corridors</h4>
+									<input type="checkbox" name="corridor" value="corridor"><h4>Corridor</h4>
 								</label>
 							</div>
 							<div class="checkbox">
 								<label>
-									<input type="checkbox" name="Stairwells" value="Stairwells"><h4>Stairwells</h4>
+									<input type="checkbox" name="stairwell" value="stairwell"><h4>Stairwell</h4>
 								</label>
 							</div>
 							<div class="checkbox">
 								<label>
-									<input type="checkbox" name="Parking" value="Parking"><h4>Parking</h4>
+									<input type="checkbox" name="parking" value="parking"><h4>Parking</h4>
 								</label>
 							</div>
 						</div>
 					</div>	
 					<!-- End Locations -->
 					
-					<div class="col-xs-4">	
+					<div class="col-xs-6">	
 						<!--Floors-->
 						<div class="row">
-							<div class="col-lg-8">
+							<div class="col-lg-12">
 								<div class="input-group input-group-lg">
 										<span class="input-group-addon">
 										   Floors
@@ -115,20 +115,19 @@
 						
 						<!--Date Range-->
 						<div class="row">
-							<div class="col-lg-8">
-								<div class="input-group input-group-lg">
+							<div class="col-lg-12">
+								<div class="input-group">
 										<span class="input-group-addon">
-										   Date Range
+										   Dates
 										</span>
-									<!-- <input type="text" name="datefrom" id="datefrom" class="form-control"> -->
-									<input type="text" id="daterange" value="01/01/2015 - 01/31/2015" />
-
+									<input type="text" id="daterange" value="01/01/2015 - 01/31/2015" class="form-control" />
 								</div>
 							</div>
 						</div>
 						<!--End Date Range-->
-						<div>
-							<input type="submit" value="Submit Query"/>
+						<br>
+						<div align="right">
+							<input type="submit" class="btn" value="Submit Query"/>
 						</div>
 						
 					</div>
@@ -136,6 +135,28 @@
 			</div>
 		</div>
 		
+		<!--Sensor ID-->
+		<div class="col-xs-3" style="display:table-cell">
+			<div class="alert alert-success">
+				<form action="index.php" method ="post">
+					<div class="input-group input-group-lg">
+						<span class="input-group-addon">
+							Sensor ID
+						</span>
+						<input type="text" name="sensorid" id="sensorid" class="form-control">
+					</div>
+				
+				<!--End Sensor ID-->
+					<br>
+					<div align=right>
+						<input type="submit" class=btn value="Submit Sensor ID"/>
+					</div>
+					<br>
+				</form>	
+			</div>
+		</div>
+	
+	
 		<!-- Notifications-->	
 		<div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
 			<div class="panel panel-primary">
@@ -154,24 +175,7 @@
 		</div>
 	</div>
 	
-	<form action="index.php" method ="post">
-		<!--Sensor ID-->
-		<div class="alert alert-success row col-lg-3 col-md-3 col-sm-3 col-xs-3">
-			<div class="input-group input-group-lg">
-				<span class="input-group-addon">
-					Sensor ID
-				</span>
-				<input type="text" name="sensorid" id="sensorid" class="form-control">
-			</div>
-		
-		<!--End Sensor ID-->
-			
-			<div>
-				<input type="submit" value="Submit Sensor ID"/>
-			</div>
-			<br>
-		</div>
-	</form>	
+
 	
 	<div class="col-lg-12">
 		<div class="row">
@@ -268,24 +272,6 @@
 <script type="text/javascript" src="http://www.shieldui.com/shared/components/latest/js/shieldui-all.min.js"></script>
 <script type="text/javascript" src="http://www.shieldui.com/shared/components/latest/js/jszip.min.js"></script>
 
-
-<!-- Include Required Prerequisites 
-<script type="text/javascript" src="http://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
-
- 
-<!-- Include Date Range Picker -->
-<script type="text/javascript" src="http://cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
-
-<script>
-    $(document).ready(function () {
-        $('#databaseTable').dataTable();
-		$('#tableTemperature').dataTable();
-		$('#tableLux').dataTable();
-		$('#tableHumidity').dataTable();
-		$('input[name="daterange"]').daterangepicker();
-    });
-</script>-->
-
 <script src="assets/plugins/flot.tooltip/js/jquery.flot.tooltip.js"></script>
 
     <script src="assets/plugins/flot/jquery.flot.js"></script>
@@ -294,8 +280,7 @@
     <script src="assets/plugins/flot/jquery.flot.pie.js"></script>
 	<script src="assets/plugins/flot/jquery.flot.time.js"></script>
 	<script type="text/javascript" src="http://cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
-	<link rel="stylesheet" type="text/css" href="http://cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
-
+		<link rel="stylesheet" type="text/css" href="http://cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
 
 <script type="text/javascript">
 
@@ -399,10 +384,7 @@ $( "#graphHumidity" ).click(function() {
 	flotplot.setupGrid();
 	flotplot.draw();
 });
-
 </script>
-
-
 
 </body>
 

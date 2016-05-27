@@ -20,7 +20,7 @@ if (get_magic_quotes_gpc())
 
 // ----------- Connection parameters -----------
 $servername = 'localhost';
-$dbname = 'residential';
+$dbname = 'sensors';
 
 // ----------- Establish connection -----------
 $link = mysqli_connect('localhost', 'root', 'root'); 
@@ -57,17 +57,17 @@ if(!mysqli_select_db($link, $dbname)){
 
 
 // Defining shorthand variables
-/*$POST_ID = $_POST['sensorid'];
+$POST_ID = $_POST['sensorid'];
 $POST_TABLE = $_POST['tableref'];
 $POST_FLOORS = $_POST['floors'];
 $POST_DATE = $_POST['daterange'];
-$POST_LIFTS = $_POST['Lifts'];
-$POST_STAIRWELLS = $_POST['Stairwells'];
-$POST_CORRIDORS = $_POST['Corridors'];
-$POST_PARKING = $_POST['Parking'];
-*/
+$POST_LIFTS = $_POST['lifts'];
+$POST_STAIRWELLS = $_POST['stairwells'];
+$POST_CORRIDORS = $_POST['corridors'];
+$POST_PARKING = $_POST['parking'];
 
 
+/*
 //$POST_ID = '3';
 $POST_TABLE = 'Lux';
 $POST_FLOORS = '3';
@@ -82,7 +82,7 @@ $POST_PARKING = FALSE;
 // This defines what rows are found in each SQL table (SensorID is implied)
 $columnformat = array(
 				"Temperature" 	=> array("Timestamp", "Temperature"),
-				"Location"		=> array("Floor", "Located", "Active"),
+				"Location"		=> array("Floor", "Location", "Active"),
 				"Humidity"		=> array("Timestamp", "Humidity"),
 				"Lux"		=> array("Timestamp", "Lux"));
 				
@@ -94,7 +94,8 @@ $tableunit	=	array(
 //for somereason output array at the end 
 
 $output = array();				
-$JSONtable = array( "Temperature" => array(), "Humidity" => array(), "Lux" => array() );
+$alltables = array("temperature", "lux", "humidity");
+$JSONtable = array( "temperature" => array(), "humidity" => array(), "lux" => array() );
 
 /*********************************SENSOR ID CHOSEN********************************/
 
@@ -104,11 +105,10 @@ if(isset($POST_ID) && (strlen(trim($POST_ID)) != 0)){
 	if(is_numeric($POST_ID)){
 	
 		$sensorid = mysqli_real_escape_string($link, $POST_ID);
-		$result = mysqli_fetch_assoc($link->query("SELECT * FROM Location WHERE sensorID = '$sensorid'"));	
+		$result = mysqli_fetch_assoc($link->query("SELECT * FROM location WHERE sensorID = '$sensorid'"));	
 		$table = $result['Type']; // Get the Location table, and find out what type of sensor is (same as table name)
-		$result = $link->query("SELECT * FROM $table JOIN Location USING (sensorID) WHERE sensorID=$sensorid");
+		$result = $link->query("SELECT * FROM $table JOIN location USING (sensorID) WHERE sensorID=$sensorid");
 		$output[$table] = PrintSingleTable($result, $table);
-		
 	}
 	
 	//fix:
@@ -128,24 +128,24 @@ else{
 	//test empty
 	//if(!isset($POST_TABLE) && empty($POST_LOCATIONS) && !isset($POST_FLOORS) && strlen(trim($POST_FLOORS)) == 0){
 	if(!isset($POST_TABLE) && !($POST_LIFTS) && !($POST_PARKING) && !($POST_STAIRWELLS) && !($POST_CORRIDORS) && !isset($POST_FLOORS) && strlen(trim($POST_FLOORS)) == 0){
-		$query = "SELECT* FROM temp JOIN Location USING(sensorID)";
+		$query = "SELECT* FROM repp JOIN location USING(sensorID)";
 		$output = PrintAllTables($link, $query);
-		
 		
 	}
 
 	/********************************A SELECTION HAS BEEN MADE**************************************/
 	else{
-		$query = "SELECT* FROM temp JOIN Location USING(sensorID) ";
+		$query = "SELECT* FROM repp JOIN location USING(sensorID) ";
 		/******************************** START LOCATIONS ********************************/
 		$locationarray = array ($POST_LIFTS, $POST_CORRIDORS, $POST_STAIRWELLS, $POST_PARKING);
+		var_dump($locationarray);
 		$loc_query = '';
 		//check if any locations have been selected. 
 		foreach($locationarray as $singleloc){
 			
 			//ask alex if post-lists will be false or blank 
 			if(strlen(trim($singleloc)) !=0){
-				$loc_query .= "OR located = '$singleloc' "; 
+				$loc_query .= "OR location = '$singleloc' "; 
 			}
 				
 				
@@ -281,22 +281,22 @@ else{
 				$query = $query. 'AND ' . $date_query;
 				
 			}
-			
-		}	
-		
+		}
 		/******************************** END DATES ********************************/
 		
 		/******************************** NO TABLE SELECTION****************************************/
 		//need to write this 
 		if(!isset($POST_TABLE)){
 			$output = PrintAllTables($link, $query);
-			
+			/*$output = $query;
+			include 'output.html.php';
+			exit();*/
 		}
 			
 		
 		/********************************TABLE SELECTION****************************************/
 		else{
-			$result = $link->query(str_replace("temp", $POST_TABLE, $query)); 
+			$result = $link->query(str_replace("repp", $POST_TABLE, $query)); 
 			$output[$POST_TABLE] = PrintSingleTable($result, $POST_TABLE);
 			/*str_replace("temp", $POST_TABLE, $query);
 			$output = $query;
@@ -312,9 +312,20 @@ else{
 //exit();
 
 
+
 // ========================================== NOTIFICATIONS ==========================================
 // Check for failures!!!
-$result = mysqli_query($link, "SELECT* FROM Failures");
+// want a way of just refreshing the notification panel or even better real time 
+$failure_query = '';
+foreach($alltables as $singletable){
+	$failure_query .= str_replace("repp", $tablename, "SELECT sensorID, floor, located, type, timestamp AS last_seen FROM location JOIN (SELECT* FROM repp ORDER BY timestamp DESC) as latest USING (sensorID) WHERE active = 0 GROUP BY sensorID 
+	UNION ");
+}
+
+$failure_query = substr($failure_query, 0, -6);
+$failure_query = $failure_query . 'ORDER BY last_seen ASC';
+
+$result = mysqli_query($link, $failure_query);
 $failure_output = "";
 if ($result->num_rows != 0)	// If there is a row in Failures, then there is a failure. Unless the SQL database fails. Or maybe they both failed?
 {
@@ -324,24 +335,22 @@ if ($result->num_rows != 0)	// If there is a row in Failures, then there is a fa
 			<span class="pull-right text-muted small"><em>'.$row["Timestamp"].'</em></span></div>'; 
 	} // This looks like garbage but because html has "" in it, need to switch up the syntax
 }
-
 $result->free(); // I think that's all the query results
 echo '<div id="JSON-datatable" style="display: none;">'.htmlspecialchars(json_encode($JSONtable)).'</div>';
-
 include 'index.html.php';	// Now ready for HTML
-
 // =====================================================================================================
 // ========================================= FUNCTIONS ================================================
 // =====================================================================================================
 function PrintAllTables($link, $query)
 {
-	$alltables = array("Temperature", "Lux", "Humidity");
+	//can we make this global?
+	$alltables = array("temperature", "lux", "humidity");
 	$HTMLstring = array();
 	
 	foreach($alltables as $tablename)
 	{
-		//var_dump(str_replace("temp", $tablename, $query));
-		$queryresult = $link->query(str_replace("temp", $tablename, $query));
+		var_dump(str_replace("repp", $tablename, $query));
+		$queryresult = $link->query(str_replace("repp", $tablename, $query));
 		if($queryresult->num_rows != 0){
 			$HTMLstring[$tablename] = PrintSingleTable($queryresult, $tablename);
 			//var_dump($queryresult);
@@ -350,8 +359,6 @@ function PrintAllTables($link, $query)
 	
 	return $HTMLstring;
 }
-
-
 function PrintSingleTable($queryresult, $table)
 {
 	global $columnformat, $tableunit, $JSONtable;
@@ -373,7 +380,6 @@ function PrintSingleTable($queryresult, $table)
 	
 	// Finish the column HTML with some spicy end tags
 	$HTMLstring .= "</tr></thead><tbody><tr>";
-
 	// Error message if query fails including detailed error 
 /*	if ($result == false)
 	{
@@ -403,12 +409,11 @@ function PrintSingleTable($queryresult, $table)
 			else*/
 				$HTMLstring .= "<td>{$row[$column]}{$tableunit[$column]}</td>";	
 		}
-
 		$HTMLstring .= "</tr>"; // End each row with a row end tag
 		$JSONtable[$table][] = array("SensorID" => (int)$row['SensorID'], "Floor" => (int)$row['Floor'], 
 			"Location" => $row['Location'], "Timestamp" => strtotime($row['Timestamp']), "Value" => (double)$row[$table]);
 	}
 	return $HTMLstring;
-}  					
+}
 
 ?>
