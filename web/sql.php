@@ -273,15 +273,15 @@ else{
 		if(isset($POST_DATE)){
 			//TODO: what if u just want all the data?
 			//explode to seperate date from and date to 
-			$daterange = explode("-", $POST_DATE); 
+			$daterange = explode("+-+", $POST_DATE); 
 		
 			//explode each date to seperate the MM, DD and YYYY
-			$datefromarray = explode ("/", $daterange[0]);
-			$datetoarray = explode ("/", $daterange[1]);
+			$datefromarray = explode ("-", $daterange[0]);
+			$datetoarray = explode ("-", $daterange[1]);
 		
 			//Put into the format of the database
-			$datefrom = trim($datefromarray[2]) . '-' . $datefromarray[1] . '-' . $datefromarray[0] . ' ' . '00:00:00';
-			$dateto = $datetoarray[2] . '-' . $datetoarray[1] . '-' . trim($datetoarray[0]) . ' ' . '23:59:59';
+			$datefrom = $datefromarray[2] . '-' . $datefromarray[1] . '-' . $datefromarray[0] . ' ' . '00:00:00';
+			$dateto = $datetoarray[2] . '-' . $datetoarray[1] . '-' . ($datetoarray[0]) . ' ' . '23:59:59';
 		
 			//Form sub date query
 			$date_query = "timestamp BETWEEN '$datefrom' AND '$dateto'";
