@@ -1,5 +1,5 @@
 <?php     
-ob_start();
+//ob_start();
 error_reporting(0);
 @ini_set('display_errors', 0);
 
@@ -137,7 +137,7 @@ if(isset($POST_ID) && (strlen(trim($POST_ID)) != 0)){
 	
 		$sensorid = mysqli_real_escape_string($link, $POST_ID);
 		$result = mysqli_fetch_assoc($link->query("SELECT * FROM location WHERE sensorID = '$sensorid'"));	
-		$table = $result['type']; // Get the Location table, and find out what type of sensor is (same as table name)
+		$table = ucfirst($result['type']); // Get the Location table, and find out what type of sensor is (same as table name)
 		$result = $link->query("SELECT * FROM $table JOIN location USING (sensorID) WHERE sensorID=$sensorid");
 		PrintSingleTable($result, $table);
 	}
@@ -273,7 +273,7 @@ else{
 		if(isset($POST_DATE)){
 			//TODO: what if u just want all the data?
 			//explode to seperate date from and date to 
-			$daterange = explode("+-+", $POST_DATE); 
+			$daterange = explode(" - ", $POST_DATE); 
 		
 			//explode each date to seperate the MM, DD and YYYY
 			$datefromarray = explode ("-", $daterange[0]);
@@ -285,7 +285,7 @@ else{
 		
 			//Form sub date query
 			$date_query = "timestamp BETWEEN '$datefrom' AND '$dateto'";
-		
+
 			//check if WHERE has already been used  
 			if(!strpos($query, 'WHERE')){
 				$query = $query. 'WHERE ' . $date_query;
@@ -318,7 +318,7 @@ else{
 //$result->free(); // I think that's all the query results
 
 //echo '<div id="JSON-datatable" style="display: none;">'.htmlspecialchars(json_encode($JSONtable)).'</div>';
-ob_end_clean();
+//ob_end_clean();
 echo json_encode($JSONtable);
 //$error = $query;
 //echo $error;

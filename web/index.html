@@ -33,13 +33,23 @@
 	<script type="text/javascript" src="http://www.shieldui.com/shared/components/latest/js/shieldui-all.min.js"></script>
 	<script type="text/javascript" src="http://www.shieldui.com/shared/components/latest/js/jszip.min.js"></script>
 
-	<!--<script src="assets/plugins/flot.tooltip/js/jquery.flot.tooltip.js"></script>-->
+	
 	<script src="assets/plugins/flot/jquery.flot.js"></script>
+	<script src="assets/plugins/flot/jquery.flot.time.js"></script>
+	<script src="assets/plugins/flot/jquery.flot.resize.js"></script>
+	<script src="assets/plugins/flot.tooltip/js/jquery.flot.tooltip.js"></script>
+	
 	<script type="text/javascript" src="http://cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
 	<link rel="stylesheet" type="text/css" href="http://cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
 		
 	
-	<style>#flotTip {z-index:2000 !important;}</style>
+	<style>.flotTip {
+		z-index: 2000 !important;
+		background-color: white;
+		border: 1px solid #eaeaea;
+		border-radius: 6px;
+		padding: 3px;}	
+	</style>
 </head>
 
 <body>
@@ -200,7 +210,7 @@
 	<div class="col-lg-12">
 		<div class="row">
             <!-- Database Output -->
-            <div class="panel panel-default">
+            <div id="outputPanel" class="panel panel-default">
                 <div class="panel-heading">
                     Database Data
                 </div>
@@ -218,17 +228,17 @@
 				</div>
 				
 				<!-- GRAPH MODAL -->
-				<div class="modal fade" id="myModal" role="dialog">
-					<div class="modal-dialog" style="width:80%;height:80%">
+				<div class="modal fade" id="graphModal" role="dialog">
+					<div class="modal-dialog" style="width:80%">
 						<!-- Modal content-->
-						<div class="modal-content">
+						<div class="modal-content" style="width:auto;height:auto;">
 							<div class="modal-header">
 								<button type="button" class="close" data-dismiss="modal">&times;</button>
 								<h4 class="modal-title">Modal Header</h4>
 							</div>
 							
-							<div class="modal-body">
-								<div id="graphdiv" style="width:100%;margin:0 auto;height:80%"></div>
+							<div class="modal-body" style="height:500px;">
+								<div id="graphdiv" style="width:100%;height:100%;"></div>
 							</div>
 							
 							<div class="modal-footer">
@@ -249,6 +259,11 @@
 
 
 <script type="text/javascript">
+
+var POSTarg = '';
+var responseJSON;
+var flotplot;
+
 $(function() {
 	$('#daterange').daterangepicker(
 	{
@@ -261,78 +276,33 @@ $(function() {
 });
 
 jQuery(document).ready(function ($) {
-	var JSONobj, noti_obj;
 	
-	$.ajax({
-		type:'POST', 
-		url:'sql.php', 
-		dataType:"json",
-		success: function(response) {
-			JSONobj = response;
-			updateTable(JSONobj);
-		},
-		error: function(response)
-		{
-			alert("error has occurred!");
-		}
-	});
+// ====================== INIT TABLES =======================
+	// Initialise the table on page open
+	pollSQLdb();
+	var refreshTableTimer = setInterval(pollSQLdb, 10000);
 	
-	$.ajax({
-		type:'POST', 
-		url:'sql.php', 
-		dataType:"json",
-		data:"notification=1",
-		success: function(response) {
-			updateNotifications(response);
-		},
-		error: function(response)
-		{
-			alert("error has occurred.");
-		}
-	});
-	
+// ====================== FORM EVENT HANDLERS =======================
+
+	// Sensor ID search
 	$( "#sensorIDForm" ).on('submit', function(event){
 		event.preventDefault();
-		$.ajax({
-			type:'POST', 
-			url:'sql.php', 
-			data:$('#sensorIDForm').serialize(), 
-			dataType:"json",
-			success: function(response) {
-				//alert(response);
-				JSONobj = response;
-				//alert(JSON.stringify(response));
-				updateTable(JSONobj);
-			},
-			error: function(response)
-			{
-				alert("error has occurred.");
-			}
-		});
+		POSTarg = $('#sensorIDForm').serialize();
+		clearInterval(refreshTableTimer);
+		pollSQLdb();
+		refreshTableTimer = setInterval(pollSQLdb, 10000);
 	});
 
-	
+	// Filter form
 	$( "#inputForm" ).on('submit', function(event){
 		event.preventDefault();
-		$.ajax({
-			type:'POST', 
-			url:'sql.php', 
-			data:$('#inputForm').serialize(), 
-			dataType:"json",
-			success: function(response)
-			{
-				//alert(response);
-				JSONobj = response;
-				//alert(JSON.stringify(response));
-				updateTable(JSONobj);
-			},
-			error: function(response)
-			{
-				alert("error has occurred.");
-			}
-		});
+		POSTarg = $('#inputForm').serialize();
+		clearInterval(refreshTableTimer);
+		pollSQLdb();
+		refreshTableTimer = setInterval(pollSQLdb, 10000);
+
 	});
-	
+	// Show all sensors
 	$( "#showSensors" ).click(function()
 	{
 		$.ajax({
@@ -341,12 +311,20 @@ jQuery(document).ready(function ($) {
 			data:"location=1", 
 			dataType:"json",
 			success: function(response) {
-				JSONobj = response;
-				showLocations(JSONobj);
+				responseJSON = response;
+				showLocations(responseJSON);
 			}
 		});
 	});
 	
+	$("a[href='#showGraph']").click(function(event)
+	{
+		//event.preventDefault();
+		//alert($("li.active a").text());
+		alert("hi");
+	});
+	
+
 /*
 	
 	$('#databaseTable').dataTable();
@@ -425,36 +403,56 @@ jQuery(document).ready(function ($) {
 			FlotLux[arrcnt].data.push([JSONobj.Lux[i].Timestamp *1000, JSONobj.Lux[i].Value]);
 		}	
 	}
+	*/
+	
 	flotplot = $.plot($("#graphdiv"), [ [[0.5,0.5], [2,5]] ], { xaxis:{ mode:"time",timeformat: "%Y/%m/%d %H:%M:%S" }, 
 		series:{ points:{ symbol:"circle",show:"true" }, lines:{ show:"true"} }, grid: { hoverable: true }, tooltip:{ show:true, defaultTheme:false} } );
-*/
+
 		
 });
-/*
-function plotGraph() 
+
+function showGraph() 
 {
-	var id = $(this).attr('id');
-	flotplot.setData(FlotLux);
+	var sensorType = $("li.active a").html();
+	var currentID = responseJSON[sensorType][0].sensorID;
+	//alert(responseJSON[sensorType][0].sensorID);
+	var flotData = [ { label:"SensorID " + currentID.toString(), data:[] } ];
+	var arrcnt = 0;
+	for (var i in responseJSON[sensorType])
+	{
+		if (currentID != responseJSON[sensorType][i].sensorID)
+		{
+			currentID = responseJSON[sensorType][i].sensorID;
+			flotData.push( { label:"SensorID " + currentID.toString(), data:[] } );
+			++arrcnt;
+		}
+		flotData[arrcnt].data.push([responseJSON[sensorType][i].timestamp*1000, responseJSON[sensorType][i].value]);
+	}
+	
+	//alert(JSON.stringify(flotData));
+	flotplot.setData(flotData);
 	flotplot.setupGrid();
 	flotplot.draw();
-	alert("hi");
-}*/
+	$("h4.modal-title").text("Graph of " + sensorType + " data");
+	$("#graphModal").modal('show');
+}
 
-function updateTable(JSONobj)
+function updateTable(inputJSON)
 {
+	$("#outputPanel").css("height" ,$("#outputPanel").outerHeight());
+	var activeTab = '#' + $("li.active a").attr('id');
 	$("#dataTabs").empty();
 	$("#dataTabsContent").empty();
 	
-	if($.isEmptyObject(JSONobj))
+	if($.isEmptyObject(inputJSON))
 		$("#dataTabsContent").append("No data found.");
 		
-	$.each(JSONobj, function(i,j){
+	$.each(inputJSON, function(i,j){
 		$("#dataTabs").append('<li><a href="#tabContent_' + i + '" id="tab_' + i + '" data-toggle="tab">' + i + '</a></li>');
-		//$("#tab_" + i).tab('show');
 		$("#dataTabsContent").append('<div style="padding:0 1em;" class="tab-pane fade" id="tabContent_' + i + '">' +
 		'</br><table class="display" cellspacing="0" width="100%" id="table' + i + '"></div></table>');
 		
-		$('#table' + i).DataTable( {
+		$('#table' + i).DataTable({
 			data:j,
 			columns: [
 			{ title:"SensorID", data: 'sensorID' },
@@ -462,27 +460,38 @@ function updateTable(JSONobj)
 			{ title:"Location", data: 'location' },
 			{ title:"Timestamp", data: 'timestamp', render: function( data, type, full, meta ){return moment.unix(data); }},
 			{ title:"Value", data: 'value' }
-			]
+			],
+			order: [3, 'desc']
 		} );
 	});
 	
-	$("#dataTabs li:first-child").addClass("active");
-	$("#dataTabsContent div:first-child").addClass("in active");
+	$("#dataTabs").append('<li role="presentation" style="float:right;" id="showGraph"><a href="#" onclick="showGraph()">Show Graph</a></li>');
+	$("#dataTabs").append('<li role="presentation" style="float:right;" id="showGraph"><a href="#">Export Data</a></li>');
+	if($(activeTab).length)
+	{
+		$(activeTab).tab('show');
+	}
+	else
+	{
+		$("#dataTabs li:first-child").addClass("active");
+		$("#dataTabsContent div:first-child").addClass("in active");
+	}
+	$("#outputPanel").css("height", '');
 }
 
-function showLocations(JSONobj)
+function showLocations(inputJSON)
 {
 	$("#dataTabs").empty();
 	$("#dataTabsContent").empty();
 	
-	if($.isEmptyObject(JSONobj))
+	if($.isEmptyObject(inputJSON))
 		$("#dataTabsContent").append("No data found.");
 	
 	$("#dataTabsContent").append('<div style="padding:0 1em;">' +
 	'</br><table class="display" cellspacing="0" width="100%" id="tableLoc"></div></table>');
 	
 	$('#tableLoc').DataTable( {
-		data:JSONobj,
+		data:inputJSON,
 		columns: [
 		{ title:"SensorID", data: 'sensorID' },
 		{ title:"Floor", data: 'floor' },
@@ -493,15 +502,49 @@ function showLocations(JSONobj)
 	} );
 }
 
-function updateNotifications(JSONobj)
+function updateNotifications(inputJSON)
 {
 	$("#notificationList").empty();
-	$.each(JSONobj, function(i,j)
+	$.each(inputJSON, function(i,j)
 	{
 		var d = new Date(j["timestamp"]*1000);
 		$("#notificationList").append('<div class="list-group-item" style="overflow:hidden"><i class="fa fa-bolt fa-fw"></i>Sensor ID '+
 		j["sensorID"] + ' has failed!<span class="pull-right text-muted small"><em>'+ d.toLocaleString() +'</em></span></div>');
 	});
+}
+
+function pollSQLdb()
+{
+	$.ajax({
+		type:'POST', 
+		url:'sql.php', 
+		dataType:"json",
+		data:POSTarg,
+		success: function(response) {
+			responseJSON = response;
+			updateTable(responseJSON);
+		},
+		error: function(response)
+		{
+			alert("Error 1: Did not recieve valid response from the database.");
+		}
+	});
+	
+	$.ajax({
+		type:'POST', 
+		url:'sql.php', 
+		dataType:"json",
+		data:"notification=1",
+		success: function(response) {
+			updateNotifications(response);
+		},
+		error: function(response)
+		{
+			alert("Error 2: Did not recieve valid response from the database.");
+		}
+	});
+	
+	//setTimeout(pollSQLdb, 10000);
 }
 </script>
 
