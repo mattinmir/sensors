@@ -1,5 +1,5 @@
 #!/usr/bin/perl 
-my ($sensorID, $floor,$located,$active,$type) = @ARGV;
+my ($sensorID, $timestamp, $value) = @ARGV;
 
 use DBI;
 use strict;
@@ -13,9 +13,9 @@ my $password = "";
 
 my $dbh = DBI->connect($dsn, $userid, $password ) or die $DBI::errstr;
 
-my $sth = $dbh->prepare("INSERT INTO location
-                       (sensorID, floor, located, active, type)
+my $sth = $dbh->prepare("INSERT INTO temperature
+                       (sensorID, timestamp, value)
                         values
-                       (?,?,?,?,?)");
-$sth->execute($sensorID,$floor,$located,$active,$type) or die $DBI::errstr;
+                       (?,?,?)");
+$sth->execute($sensorID, $timestamp, $value) or die $DBI::errstr;
 $sth->finish();
