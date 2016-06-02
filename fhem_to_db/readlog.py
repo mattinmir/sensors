@@ -1,5 +1,6 @@
+# TODO:
 # Program may break if sensor communicates directly with gateway as the location
-# of ID in the packetwill be different
+# of ID in the packet will be different
 # Perhaps consult a list of sensor IDs?
 
 import subprocess
@@ -7,8 +8,8 @@ import time
 
 
 def decode(value):
-    value = -0.0006*value + 39.959
-    value -= -0.0179*value + 0.7199
+    value = -0.0006*value + 39.959 # Decoding function
+    value -= -0.0179*value + 0.7199 # Function to minimise error caused by ASK
     return value
 
 perlfile = 'updatedb.pl'
@@ -42,5 +43,5 @@ while True:
         else:
             decoded_value = decode(int(value,16))
             execute_string = 'perl ' + perlfile + ' "' + sensor_id + '" "' + timestamp + '" ' + str(decoded_value)
-            # subprocess.call(execute_string)
-            print(execute_string)
+            subprocess.call(execute_string)
+            # print(execute_string)
