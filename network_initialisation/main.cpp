@@ -32,7 +32,7 @@ int main()
 			string transID = split(fields[1], '_')[2];
 			string sensorID =
 			double rssi = stoul(fields[2].erase(0, 16), nullptr, 16); // Converts last two chars of payload into int rssi
-
+			// RSSI is db scale so less is more
 		}
 	}
 	/*
