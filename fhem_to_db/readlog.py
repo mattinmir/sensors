@@ -43,5 +43,9 @@ while True:
         else:
             decoded_value = decode(int(value,16))
             execute_string = 'perl ' + perlfile + ' "' + sensor_id + '" "' + timestamp + '" ' + str(decoded_value)
-            subprocess.call(execute_string)
-            # print(execute_string)
+            try:
+                print(execute_string)
+                execute = subprocess.call(execute_string)
+                print execute
+            except:
+                print "Something went wrong!"
