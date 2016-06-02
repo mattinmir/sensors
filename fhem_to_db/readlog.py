@@ -5,6 +5,12 @@
 import subprocess
 import time
 
+
+def decode(value):
+    value = -0.0006*value + 39.959
+    value -= -0.0179*value + 0.7199
+    return value
+
 perlfile = 'updatedb.pl'
 logfile = 'EnO_VLD_019FEE73.txt'
 log = open(logfile)
@@ -24,19 +30,17 @@ while True:
 
         trans_id = fields[1].split('_')[2]
         timestamp = fields[0]
-        payload = fields[3].rstrip('\n')
+        payload = fields[2].rstrip('\n')
 
-        value = payload[0:7]
-        sensor_id = payload[8:15]
-        rssi = payload[16:17]
+        value = payload[0:8]
+        sensor_id = payload[8:16]
+        rssi = payload[16:18]
 
         # Special code for teach in signal - can ignore packet
         if value is '08280B80':
             continue
         else:
-
-        execute_string = 'perl ' + perlfile + ' "' + sensor_id + '" "' + timestamp + '" ' + value
-        # subprocess.call(execute_string)
-        print(execute_string)
-
-def f(x):
+            decoded_value = decode(int(value,16))
+            execute_string = 'perl ' + perlfile + ' "' + sensor_id + '" "' + timestamp + '" ' + str(decoded_value)
+            # subprocess.call(execute_string)
+            print(execute_string)
