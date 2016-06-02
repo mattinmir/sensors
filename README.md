@@ -19,6 +19,8 @@ To merge changes from \<branch\> into master, checkout to master branch and run 
 
 `git branch` to see all local branches  
 `git branch -d <branch>` to remove local branch
+`git push origin --delete <branch>` to delete remote branch 
 
 `git branch -a` to see all branches including remote ones  
 `git remote prune origin` to remove stale remote branches
+
