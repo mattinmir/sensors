@@ -1,0 +1,11 @@
+while(new data line is read)
+
+  if (first4bytes_data==08280B80) 
+    then data==teach-in signal #so dont need to decode
+  else
+        #first 4bytes_data=temperature hex values 
+         decode the hex (first 4bytes_data)  -> decimal,x -> decoded temperature, f(x) ->minus positive error g(f(x)) due to ASK -> actual temp
+		 #int("4bytes_data",16) is the way to decode hex to decimal in python
+		 using f(x)=-0.0006x+39.959 to decode decimal x, but error arises as actual temp doesnt match decoded temperature due to ASK
+		 so g(f(x))=-0.0179*f(x)+0.7199 to map the decoded temperature to get its positive error
+		 actual temp=f(x)-g(f(x)) 
