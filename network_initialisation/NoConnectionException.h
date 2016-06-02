@@ -3,7 +3,7 @@
 
 #include <exception>
 #include <string>
- 
+
 
 class NoConnectionException : public std::exception
 {

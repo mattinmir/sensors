@@ -52,7 +52,7 @@ std::string Sensor::strongestLink()
 
 		for (int i = 1; i < connections.size(); ++i)
 			strongest = (strongest > connections[i]) ? strongest : connections[i];
-		
+
 		return strongest.get_transID();
 	}
 }
