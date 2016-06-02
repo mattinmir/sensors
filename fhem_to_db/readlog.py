@@ -45,7 +45,7 @@ while True:
             execute_string = 'perl ' + perlfile + ' "' + sensor_id + '" "' + timestamp + '" ' + str(decoded_value)
             try:
                 print(execute_string)
-                execute = subprocess.call(execute_string)
-                print execute
+                subprocess.call(execute_string)
+
             except:
                 print "Something went wrong!"
