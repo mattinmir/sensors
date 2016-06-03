@@ -32,7 +32,7 @@ std::string Sensor::strongestLink()
 		Connection strongest = connections[0];
 
 		for (int i = 1; i < connections.size(); ++i)
-			strongest = (strongest > connections[i]) ? strongest : connections[i];
+			strongest = (strongest < connections[i]) ? strongest : connections[i]; // < because rssi is db scale so 44 actually means -44 dB
 
 		return strongest.get_transID();
 	}
