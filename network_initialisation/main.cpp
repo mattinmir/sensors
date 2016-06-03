@@ -7,12 +7,14 @@
 #include <iostream>
 #include <fstream>
 #include <map>
+#include "dirent.h"
 
 using namespace std;
 
 int main()
 {
-	vector<string> logfiles = {"EnO_VLD_019FEE73-2016.log"};
+	string current_dir = ".";
+	vector<string> logfiles = get_file_list(current_dir, ".log"); //{"EnO_VLD_019FEE73-2016.log"};
 	vector<Sensor> sensors;
 
 	for (unsigned int i = 0; i < logfiles.size(); i++)
@@ -49,26 +51,12 @@ int main()
 
 		// Iterate over map of sensors and their rssi values,  getting the avg rssi
 		// then adding a new connection to each sensor connected to this transceiver
+		// Use median rssi in case an anomaly cause a fluke reading 
 		for (iter = rssis.begin(); iter != rssis.end(); ++iter)
-			new_connection(sensors, transID, iter->first, avg_rssi(iter->second)); // iter->first is sensorId, iter->second is vector of rssis
+			new_connection(sensors, transID, iter->first, median_rssi(iter->second)); // iter->first is sensorId, iter->second is vector of rssis
 		
 	}
-	/*
-	sensors.push_back(Sensor("A"));
-	sensors.push_back(Sensor("B"));
-	sensors.push_back(Sensor("C"));
-	sensors.push_back(Sensor("D"));
-
-	for (int i = 0; i < sensors.size(); i++)
-	{
-		sensors[i].add_connection(Connection("t1", (double)(rand() % 30)));
-		sensors[i].add_connection(Connection("t2", (double)(rand() % 30)));
-		sensors[i].add_connection(Connection("t3", (double)(rand() % 30)));
-
-	}
-
-	sensors.push_back(Sensor("E"));
-	*/
+	
 
 	for (unsigned int i = 0; i < sensors.size(); i++)
 	{
