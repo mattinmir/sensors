@@ -20,21 +20,4 @@ public:
 	std::string get_transID();
 };
 
-
-class Sensor
-{
-private:
-	std::string id;
-	std::vector<Connection> connections;
-
-public:
-	Sensor(std::string _id);
-
-	std::string getSensorID();
-
-	std::string strongestLink();
-
-	void add_connection(Connection c);
-};
-
 #endif // CONNECTION_H
