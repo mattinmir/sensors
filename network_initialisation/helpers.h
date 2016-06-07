@@ -103,6 +103,8 @@ void generate_whitelist(std::map<std::string, std::vector<std::string>> &whiteli
 
 bool update_whitelist(std::map<std::string, std::vector<std::string>> &whitelist, std::vector<std::string> failures, std::map<std::string, std::vector<std::string>> connections)
 {
+	bool updated = false;
+
 	// Iterate over every transceiver-sensor vector pair in the whitelist map
 	std::map<std::string, std::vector<std::string>>::iterator iter;
 	for (iter = whitelist.begin(); iter != whitelist.end(); ++iter)
@@ -114,11 +116,20 @@ bool update_whitelist(std::map<std::string, std::vector<std::string>> &whitelist
 			{	
 				// Remove dead transceiver ID from its sensors' connections lists (connections list should still remain sorted)
 				// iter->second[i] is the ith sensor currently connected to the dead transceiver
+				// So connections[iter->second[i]] is the vector of transceivers keyed by the sensor iter->second[i] in the connections map
 				connections[iter->second[i]].erase(std::remove(connections[iter->second[i]].begin(), connections[iter->second[i]].end(), iter->first), connections[iter->second[i]].end());
 				
-				connections[iter->second[i]]
-			}
-		}
+				if (connections[iter->second[i]].size() == 0)
+					throw NoConnectionException(iter->second[i]);
 
+				// connections[iter->second[i]][0] is the strongest transceiver for the sensor iter->second[i]
+				// So whitelist[connections[iter->second[i]][0]] is the entry in the whitelist keyed by that transceiver 
+				// We add the sensor to the whitelist for that transceiver
+				whitelist[connections[iter->second[i]][0]].push_back(iter->second[i]);
+			}
+			updated = true;
+		}
 	}
+
+	return updated;
 }

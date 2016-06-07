@@ -8,6 +8,8 @@
 #include <fstream>
 #include <map>
 #include "dirent.h"
+#include <thread>
+#include <mutex>
 
 using namespace std;
 
@@ -64,7 +66,7 @@ int main()
 	
 
 	map<string, vector<string>> whitelist;
-
+	vector<string> failures;
 	// Try/catch will catch exception if a sensor has no connections
 	try
 	{
@@ -78,7 +80,7 @@ int main()
 
 	while (true)
 	{
-		update_whitelist
+		update_whitelist(whitelist, vector<string>(), sensorConnections);
 	}
 
 }
