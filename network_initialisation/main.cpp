@@ -56,18 +56,29 @@ int main()
 			new_connection(sensors, transID, iter->first, median_rssi(iter->second)); // iter->first is sensorId, iter->second is vector of rssis
 		
 	}
+
+	// map<sensorID, vector of transcievers the sensor can connect to, in descending order of strength>
+	map<string, vector<string>> sensorConnections; 
+	for (unsigned int i = 0; i < sensors.size(); i++)
+		sensorConnections[sensors[i].getSensorID()] = sensors[i].connectionList();
 	
 
-	for (unsigned int i = 0; i < sensors.size(); i++)
+	map<string, vector<string>> whitelist;
+
+	// Try/catch will catch exception if a sensor has no connections
+	try
 	{
-		try
-		{
-			cout << sensors[i].getSensorID() << " : " << sensors[i].strongestLink() << "\n";
-		}
-		catch (exception& e)
-		{
-			cerr << e.what();
-		}
+		generate_whitelist(whitelist, vector<string>(), sensorConnections);
+	}
+	catch (exception& e)
+	{
+		cerr << e.what() << '\n';
+	}
+	
+
+	while (true)
+	{
+		update_whitelist
 	}
 
 }

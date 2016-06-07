@@ -5,6 +5,8 @@
 #include "Sensor.h"
 #include "Connection.h"
 #include "dirent.h"
+#include <map>
+#include "NoConnectionException.h"
 
 std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems) {
 	std::stringstream ss(s);
@@ -72,4 +74,51 @@ std::vector<std::string> get_file_list(std::string directory, std::string extens
 
 	return logs;
 
+}
+
+
+void generate_whitelist(std::map<std::string, std::vector<std::string>> &whitelist, std::vector<std::string> failures, std::map<std::string, std::vector<std::string>> connections)
+{
+	// Iterate over every sensor-transciever vector pair in the connections map
+	std::map<std::string, std::vector<std::string>>::iterator iter;
+	for (iter = connections.begin(); iter != connections.end(); ++iter)
+	{
+		unsigned int i = 0;
+
+		// Increment i until a non-failed transceiver is found in the connections list
+		while (std::find(failures.begin(), failures.end(), iter->second[0]) != failures.end())
+		{
+			iter->second.erase(iter->second.begin()); // Remove dead transciever from connection list
+
+			i++;
+			// If we have iterated over the entire list of connections and all are failed
+			if (i == connections.size())
+				throw NoConnectionException(iter->first);
+		}
+
+		// Add the current sensor to the non-failed transceiver's whitelist
+		whitelist[iter->second[0]].push_back(iter->first);
+	}
+}
+
+bool update_whitelist(std::map<std::string, std::vector<std::string>> &whitelist, std::vector<std::string> failures, std::map<std::string, std::vector<std::string>> connections)
+{
+	// Iterate over every transceiver-sensor vector pair in the whitelist map
+	std::map<std::string, std::vector<std::string>>::iterator iter;
+	for (iter = whitelist.begin(); iter != whitelist.end(); ++iter)
+	{
+		// If that transceiver has failed
+		if (std::find(failures.begin(), failures.end(), iter->first) != failures.end())
+		{
+			for (unsigned int i = 0; i < iter->second.size(); i++)
+			{	
+				// Remove dead transceiver ID from its sensors' connections lists (connections list should still remain sorted)
+				// iter->second[i] is the ith sensor currently connected to the dead transceiver
+				connections[iter->second[i]].erase(std::remove(connections[iter->second[i]].begin(), connections[iter->second[i]].end(), iter->first), connections[iter->second[i]].end());
+				
+				connections[iter->second[i]]
+			}
+		}
+
+	}
 }

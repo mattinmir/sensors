@@ -18,7 +18,7 @@ public:
 
 	std::string getSensorID();
 
-	std::string strongestLink();
+	std::vector<std::string> connectionList();
 
 	void add_connection(Connection c);
 };

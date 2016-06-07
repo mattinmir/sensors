@@ -17,6 +17,8 @@ public:
 
 	bool operator<(Connection c2);
 
+	friend bool operator>(Connection c1, Connection c2);
+
 	std::string get_transID();
 };
 

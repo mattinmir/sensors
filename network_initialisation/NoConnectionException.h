@@ -11,6 +11,8 @@ private:
 	std::string sensorID;
 
 public:
+	NoConnectionException(std::string _sensorID);
+
 	virtual const char* what() const throw();
 };
 

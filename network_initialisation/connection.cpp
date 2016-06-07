@@ -9,15 +9,20 @@ Connection::Connection(std::string _transID, double _rssi) : transID(_transID), 
 
 bool Connection::operator>(Connection c2)
 {
-	return (rssi > c2.rssi);
+	return (this->rssi > c2.rssi);
 }
 
 bool Connection::operator<(Connection c2)
 {
-	return (rssi < c2.rssi);
+	return (this->rssi < c2.rssi);
 }
 
 std::string Connection::get_transID()
 {
 	return transID;
+}
+
+bool operator>(Connection c1, Connection c2)
+{
+	return (c1.rssi > c2.rssi);
 }
