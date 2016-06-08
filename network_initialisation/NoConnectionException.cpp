@@ -1,11 +1,13 @@
 #include "NoConnectionException.h"
 #include <string>
 
-NoConnectionException::NoConnectionException(std::string _sensorID) : sensorID(_sensorID) {}
+NoConnectionException::NoConnectionException(std::string _sensorID) : msg(_sensorID + std::string(" not connected to any tranceivers!")) {}
+
+NoConnectionException::~NoConnectionException() throw() {}
 
 const char* NoConnectionException::what() const throw()
 {
-	std::string msg = sensorID + " not connected to any tranceivers!";
+
 	return msg.c_str();
 
 }

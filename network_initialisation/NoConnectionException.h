@@ -8,10 +8,11 @@
 class NoConnectionException : public std::exception
 {
 private:
-	std::string sensorID;
+	std::string msg;
 
 public:
 	NoConnectionException(std::string _sensorID);
+	~NoConnectionException() throw();
 
 	virtual const char* what() const throw();
 };

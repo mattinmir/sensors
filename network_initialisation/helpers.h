@@ -12,6 +12,8 @@
 #include "NoConnectionException.h"
 #include <mutex>
 #include <thread>
+#include <iostream>
+#include <chrono>
 
 std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems) {
 	std::stringstream ss(s);
@@ -110,42 +112,58 @@ void update_whitelist(std::map<std::string, std::vector<std::string>> &whitelist
 {
 	while (true)
 	{
-		// Waits for new whitelist to be sent before checking for updates again
-		if (!updated)
+		try
 		{
-			// Iterate over every transceiver-sensor vector pair in the whitelist map
-			std::map<std::string, std::vector<std::string>>::iterator iter;
-			for (iter = whitelist.begin(); iter != whitelist.end(); ++iter)
+			// Waits for new whitelist to be sent before checking for updates again
+			if (!updated)
 			{
-				failures_lock.lock();
-				// If that transceiver has failed
-				if (std::find(failures.begin(), failures.end(), iter->first) != failures.end())
+				// Iterate over every transceiver-sensor vector pair in the whitelist map
+				std::map<std::string, std::vector<std::string>>::iterator iter;
+				for (iter = whitelist.begin(); iter != whitelist.end(); ++iter)
 				{
-					for (unsigned int i = 0; i < iter->second.size(); i++)
+					failures_lock.lock();
+					// If that transceiver has failed
+					if (std::find(failures.begin(), failures.end(), iter->first) != failures.end())
 					{
-						// Remove dead transceiver ID from its sensors' connections lists (connections list should still remain sorted)
-						// iter->second[i] is the ith sensor currently connected to the dead transceiver
-						// So connections[iter->second[i]] is the vector of transceivers keyed by the sensor iter->second[i] in the connections map
-						connections[iter->second[i]].erase(std::remove(connections[iter->second[i]].begin(), connections[iter->second[i]].end(), iter->first), connections[iter->second[i]].end());
+						for (unsigned int i = 0; i < iter->second.size(); i++)
+						{
+							// Remove dead transceiver ID from its sensors' connections lists (connections list should still remain sorted)
+							// iter->second[i] is the ith sensor currently connected to the dead transceiver
+							// So connections[iter->second[i]] is the vector of transceivers keyed by the sensor iter->second[i] in the connections map
+							connections[iter->second[i]].erase(std::remove(connections[iter->second[i]].begin(), connections[iter->second[i]].end(), iter->first), connections[iter->second[i]].end());
 
-						if (connections[iter->second[i]].size() == 0)
-							throw NoConnectionException(iter->second[i]);
+							if (connections[iter->second[i]].size() == 0)
+								throw NoConnectionException(iter->second[i]);
 
-						// connections[iter->second[i]][0] is the strongest transceiver for the sensor iter->second[i]
-						// So whitelist[connections[iter->second[i]][0]] is the entry in the whitelist keyed by that transceiver 
-						// We add the sensor to the whitelist for that transceiver
-						whitelist[connections[iter->second[i]][0]].push_back(iter->second[i]);
+							// connections[iter->second[i]][0] is the strongest transceiver for the sensor iter->second[i]
+							// So whitelist[connections[iter->second[i]][0]] is the entry in the whitelist keyed by that transceiver 
+							// We add the sensor to the whitelist for that transceiver
+							whitelist[connections[iter->second[i]][0]].push_back(iter->second[i]);
+						}
+						updated_lock.lock();
+						updated = true;
+						updated_lock.unlock();
 					}
-					updated_lock.lock();
-					updated = true;
-					updated_lock.unlock();
+					failures_lock.unlock();
 				}
-				failures_lock.unlock();
+				std::this_thread::sleep_for(std::chrono::seconds(1));
+
 			}
 		}
+
+		catch(const NoConnectionException &e)
+		{
+			std::cout << e.what() << '\n';
+			// TODO: Send a message to DB saying this sensor is cut off from the network
+		}
+		/*catch (const std::exception &e)
+		{
+			std::cout << e.what() << '\n';
+		}*/
 	}
 }
 
+// Checking for updated whitelist
 void check_for_update(bool &updated, std::mutex &updated_lock)
 {
 	while (true)
@@ -153,13 +171,19 @@ void check_for_update(bool &updated, std::mutex &updated_lock)
 		if (updated)
 		{
 			// TODO: send out new whitelist
+
+			// Flip updated bool so that whitelist can be updated again
 			updated_lock.lock();
 			updated = false;
 			updated_lock.lock();
 		}
+
+		std::this_thread::sleep_for(std::chrono::seconds(1));
 	}
 }
 
+
+// Overloading operator<< for vectors
 template < class T >
 inline std::ostream& operator<< (std::ostream& os, const std::vector<T>& v)
 {

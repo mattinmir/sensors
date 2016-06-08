@@ -18,8 +18,8 @@ std::tm convert_timestamp(std::string timestamp)
 	std::tm converted;
 
 	std::string date = split(timestamp, '_')[0];
-	converted.tm_year = atoi(split(date, '-')[0].c_str());
-	converted.tm_mon = atoi(split(date, '-')[1].c_str());
+	converted.tm_year = atoi(split(date, '-')[0].c_str()) - 1900; // Year has offset of 1900
+	converted.tm_mon = atoi(split(date, '-')[1].c_str()) - 1; // Month goes from 0-11
 	converted.tm_mday = atoi(split(date, '-')[2].c_str());
 
 	std::string time = split(timestamp, '_')[1];
@@ -27,17 +27,21 @@ std::tm convert_timestamp(std::string timestamp)
 	converted.tm_min = atoi(split(time, ':')[1].c_str());
 	converted.tm_sec = atoi(split(time, ':')[2].c_str());
 
+	converted.tm_isdst = -1; // mktime will calculate daylight savings itself
+
 	return converted;
 }
 
 // Timeout in seconds
 bool failed(std::tm timestamp, double timeout)
 {
-	time_t now;
+	time_t now, ts;
 	time(&now);
 
+	ts = mktime(&timestamp);
+
 	// Return true if difference between now and timestamp is more than timeout
-	return (difftime(now, mktime(&timestamp)) > timeout);
+	return (now - ts) > timeout;
 }
 
 // Will continuously read in new data saved to file
@@ -59,6 +63,7 @@ void update_last_seen(std::ifstream &logfile, std::map<std::string, std::tm> &la
 
 			last_seen_lock.unlock();
 		}
+		std::this_thread::sleep_for(std::chrono::seconds(1));
 		if (!logfile.eof())
 			break;
 		logfile.clear();
@@ -81,6 +86,9 @@ void add_failures(std::vector<std::string> &failures, const std::map<std::string
 			}
 		}
 		last_seen_lock.unlock();
+
+		std::this_thread::sleep_for(std::chrono::seconds(1));
+
 	}
 }
 
@@ -96,6 +104,8 @@ void remove_failures(std::vector<std::string> &failures, std::ifstream &fixed, s
 			failures.erase(std::remove(failures.begin(), failures.end(), id), failures.end());
 			failures_lock.unlock();
 		}
+		std::this_thread::sleep_for(std::chrono::seconds(1));
+
 		if (!fixed.eof())
 			break;
 		fixed.clear();
