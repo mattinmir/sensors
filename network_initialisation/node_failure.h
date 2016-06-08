@@ -1,3 +1,6 @@
+#ifndef NODE_FAILURE_H
+#define NODE_FAILURE_H
+
 #include <ctime> 
 #include <string>
 #include <vector>
@@ -6,13 +9,14 @@
 #include "dirent.h"
 #include <thread>
 #include <map>
-
+#include <chrono>
+#include <mutex>
 
 // 2016-05-31_16:34:50
 std::tm convert_timestamp(std::string timestamp)
 {
 	std::tm converted;
-	
+
 	std::string date = split(timestamp, '_')[0];
 	converted.tm_year = atoi(split(date, '-')[0].c_str());
 	converted.tm_mon = atoi(split(date, '-')[1].c_str());
@@ -36,21 +40,16 @@ bool failed(std::tm timestamp, double timeout)
 	return (difftime(now, mktime(&timestamp)) > timeout);
 }
 
-void update_last_seen(std::ifstream &infile, std::map<std::string, std::tm> &last_seen)
+// Will continuously read in new data saved to file
+void update_last_seen(std::ifstream &logfile, std::map<std::string, std::tm> &last_seen, std::mutex &last_seen_lock)
 {
-	/*
-	std::string current_dir = ".";
-	std::vector<std::string> logfiles = get_file_list(current_dir, ".log");
 
-	std::vector<std::thread> threads(logfiles.size());
-	*/
-
-	std::string line;
+	std::string timestamp, transcode, payload;
 	while (true)
 	{
-		std::string timestamp, transcode, payload;
-		while (infile >> timestamp >> transcode >> payload)
+		while (logfile >> timestamp >> transcode >> payload)
 		{
+			last_seen_lock.lock();
 			std::string sensorID = payload;
 			sensorID.erase(16, 2).erase(0, 8);
 			last_seen[sensorID] = convert_timestamp(timestamp);
@@ -58,22 +57,49 @@ void update_last_seen(std::ifstream &infile, std::map<std::string, std::tm> &las
 			std::string transID = split(transcode, '_')[2];
 			last_seen[transID] = convert_timestamp(timestamp);
 
+			last_seen_lock.unlock();
 		}
-		if (!infile.eof())
+		if (!logfile.eof())
 			break;
-		infile.clear();
+		logfile.clear();
 	}
 }
 
-void update_failures(std::vector<std::string> &failures, std::map<std::string, std::tm> last_seen, double timeout)
+void add_failures(std::vector<std::string> &failures, const std::map<std::string, std::tm> &last_seen, double timeout, std::mutex &failures_lock, std::mutex &last_seen_lock)
 {
 	std::map<std::string, std::tm>::const_iterator iter;
-
-	for (iter = last_seen.begin(); iter != last_seen.end(); ++iter)
+	while (true)
 	{
-		if (failed(iter->second, timeout))
+		last_seen_lock.lock();
+		for (iter = last_seen.begin(); iter != last_seen.end(); ++iter)
 		{
-			failures.push_back(iter->first);
+			if (failed(iter->second, timeout))
+			{
+				failures_lock.lock();
+				failures.push_back(iter->first);
+				failures_lock.unlock();
+			}
 		}
+		last_seen_lock.unlock();
 	}
 }
+
+void remove_failures(std::vector<std::string> &failures, std::ifstream &fixed, std::mutex &failures_lock)
+{
+	std::string id;
+	while (true)
+	{
+		while (fixed >> id)
+		{
+			failures_lock.lock();
+			// Remove id from vector of failures
+			failures.erase(std::remove(failures.begin(), failures.end(), id), failures.end());
+			failures_lock.unlock();
+		}
+		if (!fixed.eof())
+			break;
+		fixed.clear();
+	}
+}
+
+#endif // NODE_FAILURE_H

@@ -1,3 +1,6 @@
+#ifndef HELPERS_H
+#define HELPERS_H
+
 #include <vector>
 #include <sstream>
 #include <string>
@@ -7,6 +10,8 @@
 #include "dirent.h"
 #include <map>
 #include "NoConnectionException.h"
+#include <mutex>
+#include <thread>
 
 std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems) {
 	std::stringstream ss(s);
@@ -16,7 +21,6 @@ std::vector<std::string> &split(const std::string &s, char delim, std::vector<st
 	}
 	return elems;
 }
-
 
 std::vector<std::string> split(const std::string &s, char delim) {
 	std::vector<std::string> elems;
@@ -57,6 +61,7 @@ void new_connection(std::vector<Sensor> &sensors, std::string transID, std::stri
 
 }
 
+// Gets names of all files in `directory` with `extension`
 std::vector<std::string> get_file_list(std::string directory, std::string extension)
 {
 	std::vector<std::string> logs;
@@ -70,7 +75,7 @@ std::vector<std::string> get_file_list(std::string directory, std::string extens
 
 		file = readdir(dir_point);
 	}
-	
+
 
 	return logs;
 
@@ -101,35 +106,67 @@ void generate_whitelist(std::map<std::string, std::vector<std::string>> &whiteli
 	}
 }
 
-bool update_whitelist(std::map<std::string, std::vector<std::string>> &whitelist, std::vector<std::string> failures, std::map<std::string, std::vector<std::string>> connections)
+void update_whitelist(std::map<std::string, std::vector<std::string>> &whitelist, std::vector<std::string> &failures, std::map<std::string, std::vector<std::string>> connections, bool &updated, std::mutex &failures_lock, std::mutex &updated_lock)
 {
-	bool updated = false;
-
-	// Iterate over every transceiver-sensor vector pair in the whitelist map
-	std::map<std::string, std::vector<std::string>>::iterator iter;
-	for (iter = whitelist.begin(); iter != whitelist.end(); ++iter)
+	while (true)
 	{
-		// If that transceiver has failed
-		if (std::find(failures.begin(), failures.end(), iter->first) != failures.end())
+		// Waits for new whitelist to be sent before checking for updates again
+		if (!updated)
 		{
-			for (unsigned int i = 0; i < iter->second.size(); i++)
-			{	
-				// Remove dead transceiver ID from its sensors' connections lists (connections list should still remain sorted)
-				// iter->second[i] is the ith sensor currently connected to the dead transceiver
-				// So connections[iter->second[i]] is the vector of transceivers keyed by the sensor iter->second[i] in the connections map
-				connections[iter->second[i]].erase(std::remove(connections[iter->second[i]].begin(), connections[iter->second[i]].end(), iter->first), connections[iter->second[i]].end());
-				
-				if (connections[iter->second[i]].size() == 0)
-					throw NoConnectionException(iter->second[i]);
+			// Iterate over every transceiver-sensor vector pair in the whitelist map
+			std::map<std::string, std::vector<std::string>>::iterator iter;
+			for (iter = whitelist.begin(); iter != whitelist.end(); ++iter)
+			{
+				failures_lock.lock();
+				// If that transceiver has failed
+				if (std::find(failures.begin(), failures.end(), iter->first) != failures.end())
+				{
+					for (unsigned int i = 0; i < iter->second.size(); i++)
+					{
+						// Remove dead transceiver ID from its sensors' connections lists (connections list should still remain sorted)
+						// iter->second[i] is the ith sensor currently connected to the dead transceiver
+						// So connections[iter->second[i]] is the vector of transceivers keyed by the sensor iter->second[i] in the connections map
+						connections[iter->second[i]].erase(std::remove(connections[iter->second[i]].begin(), connections[iter->second[i]].end(), iter->first), connections[iter->second[i]].end());
 
-				// connections[iter->second[i]][0] is the strongest transceiver for the sensor iter->second[i]
-				// So whitelist[connections[iter->second[i]][0]] is the entry in the whitelist keyed by that transceiver 
-				// We add the sensor to the whitelist for that transceiver
-				whitelist[connections[iter->second[i]][0]].push_back(iter->second[i]);
+						if (connections[iter->second[i]].size() == 0)
+							throw NoConnectionException(iter->second[i]);
+
+						// connections[iter->second[i]][0] is the strongest transceiver for the sensor iter->second[i]
+						// So whitelist[connections[iter->second[i]][0]] is the entry in the whitelist keyed by that transceiver 
+						// We add the sensor to the whitelist for that transceiver
+						whitelist[connections[iter->second[i]][0]].push_back(iter->second[i]);
+					}
+					updated_lock.lock();
+					updated = true;
+					updated_lock.unlock();
+				}
+				failures_lock.unlock();
 			}
-			updated = true;
 		}
 	}
-
-	return updated;
 }
+
+void check_for_update(bool &updated, std::mutex &updated_lock)
+{
+	while (true)
+	{
+		if (updated)
+		{
+			// TODO: send out new whitelist
+			updated_lock.lock();
+			updated = false;
+			updated_lock.lock();
+		}
+	}
+}
+
+template < class T >
+inline std::ostream& operator<< (std::ostream& os, const std::vector<T>& v)
+{
+	os << *v.begin();
+	for (std::vector<T>::const_iterator ii = v.begin() + 1; ii != v.end(); ++ii)
+		os << ", " << *ii;
+	
+	return os;
+}
+#endif // !HELPERS_H

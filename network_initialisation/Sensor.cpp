@@ -30,7 +30,7 @@ std::vector<std::string> Sensor::connectionList()
 	else
 	{
 		std::vector<std::string> transceiverList;
-		for (int i = 0; i < connections.size(); i++)
+		for (unsigned int i = 0; i < connections.size(); i++)
 			transceiverList.push_back(connections[i].get_transID());
 
 		return transceiverList;

@@ -10,6 +10,8 @@
 #include "dirent.h"
 #include <thread>
 #include <mutex>
+#include "node_failure.h"
+#include <ctime>
 
 using namespace std;
 
@@ -70,17 +72,43 @@ int main()
 	// Try/catch will catch exception if a sensor has no connections
 	try
 	{
-		generate_whitelist(whitelist, vector<string>(), sensorConnections);
+		generate_whitelist(whitelist, failures, sensorConnections);
 	}
 	catch (exception& e)
 	{
 		cerr << e.what() << '\n';
 	}
 	
+	ofstream whitelistfile("whitelist.txt");
+	map<string, vector<string>>::const_iterator iter;
+	for (iter = whitelist.begin(); iter != whitelist.end(); ++iter)
+		whitelistfile << "Transceiver " << iter->first << " : " << "Sensors " << iter->second << endl;
+	
 
-	while (true)
-	{
-		update_whitelist(whitelist, vector<string>(), sensorConnections);
-	}
+	/******************************* Threads *********************************************/
+	bool updated = false;
+	mutex failures_lock, last_seen_lock, updated_lock;
+	vector<thread> threads;
+	map<string, tm> last_seen;
+	double timeout = 10; //600; // 10 mins
+	string fixedfile = "fixed.txt";
+
+	// Need std::ref to pass items by reference to threads
+	threads.push_back(thread(update_whitelist, ref(whitelist), ref(failures), sensorConnections, ref(updated), ref(failures_lock),ref(updated_lock))); // Update whitelist
+	
+	threads.push_back(thread(check_for_update, ref(updated), ref(updated_lock))); // Check for updated whitelist
+	
+	for (unsigned int i = 0; i < logfiles.size(); i++)
+		threads.push_back(thread(update_last_seen, ifstream(logfiles[i]), ref(last_seen), ref(last_seen_lock))); // update last seen for every logfile
+		
+	threads.push_back(thread(add_failures, ref(failures), ref(last_seen), timeout, ref(failures_lock), ref(last_seen_lock))); // Adding failures to failure list based on last seen
+	
+	threads.push_back(thread(remove_failures, ref(failures), ifstream(fixedfile), ref(failures_lock))); // Remove failed nodes from failures if they are fixed
+
+	for (auto &t : threads)
+		t.join(); // Begin concurrent execution
+
+	
+	
 
 }
