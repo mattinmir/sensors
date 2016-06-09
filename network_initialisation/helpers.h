@@ -11,6 +11,7 @@
 #include <map>
 #include "NoConnectionException.h"
 #include <mutex>
+#include <shared_mutex>
 #include <thread>
 #include <iostream>
 #include <chrono>
@@ -108,7 +109,7 @@ void generate_whitelist(std::map<std::string, std::vector<std::string>> &whiteli
 	}
 }
 
-void update_whitelist(std::map<std::string, std::vector<std::string>> &whitelist, std::vector<std::string> &failures, std::map<std::string, std::vector<std::string>> connections, bool &updated, std::mutex &failures_lock, std::mutex &updated_lock)
+void update_whitelist(std::map<std::string, std::vector<std::string>> &whitelist, std::vector<std::string> &failures, std::map<std::string, std::vector<std::string>> &connections, bool &updated, std::mutex &failures_lock, std::mutex &updated_lock)
 {
 	while (true)
 	{
@@ -121,7 +122,7 @@ void update_whitelist(std::map<std::string, std::vector<std::string>> &whitelist
 				std::map<std::string, std::vector<std::string>>::iterator iter;
 				for (iter = whitelist.begin(); iter != whitelist.end(); ++iter)
 				{
-					failures_lock.lock();
+					//failures_lock.lock();
 					// If that transceiver has failed
 					if (std::find(failures.begin(), failures.end(), iter->first) != failures.end())
 					{
@@ -138,13 +139,14 @@ void update_whitelist(std::map<std::string, std::vector<std::string>> &whitelist
 							// connections[iter->second[i]][0] is the strongest transceiver for the sensor iter->second[i]
 							// So whitelist[connections[iter->second[i]][0]] is the entry in the whitelist keyed by that transceiver 
 							// We add the sensor to the whitelist for that transceiver
-							whitelist[connections[iter->second[i]][0]].push_back(iter->second[i]);
+							else
+								whitelist[connections[iter->second[i]][0]].push_back(iter->second[i]);
 						}
-						updated_lock.lock();
+						//updated_lock.lock();
 						updated = true;
-						updated_lock.unlock();
+						//updated_lock.unlock();
 					}
-					failures_lock.unlock();
+					//failures_lock.unlock();
 				}
 				std::this_thread::sleep_for(std::chrono::seconds(1));
 
@@ -173,9 +175,9 @@ void check_for_update(bool &updated, std::mutex &updated_lock)
 			// TODO: send out new whitelist
 
 			// Flip updated bool so that whitelist can be updated again
-			updated_lock.lock();
+			//updated_lock.lock();
 			updated = false;
-			updated_lock.lock();
+			//updated_lock.lock();
 		}
 
 		std::this_thread::sleep_for(std::chrono::seconds(1));

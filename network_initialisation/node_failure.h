@@ -53,7 +53,7 @@ void update_last_seen(std::ifstream &logfile, std::map<std::string, std::tm> &la
 	{
 		while (logfile >> timestamp >> transcode >> payload)
 		{
-			last_seen_lock.lock();
+			//last_seen_lock.lock();
 			std::string sensorID = payload;
 			sensorID.erase(16, 2).erase(0, 8);
 			last_seen[sensorID] = convert_timestamp(timestamp);
@@ -61,7 +61,7 @@ void update_last_seen(std::ifstream &logfile, std::map<std::string, std::tm> &la
 			std::string transID = split(transcode, '_')[2];
 			last_seen[transID] = convert_timestamp(timestamp);
 
-			last_seen_lock.unlock();
+			//last_seen_lock.unlock();
 		}
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 		if (!logfile.eof())
@@ -75,17 +75,17 @@ void add_failures(std::vector<std::string> &failures, const std::map<std::string
 	std::map<std::string, std::tm>::const_iterator iter;
 	while (true)
 	{
-		last_seen_lock.lock();
+		//last_seen_lock.lock();
 		for (iter = last_seen.begin(); iter != last_seen.end(); ++iter)
 		{
 			if (failed(iter->second, timeout))
 			{
-				failures_lock.lock();
+				//failures_lock.lock();
 				failures.push_back(iter->first);
-				failures_lock.unlock();
+				//failures_lock.unlock();
 			}
 		}
-		last_seen_lock.unlock();
+		//last_seen_lock.unlock();
 
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 
@@ -99,10 +99,10 @@ void remove_failures(std::vector<std::string> &failures, std::ifstream &fixed, s
 	{
 		while (fixed >> id)
 		{
-			failures_lock.lock();
+			//failures_lock.lock();
 			// Remove id from vector of failures
 			failures.erase(std::remove(failures.begin(), failures.end(), id), failures.end());
-			failures_lock.unlock();
+			//failures_lock.unlock();
 		}
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 
