@@ -90,7 +90,7 @@ int main()
 	mutex failures_lock, last_seen_lock, updated_lock;
 	vector<thread> threads;
 	map<string, tm> last_seen;
-	double timeout = 10; //600; // 10 mins
+	double timeout = 10; // In seconds
 	string fixedfile = "fixed.txt";
 
 	// Need std::ref to pass items by reference to threads
