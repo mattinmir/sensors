@@ -11,7 +11,6 @@
 #include <map>
 #include "NoConnectionException.h"
 #include <mutex>
-#include <shared_mutex>
 #include <thread>
 #include <iostream>
 #include <chrono>
@@ -45,6 +44,7 @@ double median_rssi(std::vector<double> rssis)
 		return 0.5*(rssisn + rssis[n - 1]);
 	}
 }
+
 
 void new_connection(std::vector<Sensor> &sensors, std::string transID, std::string sensorID, double rssi)
 {
@@ -119,28 +119,44 @@ void update_whitelist(std::map<std::string, std::vector<std::string>> &whitelist
 			if (!updated)
 			{
 				// Iterate over every transceiver-sensor vector pair in the whitelist map
-				std::map<std::string, std::vector<std::string>>::iterator iter;
-				for (iter = whitelist.begin(); iter != whitelist.end(); ++iter)
+				std::map<std::string, std::vector<std::string>>::iterator wl_iter;
+				for (wl_iter = whitelist.begin(); wl_iter != whitelist.end(); ++wl_iter)
 				{
 					//failures_lock.lock();
 					// If that transceiver has failed
-					if (std::find(failures.begin(), failures.end(), iter->first) != failures.end())
+					if (std::find(failures.begin(), failures.end(), wl_iter->first) != failures.end())
 					{
-						for (unsigned int i = 0; i < iter->second.size(); i++)
+						for (unsigned int i = 0; i < wl_iter->second.size(); i++)
 						{
 							// Remove dead transceiver ID from its sensors' connections lists (connections list should still remain sorted)
-							// iter->second[i] is the ith sensor currently connected to the dead transceiver
-							// So connections[iter->second[i]] is the vector of transceivers keyed by the sensor iter->second[i] in the connections map
-							connections[iter->second[i]].erase(std::remove(connections[iter->second[i]].begin(), connections[iter->second[i]].end(), iter->first), connections[iter->second[i]].end());
+							// wl_iter->second is the list of sensors currently connected to the dead transceiver
+							// So connections[wl_iter->second[i]] is the vector of transceivers keyed by the sensor wl_iter->second[i], in the connections map
 
-							if (connections[iter->second[i]].size() == 0)
-								throw NoConnectionException(iter->second[i]);
+							// std::remove(begin, end, val) removes all instances of val in the ranges of the iterators begin and end
+							// It keeps empty spaces at the end equal to the number of elements removed
+							// The function returns an iterator to the element after the last non-removed element in the vector
+							// So here we remove failed transceiver ids from the vector of transcievers for every sensor that was connected to it, and return an iterator to the space that transciever used to be in
+							// which is now at the end of the array
+							
+							// vector::erase(start, end) erases elements from between iterators start and end (inclusively)
+							// So we are removing that empty space
+							connections[wl_iter->second[i]].erase(std::remove(connections[wl_iter->second[i]].begin(), connections[wl_iter->second[i]].end(), wl_iter->first), connections[wl_iter->second[i]].end());
 
-							// connections[iter->second[i]][0] is the strongest transceiver for the sensor iter->second[i]
-							// So whitelist[connections[iter->second[i]][0]] is the entry in the whitelist keyed by that transceiver 
+							// If sensor is no longer connected to any transceivers as a result of the above pruning
+							if (connections[wl_iter->second[i]].size() == 0)
+							{
+								// Remove sensor from the list of connections
+								connections.erase(connections.find(wl_iter->second[i]));
+
+
+								//throw NoConnectionException(wl_iter->second[i]);						
+							}
+
+							// connections[wl_iter->second[i]][0] is the strongest transceiver for the sensor wl_iter->second[i]
+							// So whitelist[connections[wl_iter->second[i]][0]] is the entry in the whitelist keyed by that transceiver 
 							// We add the sensor to the whitelist for that transceiver
 							else
-								whitelist[connections[iter->second[i]][0]].push_back(iter->second[i]);
+								whitelist[connections[wl_iter->second[i]][0]].push_back(wl_iter->second[i]);
 						}
 						//updated_lock.lock();
 						updated = true;

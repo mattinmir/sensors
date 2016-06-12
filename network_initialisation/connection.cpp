@@ -17,7 +17,7 @@ bool Connection::operator<(Connection c2)
 	return (this->rssi < c2.rssi);
 }
 
-std::string Connection::get_transID()
+std::string Connection::get_transID() const
 {
 	return transID;
 }
@@ -25,4 +25,9 @@ std::string Connection::get_transID()
 bool operator>(Connection c1, Connection c2)
 {
 	return (c1.rssi > c2.rssi);
+}
+
+bool operator<(Connection c1, Connection c2)
+{
+	return (c1.rssi < c2.rssi);
 }

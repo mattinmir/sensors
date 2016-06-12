@@ -3,23 +3,27 @@
 
 #include <vector>
 #include <string>
+#include <map>
+#include <deque>
 #include "Connection.h"
 
 class Sensor
 {
 private:
 	std::string id;
-	std::vector<Connection> connections;
+	std::map<Connection, std::deque<double>> connections; // Connection and rssi values queue
+	int rssi_queue_size;
 
 public:
-	Sensor(std::string _id);
+	Sensor(std::string _id, int _rssi_queue_size=10);
 
-	Sensor(std::string _id, std::vector<Connection> _connections);
+	std::string getSensorID() const;
 
-	std::string getSensorID();
-
-	std::vector<std::string> connectionList();
+	std::vector<std::string> connectionList() const;
 
 	void add_connection(Connection c);
+
+	void add_rssi(std::string transID, double rssi);
+
 };
 #endif // !SENSOR_H
