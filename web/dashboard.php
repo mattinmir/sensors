@@ -76,13 +76,38 @@
 
 <div class="container-fluid">
 	<div class="row" style="display:table">
-		<div class="col-lg-6" style="display:table-cell">
+		<div class="col-lg-7" style="display:table-cell">
 			<div class="col-lg-12 alert alert-success">
 				<form id="inputForm" method ="post">
 					<!-- Sensor Types -->
-					<div class="col-xs-3">
+					<div class="col-xs-2 formgrp">
 						<div class="form-group">
 							<h3>Sensor</h3>
+							<div class="checkbox">
+								<label>
+									<input type="checkbox" name="tableref[]" value="Lux"><h4>Lighting</h4>
+								</label>
+							</div>
+							<div class="checkbox">
+								<label>
+									<input type="checkbox" name="tableref[]" value="Temperature"><h4>Temperature</h4>
+								</label>
+							</div>
+							<div class="checkbox">
+								<label>
+									<input type="checkbox" name="tableref[]" value="Humidity"><h4>Humidity</h4>
+								</label>
+							</div>
+							<div class="checkbox">
+								<label>
+									<input type="checkbox" name="tableref[]" value="Occupancy"><h4>Occupancy</h4>
+								</label>
+							</div>
+						</div>
+					</div>
+					<div class="col-xs-2 formgrp">
+						<div class="form-group">
+						</br></br>
 							<div class="checkbox">
 								<label>
 									<input type="checkbox" name="tableref[]" value="Lux"><h4>Lighting</h4>
@@ -108,7 +133,7 @@
 					<!-- End Sensor Types -->
 
 					<!-- Locations -->
-					<div class="col-xs-3" style="display:table-cell">	
+					<div class="col-xs-2 formgrp">	
 						<div class="form-group">
 							<h3>Locations</h3>
 							<div class="checkbox">
@@ -139,7 +164,7 @@
 						<!--Floors-->
 						<div class="row">
 							<div class="col-lg-12">
-								<div class="input-group input-group-lg">
+								<div class="input-group">
 										<span class="input-group-addon">
 										   Floors
 										</span>
@@ -174,12 +199,12 @@
 		</div>
 		
 		<!--Sensor ID-->
-		<div class="col-xs-3" style="display:table-cell">
+		<div class="col-xs-2" style="display:table-cell">
 			<div class="alert alert-success">
 				<form id="sensorIDForm" method ="post">
-					<div class="input-group input-group-lg">
+					<div class="input-group">
 						<span class="input-group-addon">
-							Sensor ID
+							ID
 						</span>
 						<input type="text" name="sensorid" id="sensorid" class="form-control">
 					</div>
@@ -197,7 +222,7 @@
 	
 	
 		<!-- Notifications-->	
-		<div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+		<div class="col-xs-3">
 			<div class="panel panel-primary">
 				<div class="panel-heading">
 					<i class="fa fa-bell fa-fw"></i>Notifications Panel
