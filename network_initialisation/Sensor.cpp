@@ -25,7 +25,7 @@ std::vector<std::string> Sensor::connectionList() const
 	if (connections.size() == 0)
 		throw NoConnectionException(id);
 	
-	// Connections list should always be sorted, so just return the list of connections
+
 	else
 	{
 		std::map<double, std::string> averagedRssis; // Keyed by rssi so it is in strength order (Maps are sorted inherently)
@@ -34,7 +34,8 @@ std::vector<std::string> Sensor::connectionList() const
 
 		for (con_iter = connections.begin(); con_iter != connections.end(); ++con_iter)
 		{
-			rssis = std::vector<double>(con_iter->second.begin(), con_iter->second.end()); // Transfer values to vector to be averaged
+			// Transfer values to vector to be averaged
+			rssis = std::vector<double>(con_iter->second.begin(), con_iter->second.end()); 
 			averagedRssis[median_rssi(rssis)] = con_iter->first.get_transID(); // link averaged rssis to transID in map
 		}
 		
@@ -54,14 +55,38 @@ void Sensor::add_connection(Connection c)
 	connections[c] = {};
 }
 
-void Sensor::add_rssi(std::string transID, double rssi)
+// Adds rssi if connection exists, returns false if not
+bool Sensor::add_rssi(std::string transID, double rssi)
 {
-	std::map<Connection, std::deque<double>>::iterator i = connections.begin();
-	while (i->first.get_transID() != transID)
-		++i;
+	std::map<Connection, std::deque<double>>::iterator con_iter = connections.begin();
+	while (con_iter->first.get_transID() != transID && con_iter != connections.end())
+		++con_iter;
 
-	i->second.push_back(rssi);
-	if (i->second.size() > rssi_queue_size)
-		i->second.pop_front();
+	if (con_iter == connections.end())
+		return false;
+	else
+	{
+		con_iter->second.push_back(rssi);
+		if (con_iter->second.size() > rssi_queue_size)
+			con_iter->second.pop_front();
+		return true;
+	}
 }
 
+// Deletes connection if it exists, returns false if not
+bool Sensor::del_connection(std::string transID)
+{
+	std::map<Connection, std::deque<double>>::iterator con_iter = connections.begin();
+
+	while (con_iter->first.get_transID() != transID && con_iter != connections.end())
+		++con_iter;
+
+	if (con_iter == connections.end())
+		return false;
+	else
+	{
+		connections.erase(con_iter);
+		return true;
+	}
+
+}

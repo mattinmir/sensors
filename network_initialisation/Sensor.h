@@ -23,7 +23,9 @@ public:
 
 	void add_connection(Connection c);
 
-	void add_rssi(std::string transID, double rssi);
+	bool del_connection(std::string transID);
+
+	bool add_rssi(std::string transID, double rssi);
 
 };
 #endif // !SENSOR_H
