@@ -181,22 +181,22 @@ if(isset($POST_ID) && (strlen(trim($POST_ID)) != 0)){
 else{
 	//As dates always have a default value
 	/******************************** START DATES ********************************/
-		if(isset($POST_DATE)){
-			//explode to seperate date from and date to 
-			$daterange = explode(" - ", $POST_DATE); 
 		
-			//explode each date to seperate the MM, DD and YYYY
-			$datefromarray = explode ("-", $daterange[0]);
-			$datetoarray = explode ("-", $daterange[1]);
+	//explode to seperate date from and date to 
+	$daterange = explode(" - ", $POST_DATE); 
 		
-			//Put into the format of the database
-			$datefrom = $datefromarray[2] . '-' . $datefromarray[1] . '-' . $datefromarray[0] . ' ' . '00:00:00';
-			$dateto = $datetoarray[2] . '-' . $datetoarray[1] . '-' . ($datetoarray[0]) . ' ' . '23:59:59';
+	//explode each date to seperate the MM, DD and YYYY
+	$datefromarray = explode ("-", $daterange[0]);
+	$datetoarray = explode ("-", $daterange[1]);
 		
-			//Form sub date query
-			$date_query = "WHERE timestamp BETWEEN '$datefrom' AND '$dateto' ";
-		}
-		/******************************** END DATES ********************************/
+	//Put into the format of the database
+	$datefrom = $datefromarray[2] . '-' . $datefromarray[1] . '-' . $datefromarray[0] . ' ' . '00:00:00';
+	$dateto = $datetoarray[2] . '-' . $datetoarray[1] . '-' . ($datetoarray[0]) . ' ' . '23:59:59';
+		
+	//Form sub date query
+	$date_query = "WHERE timestamp BETWEEN '$datefrom' AND '$dateto' ";
+	
+	/******************************** END DATES ********************************/
 	
 	//Start query
 	$query = "SELECT* FROM repp JOIN nodes ON repp.sensorID = nodes.deviceID " . $date_query;
