@@ -119,11 +119,11 @@ $JSONtable = array();
 
 if($POST_LOC)
 {
-	$result = $link->query("SELECT * FROM location");
+	$result = $link->query("SELECT * FROM nodes");
 	while($row = $result->fetch_assoc())
 	{
 		$JSONtable[] = array("sensorID" => (int)$row['sensorID'], "floor" => (int)$row['floor'], 
-			"location" => $row['located'], "active" => (bool)$row['active'], "type" => $row['type']);
+			"location" => $row['located'], "status" => $row['status'], "type" => $row['type']. "trans_connections" => $row['trans_connections']); //active is not bool anymore and is called status, need to add row trans_connections 
 	}
 	ob_end_clean();
 	echo json_encode($JSONtable);
@@ -137,8 +137,8 @@ if($POST_NOTIFICATION)
 {
 	foreach($alltables as $tablename)
 	{
-		$failure_query .= str_replace("repp", $tablename, "SELECT sensorID, floor, located, type, timestamp AS last_seen FROM location JOIN (SELECT* FROM repp ORDER BY timestamp DESC) as latest USING (sensorID) WHERE active = 0 GROUP BY sensorID 
-		UNION ");
+		$failure_query .= str_replace("repp", $tablename, "SELECT sensorID, floor, located, type, timestamp AS last_seen FROM nodes JOIN (SELECT* FROM repp ORDER BY timestamp DESC) as latest ON latest.sensorID = nodes.deviceID WHERE status = 'failed' GROUP BY sensorID 
+UNION ");
 	}
 	$failure_query = substr($failure_query, 0, -6);
 	$failure_query = $failure_query . 'ORDER BY last_seen ASC';
@@ -154,42 +154,62 @@ if($POST_NOTIFICATION)
 	echo json_encode($JSONtable);
 	exit();
 }
+// ========================================== INITIAL WARNINGS PANEL: DISMISSABLE PANEL ==========================================
+
+//SELECT deviceID as sensorID, floor, located, status, type FROM nodes WHERE trans_connections = 1 AND status = 'active' AND type != 'transceiver'
+
+
+
+// ========================================== INSOLATED SENSORS WARNINGS (IN THE EVENT OF TRANSCIEVER FAILURE)==========================================
+
+//SELECT deviceID as sensorID, floor, located, status, type FROM nodes WHERE trans_connections = 0 AND status = 'active' AND type != 'transceiver'
+
+// ========================================== MAIN CODE ==========================================
 
 /*********************************SENSOR ID CHOSEN********************************/
 
 //ID has been selected 
 if(isset($POST_ID) && (strlen(trim($POST_ID)) != 0)){
-	
-	if(is_numeric($POST_ID)){
-	
 		$sensorid = mysqli_real_escape_string($link, $POST_ID);
-		$result = mysqli_fetch_assoc($link->query("SELECT * FROM location WHERE sensorID = '$sensorid'"));	
-		$table = $result['type']; // Get the Location table, and find out what type of sensor is (same as table name)
-		$result = $link->query("SELECT * FROM $table JOIN location USING (sensorID) WHERE sensorID=$sensorid");
+		$result = mysqli_fetch_assoc($link->query("SELECT * FROM nodes WHERE deviceID = '$sensorid'"));	
+		$table = $result['type']; // Get the Nodes table, and find out what type of sensor is (same as table name)
+		$result = $link->query("SELECT* FROM $table JOIN nodes ON $table.sensorID = nodes.deviceID WHERE sensorID=$sensorid");
 		PrintSingleTable($result, $table);
-	}
-	else{
-		errorForm('DONT FUCK WITH US. RUN BITCH THE FBI IS ON YOU');
-	}
 }
 
 /*********************************GENERIC QUERY - NO SENSOR ID *******************************/
 else{
+	//As dates always have a default value
+	/******************************** START DATES ********************************/
+		if(isset($POST_DATE)){
+			//explode to seperate date from and date to 
+			$daterange = explode(" - ", $POST_DATE); 
+		
+			//explode each date to seperate the MM, DD and YYYY
+			$datefromarray = explode ("-", $daterange[0]);
+			$datetoarray = explode ("-", $daterange[1]);
+		
+			//Put into the format of the database
+			$datefrom = $datefromarray[2] . '-' . $datefromarray[1] . '-' . $datefromarray[0] . ' ' . '00:00:00';
+			$dateto = $datetoarray[2] . '-' . $datetoarray[1] . '-' . ($datetoarray[0]) . ' ' . '23:59:59';
+		
+			//Form sub date query
+			$date_query = "WHERE timestamp BETWEEN '$datefrom' AND '$dateto' ";
+		}
+		/******************************** END DATES ********************************/
+	
+	//Start query
+	$query = "SELECT* FROM repp JOIN nodes ON repp.sensorID = nodes.deviceID " . $date_query;
+	
 	
 	/********************************NO SELECTION - POST ALL RESULTS*****************************************/
-	//No selection is made. 
-	//ask alex if post-lifts will be blank or false
-	//test empty
-	//if(!isset($POST_TABLE) && empty($POST_LOCATIONS) && !isset($POST_FLOORS) && strlen(trim($POST_FLOORS)) == 0){
+	//Check all POST variables to ensure all have not been assigned to confirm no selection has been made 
 	if(!isset($POST_TABLE) && !($POST_LIFTS) && !($POST_PARKING) && !($POST_STAIRWELLS) && !($POST_CORRIDORS) && !isset($POST_FLOORS) && strlen(trim($POST_FLOORS)) == 0){
-		$query = "SELECT* FROM repp JOIN location USING(sensorID)";
 		PrintAllTables($link, $query);
-		
 	}
 
 	/********************************A SELECTION HAS BEEN MADE**************************************/
 	else{
-		$query = "SELECT* FROM repp JOIN location USING(sensorID) ";
 		/******************************** START LOCATIONS ********************************/
 		$locationarray = array ($POST_LIFTS, $POST_CORRIDORS, $POST_STAIRWELLS, $POST_PARKING);
 		//var_dump($locationarray);
@@ -205,12 +225,9 @@ else{
 		//check to see if location has been selected at all. 
 		if(strlen(trim($loc_query)) !=0){
 			$loc_query = substr($loc_query, 3);
-			$query = $query . 'WHERE ' . $loc_query; 
+			$query = $query . 'AND ' . $loc_query; 
 		}
 		/******************************** END LOCATIONS ********************************/
-			
-			
-			
 		/******************************** START FLOORS ********************************/
 		if(isset($POST_FLOORS) && strlen(trim($POST_FLOORS)) != 0){
 			
@@ -227,7 +244,7 @@ else{
 						$floor_query = "OR floor = $POST_FLOORS ";
 					}				
 					else{
-						errorForm('DONT FUCK WITH US. RUN BITCH THE FBI IS ON YOU');
+						errorForm('Invalid input');
 					}
 				}
 		
@@ -239,7 +256,7 @@ else{
 					}
 						
 					else{
-						errorForm('DONT FUCK WITH US. RUN BITCH THE FBI IS ON YOU');
+						errorForm('Invalid input');
 					}
 				}
 			}
@@ -260,7 +277,7 @@ else{
 						}
 							
 						else{
-							errorForm('DONT FUCK WITH US. RUN BITCH THE FBI IS ON YOU'); 
+							errorForm('Invalid input'); 
 							}
 					}
 			
@@ -274,7 +291,7 @@ else{
 						}
 							
 						else{
-								errorForm('DONT FUCK WITH US. RUN BITCH THE FBI IS ON YOU');
+								errorForm('Invalid input');
 						}
 					}
 				}
@@ -282,52 +299,14 @@ else{
 				
 			//check if floors has been selected at all
 			if(strlen(trim($floor_query)) !=0){
-					$floor_query = substr($floor_query, 3); // remvoves OR and space 
-	
-					//check if WHERE has already been used 
-					if(!strpos($query, 'WHERE')){
-						$query = $query. 'WHERE ' . $floor_query;
-					}
-			
-					//if WHERE has already been used i.e. location was selected
-					else{
-						$query = $query. 'AND ' . $floor_query;
-					}
+					$floor_query = substr($floor_query, 3); // removes OR and space 
+					$query = $query . 'AND ' . $floor_query
+					
 				}
 		}
 		/******************************** END FLOORS ********************************/
-		/******************************** START DATES ********************************/
-		if(isset($POST_DATE)){
-			//TODO: what if u just want all the data?
-			//explode to seperate date from and date to 
-			$daterange = explode(" - ", $POST_DATE); 
-		
-			//explode each date to seperate the MM, DD and YYYY
-			$datefromarray = explode ("-", $daterange[0]);
-			$datetoarray = explode ("-", $daterange[1]);
-		
-			//Put into the format of the database
-			$datefrom = $datefromarray[2] . '-' . $datefromarray[1] . '-' . $datefromarray[0] . ' ' . '00:00:00';
-			$dateto = $datetoarray[2] . '-' . $datetoarray[1] . '-' . ($datetoarray[0]) . ' ' . '23:59:59';
-		
-			//Form sub date query
-			$date_query = "timestamp BETWEEN '$datefrom' AND '$dateto'";
-
-			//check if WHERE has already been used  
-			if(!strpos($query, 'WHERE')){
-				$query = $query. 'WHERE ' . $date_query;
-			}
-			
-			//if WHERE has already been used i.e. location was selected
-			else{
-				$query = $query. 'AND ' . $date_query;
-				
-			}
-		}
-		/******************************** END DATES ********************************/
 		
 		/******************************** NO TABLE SELECTION****************************************/
-		//need to write this 
 		if(!isset($POST_TABLE)){
 			PrintAllTables($link, $query);
 		}
@@ -379,7 +358,7 @@ function PrintSingleTable($queryresult, $table)
 	while($row = $queryresult->fetch_assoc())
 	{
 		$JSONtable[$table][] = array("sensorID" => (int)$row['sensorID'], "floor" => (int)$row['floor'], 
-			"location" => $row['located'], "timestamp" => strtotime($row['timestamp']), "value" => (double)$row['value']);
+			"location" => $row['located'], "timestamp" => strtotime($row['timestamp']), "value" => (double)$row['value'], "status" => $row['status']);
 	}
 }
 
