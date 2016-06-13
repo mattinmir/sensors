@@ -83,24 +83,24 @@
 					<div class="col-xs-3">
 						<div class="form-group">
 							<h3>Sensor</h3>
-							<div class="radio">
+							<div class="checkbox">
 								<label>
-									<input type="radio" name="tableref" value="Lux"><h4>Lighting</h4>
+									<input type="checkbox" name="tableref[]" value="Lux"><h4>Lighting</h4>
 								</label>
 							</div>
-							<div class="radio">
+							<div class="checkbox">
 								<label>
-									<input type="radio" name="tableref" value="Temperature"><h4>Temperature</h4>
+									<input type="checkbox" name="tableref[]" value="Temperature"><h4>Temperature</h4>
 								</label>
 							</div>
-							<div class="radio">
+							<div class="checkbox">
 								<label>
-									<input type="radio" name="tableref" value="Humidity"><h4>Humidity</h4>
+									<input type="checkbox" name="tableref[]" value="Humidity"><h4>Humidity</h4>
 								</label>
 							</div>
-							<div class="radio">
+							<div class="checkbox">
 								<label>
-									<input type="radio" name="tableref" value="Occupancy"><h4>Occupancy</h4>
+									<input type="checkbox" name="tableref[]" value="Occupancy"><h4>Occupancy</h4>
 								</label>
 							</div>
 						</div>
@@ -113,22 +113,22 @@
 							<h3>Locations</h3>
 							<div class="checkbox">
 								<label>
-									<input type="checkbox" name="lifts" value="lifts"><h4>Lifts</h4>
+									<input type="checkbox" name="locations[]" value="lifts"><h4>Lifts</h4>
 								</label>
 							</div>
 							<div class="checkbox">
 								<label>
-									<input type="checkbox" name="corridors" value="corridors"><h4>Corridor</h4>
+									<input type="checkbox" name="locations[]" value="corridors"><h4>Corridor</h4>
 								</label>
 							</div>
 							<div class="checkbox">
 								<label>
-									<input type="checkbox" name="stairwells" value="stairwells"><h4>Stairwell</h4>
+									<input type="checkbox" name="locations[]" value="stairwells"><h4>Stairwell</h4>
 								</label>
 							</div>
 							<div class="checkbox">
 								<label>
-									<input type="checkbox" name="parking" value="parking"><h4>Parking</h4>
+									<input type="checkbox" name="locations[]" value="parking"><h4>Parking</h4>
 								</label>
 							</div>
 						</div>
@@ -269,7 +269,7 @@
 
 <script type="text/javascript">
 
-var POSTarg = '';
+var POSTarg = { "floors" : "", "daterange": moment().subtract(1, 'week').format('DD-MM-YYYY') + " - " + moment().format('DD-MM-YYYY') };
 var responseJSON;
 var flotplot;
 
