@@ -1,0 +1,57 @@
+<script src="assets/plugins/jquery.js"></script>
+<button type="button" id="testapi">Test adding!</button>
+<button type="button" id="testapi5">Add sensor 66 and 99</button>
+<button type="button" id="testapi2">Test active!</button>
+<button type="button" id="testapi3">Test deactive!</button>
+<button type="button" id="testapi4">Test malfunction!</button>
+
+<script type="text/javascript">
+jQuery(document).ready(function ($)
+{
+	$( "#testapi" ).click(function(event)
+	{
+		event.preventDefault();
+		$.ajax({
+			type:'POST', 
+			url:'API.php/data', 
+			data:'data={"lux": [{"sensorID": 99,"floor": 999,"location": "test","timestamp": "2038-01-19 03:14:07","value": 10}],"humidity": [{"sensorID": 66,"floor": 66,"location": "test","timestamp": "2038-01-19 03:14:07","value": 10}]}'
+		});
+	});
+	$( "#testapi2" ).click(function(event)
+	{
+		event.preventDefault();
+		$.ajax({
+			type:'POST', 
+			url:'API.php/status/66/active',
+			data:'user=admin&pass=giraffes'
+		});
+	});
+	$( "#testapi3" ).click(function(event)
+	{
+		event.preventDefault();
+		$.ajax({
+			type:'POST', 
+			url:'API.php/status/66/deactive',
+			data:'user=admin&pass=giraffes'
+		});
+	});
+	$( "#testapi4" ).click(function(event)
+	{
+		event.preventDefault();
+		$.ajax({
+			type:'POST', 
+			url:'API.php/status/66/malfunctioned',
+			data:'user=admin&pass=giraffes'
+		});
+	});
+	$( "#testapi5" ).click(function(event)
+	{
+		event.preventDefault();
+		$.ajax({
+			type:'POST', 
+			url:'API.php/sensor/',
+			data:'user=admin&pass=giraffes&data=[{"sensorID": 66,"floor": 999,"located": "test","active": "1","type": "humidity"},{"sensorID": 99,"floor": 999,"located": "test","active": "1","type": "lux"}]'
+		});
+	});
+});
+</script>
