@@ -13,6 +13,7 @@
 #include <thread>
 #include <iostream>
 #include <chrono>
+#include <set>
 
 std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems);
 
@@ -29,7 +30,7 @@ std::vector<std::string> get_file_list(std::string directory, std::string extens
 
 void generate_whitelist(std::map<std::string, std::vector<std::string>> &whitelist, std::vector<std::string> failures, std::map<std::string, std::vector<std::string>> connections);
 
-void update_whitelist(std::map<std::string, std::vector<std::string>> &whitelist, std::map<std::string, Sensor> &sensors, std::vector<std::string> &failures, bool &updated);
+void update_whitelist(std::map<std::string, std::vector<std::string>> &whitelist, std::map<std::string, Sensor> &sensors, std::set<std::string> &failures, bool &updated);
 
 // Checking for updated whitelist
 void check_for_update(std::string blacklistfilename, std::map<std::string,  std::vector<std::string>> &whitelist, bool &updated);

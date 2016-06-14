@@ -45,7 +45,7 @@ bool failed(std::tm timestamp, double timeout)
 }
 
 // Will continuously read in new data saved to file and update last seen/failures
-void update_last_seen(std::ifstream &logfile, std::map<std::string, std::tm> &last_seen, std::vector<std::string> &failures)
+void update_last_seen(std::ifstream &logfile, std::map<std::string, std::tm> &last_seen, std::set<std::string> &failures)
 {
 	
 	std::string timestamp, transcode, payload;
@@ -65,7 +65,7 @@ void update_last_seen(std::ifstream &logfile, std::map<std::string, std::tm> &la
 			last_seen[transID] = convert_timestamp(timestamp);
 
 			// Remove id from vector of failures
-			failures.erase(std::remove(failures.begin(), failures.end(), transID), failures.end());
+			failures.erase(transID);
 		}
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 		if (!logfile.eof())
@@ -75,7 +75,7 @@ void update_last_seen(std::ifstream &logfile, std::map<std::string, std::tm> &la
 }
 
 // TODO add code that removes failed transceiver's sensors from eevry blacklist to find new route
-void add_failures(std::vector<std::string> &failures, const std::map<std::string, std::tm> &last_seen, double timeout)
+void add_failures(std::set<std::string> &failures, const std::map<std::string, std::tm> &last_seen, double timeout)
 {
 	std::map<std::string, std::tm>::const_iterator iter;
 	while (true)
@@ -88,7 +88,7 @@ void add_failures(std::vector<std::string> &failures, const std::map<std::string
 			if (failed(iter->second, timeout))
 			{
 
-				failures.push_back(iter->first);
+				failures.insert(iter->first);
 
 			}
 		}

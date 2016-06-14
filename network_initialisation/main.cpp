@@ -15,6 +15,7 @@
 #include <ctime>
 #include <algorithm>
 #include <mutex>
+#include <set>
 #define DEBUG true
 
 using namespace std;
@@ -29,12 +30,12 @@ int main()
 	string current_dir = ".";
 	map<string, Sensor> sensors;
 	map<string, vector<string>> whitelist;
-	vector<string> failures;
+	set<string> failures;
 
 	bool updated = false;
 
 	map<string, tm> last_seen;
-	double timeout = 9999999; // In seconds
+	double timeout = 86400; // In seconds
 	vector<string> logfiles = get_file_list(current_dir, ".log"); 
 	string blacklistfile("blacklist.txt");
 

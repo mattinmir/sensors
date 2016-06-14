@@ -18,6 +18,7 @@
 #include <chrono>
 #include <fstream>
 #include <mutex>
+#include <set>
 
 extern std::mutex mutex_cout, mutex_whitelist_updated, mutex_failures, mutex_sensors;
 
@@ -115,7 +116,7 @@ std::vector<std::string> get_file_list(std::string directory, std::string extens
 //	}
 //}
 
-void update_whitelist(std::map<std::string, std::vector<std::string>> &whitelist, std::map<std::string, Sensor> &sensors, std::vector<std::string> &failures, bool &updated)
+void update_whitelist(std::map<std::string, std::vector<std::string>> &whitelist, std::map<std::string, Sensor> &sensors, std::set<std::string> &failures, bool &updated)
 {
 	while (true)
 	{
@@ -155,7 +156,7 @@ void update_whitelist(std::map<std::string, std::vector<std::string>> &whitelist
 			for (auto &w : whitelist)
 			{
 				// If it has failed (i.e. is found in failures vector)
-				if (std::find(failures.begin(), failures.end(), w.first) != failures.end())
+				if (failures.find(w.first) != failures.end())
 				{
 					// For every sensor that was connected to it
 					for (auto &sensorID : w.second)
