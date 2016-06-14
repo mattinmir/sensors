@@ -74,6 +74,7 @@ void update_last_seen(std::ifstream &logfile, std::map<std::string, std::tm> &la
 	}
 }
 
+// TODO add code that removes failed transceiver's sensors from eevry blacklist to find new route
 void add_failures(std::vector<std::string> &failures, const std::map<std::string, std::tm> &last_seen, double timeout)
 {
 	std::map<std::string, std::tm>::const_iterator iter;
