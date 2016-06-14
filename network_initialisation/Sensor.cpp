@@ -11,6 +11,8 @@
 #include <deque>
 #include "helpers.h"
 
+Sensor::Sensor(){}
+
 Sensor::Sensor(std::string _id, int _rssi_queue_size) : id(_id), rssi_queue_size(_rssi_queue_size){}
 
 
@@ -19,24 +21,22 @@ std::string Sensor::getSensorID() const
 	return id;
 }
 
-std::vector<std::string> Sensor::connectionList() const
+std::vector<std::string> Sensor::connectionList() 
 {
 	// No Connections
 	if (connections.size() == 0)
 		throw NoConnectionException(id);
 	
-
 	else
 	{
 		std::map<double, std::string> averagedRssis; // Keyed by rssi so it is in strength order (Maps are sorted inherently)
 		std::vector<double> rssis;
-		std::map<Connection, std::deque<double>>::const_iterator con_iter;
-
-		for (con_iter = connections.begin(); con_iter != connections.end(); ++con_iter)
+		
+		// For every connection
+		for (auto &conn : connections)
 		{
-			// Transfer values to vector to be averaged
-			rssis = std::vector<double>(con_iter->second.begin(), con_iter->second.end()); 
-			averagedRssis[median_rssi(rssis)] = con_iter->first.get_transID(); // link averaged rssis to transID in map
+			// order by median rssi
+			averagedRssis[conn.second.median()] = conn.first; // link averaged rssis to transID in map
 		}
 		
 		std::vector<std::string> transceiverList;
@@ -44,49 +44,24 @@ std::vector<std::string> Sensor::connectionList() const
 		for (avg_iter = averagedRssis.begin(); avg_iter != averagedRssis.end(); ++avg_iter) // Add transIDs to vector in correct order
 			transceiverList.push_back(avg_iter->second);
 		
-
 		return transceiverList;
 
 	}
 }
 
-void Sensor::add_connection(Connection c)
+void Sensor::add_connection(std::string transID)
 {
-	connections[c] = {};
+	connections[transID] = {};
 }
 
-// Adds rssi if connection exists, returns false if not
-bool Sensor::add_rssi(std::string transID, double rssi)
-{
-	std::map<Connection, std::deque<double>>::iterator con_iter = connections.begin();
-	while (con_iter->first.get_transID() != transID && con_iter != connections.end())
-		++con_iter;
 
-	if (con_iter == connections.end())
-		return false;
-	else
-	{
-		con_iter->second.push_back(rssi);
-		if (con_iter->second.size() > rssi_queue_size)
-			con_iter->second.pop_front();
-		return true;
-	}
+void Sensor::add_rssi(std::string transID, double rssi)
+{
+	connections[transID].push_back(rssi);
 }
 
 // Deletes connection if it exists, returns false if not
-bool Sensor::del_connection(std::string transID)
+void Sensor::del_connection(std::string transID)
 {
-	std::map<Connection, std::deque<double>>::iterator con_iter = connections.begin();
-
-	while (con_iter->first.get_transID() != transID && con_iter != connections.end())
-		++con_iter;
-
-	if (con_iter == connections.end())
-		return false;
-	else
-	{
-		connections.erase(con_iter);
-		return true;
-	}
-
+	connections.erase(transID);
 }

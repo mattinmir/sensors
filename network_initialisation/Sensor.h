@@ -6,26 +6,29 @@
 #include <map>
 #include <deque>
 #include "Connection.h"
+#include "Fifo.h"
 
 class Sensor
 {
 private:
 	std::string id;
-	std::map<Connection, std::deque<double>> connections; // Connection and rssi values queue
+	std::map<std::string, Fifo> connections; // transID and rssi values Fifo
 	int rssi_queue_size;
 
 public:
+	Sensor(); // Default constructor required to allow access to map using operator[]
+
 	Sensor(std::string _id, int _rssi_queue_size=10);
 
 	std::string getSensorID() const;
 
-	std::vector<std::string> connectionList() const;
+	std::vector<std::string> connectionList();
 
-	void add_connection(Connection c);
+	void add_connection(std::string transID);
 
-	bool del_connection(std::string transID);
+	void del_connection(std::string transID);
 
-	bool add_rssi(std::string transID, double rssi);
+	void add_rssi(std::string transID, double rssi);
 
 };
 #endif // !SENSOR_H

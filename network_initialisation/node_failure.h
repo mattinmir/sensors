@@ -19,10 +19,9 @@ std::tm convert_timestamp(std::string timestamp);
 bool failed(std::tm timestamp, double timeout);
 
 // Will continuously read in new data saved to file
-void update_last_seen(std::ifstream &logfile, std::map<std::string, std::tm> &last_seen);
+void update_last_seen(std::ifstream &logfile, std::map<std::string, std::tm> &last_seen, std::vector<std::string> &failures);
 
 void add_failures(std::vector<std::string> &failures, const std::map<std::string, std::tm> &last_seen, double timeout);
 
-void remove_failures(std::vector<std::string> &failures, std::ifstream &fixed);
 
 #endif // NODE_FAILURE_H

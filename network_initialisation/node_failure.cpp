@@ -8,6 +8,9 @@
 #include <map>
 #include <chrono>
 #include "node_failure.h"
+#include <mutex>
+
+extern std::mutex mutex_cout, mutex_whitelist, mutex_updated, mutex_failures, mutex_sensors, mutex_last_seen;
 
 // Timestamp of format 2016-05-31_16:34:50
 std::tm convert_timestamp(std::string timestamp)
@@ -41,25 +44,28 @@ bool failed(std::tm timestamp, double timeout)
 	return (now - ts) > timeout;
 }
 
-// Will continuously read in new data saved to file
-void update_last_seen(std::ifstream &logfile, std::map<std::string, std::tm> &last_seen)
+// Will continuously read in new data saved to file and update last seen/failures
+void update_last_seen(std::ifstream &logfile, std::map<std::string, std::tm> &last_seen, std::vector<std::string> &failures)
 {
-
+	
 	std::string timestamp, transcode, payload;
 	while (true)
 	{
+		std::lock_guard<std::mutex> lock_last_seen(mutex_last_seen);
+		std::lock_guard<std::mutex> lock_failures(mutex_failures);
+
 		while (logfile >> timestamp >> transcode >> payload)
 		{
-			//last_seen_lock.lock();
+			// Update last seen
 			std::string sensorID = payload;
 			sensorID.erase(16, 2).erase(0, 8);
 			last_seen[sensorID] = convert_timestamp(timestamp);
 			
-
 			std::string transID = split(transcode, '_')[2];
 			last_seen[transID] = convert_timestamp(timestamp);
 
-			//last_seen_lock.unlock();
+			// Remove id from vector of failures
+			failures.erase(std::remove(failures.begin(), failures.end(), transID), failures.end());
 		}
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 		if (!logfile.eof())
@@ -73,40 +79,21 @@ void add_failures(std::vector<std::string> &failures, const std::map<std::string
 	std::map<std::string, std::tm>::const_iterator iter;
 	while (true)
 	{
-		//last_seen_lock.lock();
+		std::lock_guard<std::mutex> lock_last_seen(mutex_last_seen);
+		std::lock_guard<std::mutex> lock_failures(mutex_failures);
+
 		for (iter = last_seen.begin(); iter != last_seen.end(); ++iter)
 		{
 			if (failed(iter->second, timeout))
 			{
-				//failures_lock.lock();
+
 				failures.push_back(iter->first);
-				//failures_lock.unlock();
+
 			}
 		}
-		//last_seen_lock.unlock();
+
 
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 
-	}
-}
-
-// TODO Remove this, instead make update last seen remove failures
-void remove_failures(std::vector<std::string> &failures, std::ifstream &fixed)
-{
-	std::string id;
-	while (true)
-	{
-		while (fixed >> id)
-		{
-			//failures_lock.lock();
-			// Remove id from vector of failures
-			failures.erase(std::remove(failures.begin(), failures.end(), id), failures.end());
-			//failures_lock.unlock();
-		}
-		std::this_thread::sleep_for(std::chrono::seconds(1));
-
-		if (!fixed.eof())
-			break;
-		fixed.clear();
 	}
 }

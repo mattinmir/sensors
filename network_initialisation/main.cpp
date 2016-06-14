@@ -1,3 +1,5 @@
+// TODO add threads which send data to DB via python file
+
 #include "Connection.h"
 #include "helpers.h"
 #include "Sensor.h"
@@ -12,12 +14,17 @@
 #include "node_failure.h"
 #include <ctime>
 #include <algorithm>
+#include <mutex>
+#define DEBUG true
 
 using namespace std;
+
+mutex mutex_cout, mutex_whitelist_updated, mutex_failures, mutex_sensors, mutex_last_seen;
 
 int main()
 {
 	vector<thread> threads;
+	//map<string, string> thread_ids;
 
 	string current_dir = ".";
 	map<string, Sensor> sensors;
@@ -27,10 +34,9 @@ int main()
 	bool updated = false;
 
 	map<string, tm> last_seen;
-	double timeout = 100; // In seconds
-	string fixedfile = "fixed.txt";
+	double timeout = 9999999; // In seconds
 	vector<string> logfiles = get_file_list(current_dir, ".log"); 
-	ofstream whitelistfile("whitelist.txt");
+	string blacklistfile("blacklist.txt");
 
 
 	for (unsigned int i = 0; i < logfiles.size(); i++)
@@ -41,23 +47,23 @@ int main()
 		whitelist[transID] = {}; // Add new transceiver to whitelist
 
 		// Start checking sensors for new rssi values
-		threads.push_back(thread(update_sensors, ref(sensors), logfiles[i]));
+		thread(update_sensors, ref(sensors), logfiles[i]).detach();
 	}
+
+	//this_thread::sleep_for(chrono::minutes(20));
 	
 	// Need std::ref to pass items by reference to threads
 	threads.push_back(thread(update_whitelist, ref(whitelist), ref(sensors), ref(failures), ref(updated))); // Update whitelist
 	
-	threads.push_back(thread(check_for_update, ref(whitelistfile), ref(whitelist), ref(updated))); // Check for updated whitelist
+	threads.push_back(thread(check_for_update, blacklistfile, ref(whitelist), ref(updated))); // Check for updated whitelist
 	
 	for (unsigned int i = 0; i < logfiles.size(); i++)
-		threads.push_back(thread(update_last_seen, ifstream(logfiles[i]), ref(last_seen))); // update last seen for every logfile
+		threads.push_back(thread(update_last_seen, ifstream(logfiles[i]), ref(last_seen), ref(failures))); // update last seen for every logfile
 		
 	threads.push_back(thread(add_failures, ref(failures), ref(last_seen), timeout)); // Adding failures to failure list based on last seen
 	
-	threads.push_back(thread(remove_failures, ref(failures), ifstream(fixedfile))); // Remove failed nodes from failures if they are fixed
-
 	for (auto &t : threads)
-		t.join(); // Begin concurrent execution
+		t.detach(); // Begin concurrent execution
 
 	// Continue checking for new logfiles
 	vector<string> opened_logfiles(logfiles);
@@ -67,11 +73,11 @@ int main()
 		for (unsigned int i = 0; i < new_logfiles.size(); i++)
 		{
 			// If we have not previously seen this logfile
-			if (find(opened_logfiles.begin(), opened_logfiles.end(), new_logfiles[i]) != opened_logfiles.end())
+			if (!(find(opened_logfiles.begin(), opened_logfiles.end(), new_logfiles[i]) != opened_logfiles.end()))
 			{
 				// Start checking it for new rssi values
-				thread(update_sensors, ref(sensors), new_logfiles[i]).join(); 
-				threads.push_back(thread(update_last_seen, ifstream(new_logfiles[i]), ref(last_seen))); // update last seen
+				thread(update_sensors, ref(sensors), new_logfiles[i]).detach(); 
+				thread(update_last_seen, ifstream(new_logfiles[i]), ref(last_seen), ref(failures)).detach(); // update last seen
 				opened_logfiles.push_back(new_logfiles[i]);
 			}
 		}

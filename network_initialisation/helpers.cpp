@@ -1,3 +1,4 @@
+// Supress warnings concerning typenames that are too long and have been truncated
 #ifdef MSVC
 	#pragma warning(disable : 4503)
 #endif
@@ -12,11 +13,13 @@
 #include "dirent.h"
 #include <map>
 #include "NoConnectionException.h"
-#include <set>
 #include <thread>
 #include <iostream>
 #include <chrono>
 #include <fstream>
+#include <mutex>
+
+extern std::mutex mutex_cout, mutex_whitelist_updated, mutex_failures, mutex_sensors;
 
 std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems)
 {
@@ -87,46 +90,67 @@ std::vector<std::string> get_file_list(std::string directory, std::string extens
 	return logs;
 }
 
-
-void generate_whitelist(std::map<std::string, std::vector<std::string>> &whitelist, std::vector<std::string> failures, std::map<std::string, std::vector<std::string>> connections)
-{
-	// Iterate over every sensor-transciever vector pair in the connections map
-	std::map<std::string, std::vector<std::string>>::iterator iter;
-	for (iter = connections.begin(); iter != connections.end(); ++iter)
-	{
-		unsigned int i = 0;
-
-		// Increment i until a non-failed transceiver is found in the connections list
-		while (std::find(failures.begin(), failures.end(), iter->second[0]) != failures.end())
-		{
-			iter->second.erase(iter->second.begin()); // Remove dead transciever from connection list
-
-			i++;
-			// If we have iterated over the entire list of connections and all are failed
-			if (i == connections.size())
-				throw NoConnectionException(iter->first);
-		}
-
-		// Add the current sensor to the non-failed transceiver's whitelist
-		whitelist[iter->second[0]].push_back(iter->first);
-	}
-}
+//
+//void generate_whitelist(std::map<std::string, std::vector<std::string>> &whitelist, std::vector<std::string> failures, std::map<std::string, std::vector<std::string>> connections)
+//{
+//	// Iterate over every sensor-transciever vector pair in the connections map
+//	std::map<std::string, std::vector<std::string>>::iterator iter;
+//	for (iter = connections.begin(); iter != connections.end(); ++iter)
+//	{
+//		unsigned int i = 0;
+//
+//		// Increment i until a non-failed transceiver is found in the connections list
+//		while (std::find(failures.begin(), failures.end(), iter->second[0]) != failures.end())
+//		{
+//			iter->second.erase(iter->second.begin()); // Remove dead transciever from connection list
+//
+//			i++;
+//			// If we have iterated over the entire list of connections and all are failed
+//			if (i == connections.size())
+//				throw NoConnectionException(iter->first);
+//		}
+//
+//		// Add the current sensor to the non-failed transceiver's whitelist
+//		whitelist[iter->second[0]].push_back(iter->first);
+//	}
+//}
 
 void update_whitelist(std::map<std::string, std::vector<std::string>> &whitelist, std::map<std::string, Sensor> &sensors, std::vector<std::string> &failures, bool &updated)
 {
 	while (true)
 	{
+
+		std::lock_guard<std::mutex> lock_whitelist(mutex_whitelist_updated);
+		std::lock_guard<std::mutex> lock_sensors(mutex_sensors);
+		std::lock_guard<std::mutex> lock_failures(mutex_failures);
+
 		if (!updated)
 		{
+			/* Processing new sensors */
 			// For every sensor
 			for (auto &s : sensors)
 			{
-				std::string strongest_trans = s.second.connectionList()[0];
-				// If the sensor is not yet found in the whitelist of its strongest connected transceiver, add it there
-				if (std::find(whitelist[strongest_trans].begin(), whitelist[strongest_trans].end(), s.second.getSensorID()) == whitelist[strongest_trans].end())
-					whitelist[strongest_trans].push_back(s.second.getSensorID());
+				std::string strongest_trans;
+				try
+				{
+					strongest_trans = s.second.connectionList()[0];
+				}
+				// If there are no connections for the sensor, do nothing
+				catch(NoConnectionException)
+				{
+					continue;
+				}
+					// If the sensor is not yet found in the whitelist of its strongest connected transceiver, add it there
+				if (std::find(whitelist[strongest_trans].begin(), whitelist[strongest_trans].end(), s.first) == whitelist[strongest_trans].end())
+				{
+					whitelist[strongest_trans].push_back(s.first);
+
+					// Mark a flag so that check_for_updates() knows to send out a new whitelist
+					updated = true;
+				}
 			}
 
+			/* Processing failed transceievers */
 			// For every transciever in the whitelist
 			for (auto &w : whitelist)
 			{
@@ -148,14 +172,16 @@ void update_whitelist(std::map<std::string, std::vector<std::string>> &whitelist
 						// Otherwise, assign that sensorID to its next strongest connected transceiver
 						else
 						{
-							whitelist[sensors[sensorID].connectionList()[0]].push_back(sensors[sensorID].getSensorID());
+							whitelist[sensors[sensorID].connectionList()[0]].push_back(sensorID);
 						}
 					}
+
+					// Mark a flag so that check_for_updates() knows to send out a new whitelist
+					updated = true;
 				}
 			}
 
-			// Mark a flag so that check_for_updates() knows to send out a new whitelist
-			updated = true;
+			
 			std::this_thread::sleep_for(std::chrono::seconds(1));
 		}		
 	}
@@ -231,20 +257,43 @@ void update_whitelist(std::map<std::string, std::vector<std::string>> &whitelist
 }
 
 // Checking for updated whitelist
-void check_for_update(std::ofstream &whitelistfile, std::map<std::string, std::vector<std::string>> &whitelist, bool &updated)
+void check_for_update(std::string blacklistfilename, std::map<std::string,  std::vector<std::string>> &whitelist, bool &updated)
 {
 	while (true)
 	{
+		std::lock_guard<std::mutex> lock_whitelist(mutex_whitelist_updated);
+
 		if (updated)
 		{
+			// Create blacklist here instead of creating in real time because new nodes may be added
+			std::map<std::string, std::vector<std::string>> blacklist;
 			// Send out new whitelist
-			std::map<std::string, std::vector<std::string>>::const_iterator iter;
-			for (iter = whitelist.begin(); iter != whitelist.end(); ++iter)
-			{
-				whitelistfile << " " << iter->first << iter->second << "\n";
-			}
-			whitelistfile << std::flush;
+			//std::map<std::string, std::vector<std::string>>::const_iterator wl_iter;
 
+			// For every transciever in the whitelist
+			for (auto wl_iter = whitelist.begin(); wl_iter != whitelist.end(); ++wl_iter)
+			{
+				// Add its sensors to the blacklist of every other transciever
+				for (auto bl_iter = whitelist.begin(); bl_iter != whitelist.end(); ++bl_iter)
+				{
+					if (bl_iter != wl_iter)
+					{
+						for (unsigned int i = 0; i < wl_iter->second.size(); i++)
+						{
+							blacklist[bl_iter->first].push_back(wl_iter->second[i]);
+						}
+					}
+				}
+			}
+
+			std::ofstream blacklistfile(blacklistfilename.c_str());
+			// Write blacklist to file
+			for (auto output_iter = blacklist.begin(); output_iter != blacklist.end(); ++output_iter)
+			{
+				blacklistfile << output_iter->first << " " << output_iter->second << "\n";
+			}
+			blacklistfile << std::flush;
+			blacklistfile.close();
 			// Flip updated bool so that whitelist can be updated again
 			//updated_lock.lock();
 			updated = false;
@@ -254,15 +303,17 @@ void check_for_update(std::ofstream &whitelistfile, std::map<std::string, std::v
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 	}
 }
+
+// Read logfiles and adds most recent rssi values to respective sensor objects
 void update_sensors(std::map<std::string, Sensor> &sensors, std::string logfile_name)
 {
 	std::string timestamp, transcode, payload;
 	std::ifstream logfile(logfile_name.c_str());
 	while (true)
 	{
+		std::lock_guard<std::mutex> lock_sensors(mutex_sensors);
 		while (logfile >> timestamp >> transcode >> payload)
 		{
-		
 			std::string sensorID = payload;
 			sensorID.erase(16, 2).erase(0, 8);
 			double rssi = stoul(payload.erase(0, 16), nullptr, 16);
@@ -270,7 +321,6 @@ void update_sensors(std::map<std::string, Sensor> &sensors, std::string logfile_
 
 			// Add new data about rssi between sensor and transceiver
 			sensors[sensorID].add_rssi(transID, rssi);
-
 		}
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 		if (!logfile.eof())

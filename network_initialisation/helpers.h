@@ -32,7 +32,7 @@ void generate_whitelist(std::map<std::string, std::vector<std::string>> &whiteli
 void update_whitelist(std::map<std::string, std::vector<std::string>> &whitelist, std::map<std::string, Sensor> &sensors, std::vector<std::string> &failures, bool &updated);
 
 // Checking for updated whitelist
-void check_for_update(std::ofstream &whitelistfile, std::map<std::string, std::vector<std::string>> &whitelist, bool &updated);
+void check_for_update(std::string blacklistfilename, std::map<std::string,  std::vector<std::string>> &whitelist, bool &updated);
 
 void update_sensors(std::map<std::string, Sensor> &sensors, std::string logfile_name);
 
