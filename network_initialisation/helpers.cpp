@@ -9,7 +9,6 @@
 #include <string>
 #include <algorithm>
 #include "Sensor.h"
-#include <dirent.h>
 #include <map>
 #include "NoConnectionException.h"
 #include <thread>
@@ -18,6 +17,11 @@
 #include <fstream>
 #include <mutex>
 #include <set>
+#ifdef _WIN32
+#include "dirent.h"
+#else
+#include <dirent.h>
+#endif
 
 extern std::mutex mutex_cout, mutex_whitelist_updated, mutex_failures, mutex_sensors;
 

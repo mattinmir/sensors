@@ -6,13 +6,18 @@
 #include <string>
 #include <algorithm>
 #include "Sensor.h"
-#include <dirent.h>
 #include <map>
 #include "NoConnectionException.h"
 #include <thread>
 #include <iostream>
 #include <chrono>
 #include <set>
+
+#ifdef _WIN32
+#include "dirent.h"
+#else
+#include <dirent.h>
+#endif
 
 std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems);
 
@@ -42,7 +47,7 @@ template < class T >
 inline std::ostream& operator<< (std::ostream& os, const std::vector<T>& v)
 {
 	os << *v.begin();
-	for (std::vector<T>::const_iterator ii = v.begin() + 1; ii != v.end(); ++ii)
+	for (typename std::vector<T>::const_iterator ii = v.begin() + 1; ii != v.end(); ++ii)
 		os << " " << *ii;
 	
 	return os;

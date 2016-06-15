@@ -8,14 +8,17 @@
 #include <iostream>
 #include <fstream>
 #include <map>
-#include <dirent.h>
 #include <thread>
 #include "node_failure.h"
 #include <ctime>
 #include <algorithm>
 #include <mutex>
 #include <set>
-#define DEBUG true
+#ifdef _WIN32
+	#include "dirent.h"
+#else
+	#include <dirent.h>
+#endif
 
 using namespace std;
 
