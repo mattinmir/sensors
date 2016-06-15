@@ -9,7 +9,7 @@
 #include <string>
 #include <algorithm>
 #include "Sensor.h"
-#include "dirent.h"
+#include <dirent.h>
 #include <map>
 #include "NoConnectionException.h"
 #include <thread>
