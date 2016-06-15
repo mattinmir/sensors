@@ -1,19 +1,17 @@
 #include "Sensor.h"
 #include "NoConnectionException.h"
-#include "Connection.h"
 #include <vector>
 #include <string>
 #include <iostream>
 #include <sstream>
 #include <functional>
 #include <algorithm>
-#include "connection.h"
 #include <deque>
 #include "helpers.h"
 
-Sensor::Sensor(){}
+Sensor::Sensor() : rssi_queue_size(10){}
 
-Sensor::Sensor(std::string _id, int _rssi_queue_size) : id(_id), rssi_queue_size(_rssi_queue_size){}
+Sensor::Sensor(std::string _id, int _rssi_queue_size = 10) : id(_id), rssi_queue_size(_rssi_queue_size){}
 
 
 std::string Sensor::getSensorID() const
@@ -25,7 +23,7 @@ std::vector<std::string> Sensor::connectionList()
 {
 	// No Connections
 	if (connections.size() == 0)
-		throw NoConnectionException(id);
+		return std::vector<std::string>(); // Return empty vector
 	
 	else
 	{

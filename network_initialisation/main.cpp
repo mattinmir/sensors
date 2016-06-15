@@ -1,6 +1,5 @@
 // TODO add threads which send data to DB via python file
 
-#include "Connection.h"
 #include "helpers.h"
 #include "Sensor.h"
 #include <vector>
@@ -35,7 +34,7 @@ int main()
 	bool updated = false;
 
 	map<string, tm> last_seen;
-	double timeout = 86400; // In seconds
+	double timeout = 30; // In seconds
 	vector<string> logfiles = get_file_list(current_dir, ".log"); 
 	string blacklistfile("blacklist.txt");
 

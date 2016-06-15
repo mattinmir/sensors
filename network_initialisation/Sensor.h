@@ -5,7 +5,6 @@
 #include <string>
 #include <map>
 #include <deque>
-#include "Connection.h"
 #include "Fifo.h"
 
 class Sensor
@@ -18,7 +17,7 @@ private:
 public:
 	Sensor(); // Default constructor required to allow access to map using operator[]
 
-	Sensor(std::string _id, int _rssi_queue_size=10);
+	Sensor(std::string _id, int _rssi_queue_size);
 
 	std::string getSensorID() const;
 

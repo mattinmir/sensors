@@ -65,7 +65,9 @@ void update_last_seen(std::ifstream &logfile, std::map<std::string, std::tm> &la
 			last_seen[transID] = convert_timestamp(timestamp);
 
 			// Remove id from vector of failures
+			failures.erase(sensorID);
 			failures.erase(transID);
+			// TODO send message to db saying node is not failed
 		}
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 		if (!logfile.eof())
@@ -74,25 +76,26 @@ void update_last_seen(std::ifstream &logfile, std::map<std::string, std::tm> &la
 	}
 }
 
-// TODO add code that removes failed transceiver's sensors from eevry blacklist to find new route
+// TODO add code that removes failed transceiver's sensors from every blacklist to find new route
 void add_failures(std::set<std::string> &failures, const std::map<std::string, std::tm> &last_seen, double timeout)
 {
-	std::map<std::string, std::tm>::const_iterator iter;
+
 	while (true)
 	{
 		std::lock_guard<std::mutex> lock_last_seen(mutex_last_seen);
 		std::lock_guard<std::mutex> lock_failures(mutex_failures);
 
-		for (iter = last_seen.begin(); iter != last_seen.end(); ++iter)
+		
+		for (auto &l : last_seen)
 		{
-			if (failed(iter->second, timeout))
+			std::string nodeID = l.first;
+			std::tm time_last_seen = l.second;
+
+			if (failed(time_last_seen, timeout))
 			{
-
-				failures.insert(iter->first);
-
+				failures.insert(nodeID);
 			}
 		}
-
 
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 

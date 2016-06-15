@@ -6,7 +6,6 @@
 #include <string>
 #include <algorithm>
 #include "Sensor.h"
-#include "Connection.h"
 #include "dirent.h"
 #include <map>
 #include "NoConnectionException.h"
