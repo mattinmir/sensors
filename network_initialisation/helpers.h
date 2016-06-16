@@ -37,19 +37,8 @@ void generate_whitelist(std::map<std::string, std::vector<std::string>> &whiteli
 void update_whitelist(std::map<std::string, std::vector<std::string>> &whitelist, std::map<std::string, Sensor> &sensors, std::set<std::string> &failures, bool &updated);
 
 // Checking for updated whitelist
-void check_for_update(std::string blacklistfilename, std::map<std::string,  std::vector<std::string>> &whitelist, bool &updated);
+void check_for_update(std::string blacklistfilename, std::map<std::string, std::vector<std::string>> &whitelist, std::vector<std::string> &db_transceievers, bool &updated);
 
 void update_sensors(std::map<std::string, Sensor> &sensors, std::string logfile_name);
 
-//
-//// Overloading operator<< for vectors
-//template < class T >
-//inline std::ostream& operator<< (std::ostream& os, const std::vector<T>& v)
-//{
-//	os << *v.begin();
-//	for (typename std::vector<T>::const_iterator ii = v.begin() + 1; ii != v.end(); ++ii)
-//		os << " " << *ii;
-//	
-//	return os;
-//}
 #endif // !HELPERS_H

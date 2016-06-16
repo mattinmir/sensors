@@ -79,33 +79,53 @@ std::vector<std::string> get_file_list(std::string directory, std::string extens
 }
 
 
-
+// TODO add transceiver ids to everyone's blacklist
 void update_whitelist(std::map<std::string, std::vector<std::string>> &whitelist, std::map<std::string, Sensor> &sensors, std::set<std::string> &failures, bool &updated)
 {
 	while (true)
 	{
 
-		std::lock_guard<std::mutex> lock_whitelist(mutex_whitelist_updated);
+		std::lock_guard<std::mutex> lock_whitelist_updated(mutex_whitelist_updated);
 		std::lock_guard<std::mutex> lock_sensors(mutex_sensors);
 		std::lock_guard<std::mutex> lock_failures(mutex_failures);
 
 		if (!updated)
 		{
-			/* Processing new sensors */
+			/* Updating sensors' strongest connections */
 			// For every sensor
 			for (auto &s : sensors)
 			{
+				std::string sensorID = s.first;
 				std::string strongest_trans;
 				std::vector<std::string> connectionList = s.second.connectionList();
-				if (connectionList.size() == 0)
+				// TODO send msg to db saying how many connections a sensor has
+				int size = connectionList.size();
+				if (size == 0)
 					continue;
 				else
+				{
 					strongest_trans = connectionList[0];
 
+
+					//// Add to blacklist of all others
+					//for (auto &w : whitelist)
+					//{
+					//	std::vector<std::string> &sensorlist = w.second;
+					//	if (std::find(sensorlist.begin(), sensorlist.end(), sensorID) == sensorlist.end())
+					//		sensorlist.push_back(sensorID);
+					//}
+					//// Remove from blacklist of strongest_trans
+					//whitelist[strongest_trans].erase(std::remove(whitelist[strongest_trans].begin(), whitelist[strongest_trans].end(), sensorID), whitelist[strongest_trans].end());
+					//
+					//updated = true;
+
+				}
 				
-					// If the sensor is not yet found in the whitelist of its strongest connected transceiver, add it there
+					// If the sensor is not yet found in the whitelist of its strongest connected transceiver
 				if (std::find(whitelist[strongest_trans].begin(), whitelist[strongest_trans].end(), s.first) == whitelist[strongest_trans].end())
 				{
+					
+					// Add it there
 					whitelist[strongest_trans].push_back(s.first);
 
 					// Mark a flag so that check_for_updates() knows to send out a new whitelist
@@ -123,7 +143,7 @@ void update_whitelist(std::map<std::string, std::vector<std::string>> &whitelist
 				// If it has failed (i.e. is found in failures vector)
 				if (failures.find(transID) != failures.end())
 				{
-					// If the transciever was connected to a transceiver
+					// If the transciever was connected to a sensor
 					if (whitelisted_sensors.size() > 0)
 					{
 						// For every sensor that was connected to it
@@ -164,6 +184,7 @@ void update_whitelist(std::map<std::string, std::vector<std::string>> &whitelist
 
 						// Remove null marked transceivers
 						whitelisted_sensors.erase(std::remove(whitelisted_sensors.begin(), whitelisted_sensors.end(), "null"), whitelisted_sensors.end());
+
 						// Mark a flag so that check_for_updates() knows to send out a new whitelist
 						updated = true;
 					}
@@ -178,30 +199,33 @@ void update_whitelist(std::map<std::string, std::vector<std::string>> &whitelist
 }
 
 // Checking for updated whitelist
-void check_for_update(std::string blacklistfilename, std::map<std::string,  std::vector<std::string>> &whitelist, bool &updated)
+void check_for_update(std::string blacklistfilename, std::map<std::string,  std::vector<std::string>> &whitelist, std::vector<std::string> &db_transceievers, bool &updated)
 {
 	while (true)
 	{
-		std::lock_guard<std::mutex> lock_whitelist(mutex_whitelist_updated);
+		std::lock_guard<std::mutex> lock_whitelist_updated(mutex_whitelist_updated);
 
 		if (updated)
 		{
 			// Create blacklist here instead of creating in real time because new nodes may be added
 			std::map<std::string, std::vector<std::string>> blacklist;
-			// Send out new whitelist
-			//std::map<std::string, std::vector<std::string>>::const_iterator wl_iter;
+			// Send out new blacklist
 
 			// For every transciever in the whitelist
-			for (auto wl_iter = whitelist.begin(); wl_iter != whitelist.end(); ++wl_iter)
+			for (auto &wl_iter : whitelist)
 			{
+				std::string wl_transID = wl_iter.first;
+				std::vector<std::string> &wl_sensors = wl_iter.second;
 				// Add its sensors to the blacklist of every other transciever
-				for (auto bl_iter = whitelist.begin(); bl_iter != whitelist.end(); ++bl_iter)
+				for (auto &bl_iter : whitelist)
 				{
+					std::string bl_transID = bl_iter.first;
+					std::vector<std::string> &bl_sensors = bl_iter.second;
 					if (bl_iter != wl_iter)
 					{
-						for (unsigned int i = 0; i < wl_iter->second.size(); i++)
+						for (unsigned int i = 0; i < wl_sensors.size(); i++)
 						{
-							blacklist[bl_iter->first].push_back(wl_iter->second[i]);
+							blacklist[bl_transID].push_back(wl_sensors[i]);
 						}
 					}
 				}
@@ -214,13 +238,15 @@ void check_for_update(std::string blacklistfilename, std::map<std::string,  std:
 				blacklistfile << output_iter->first;
 				for (auto &id : output_iter->second)
 					blacklistfile << " " << id;
+				for (auto &t : db_transceievers) // Need to add all transceiver ids so messages are not duplicated
+					blacklistfile << " " << t;
+				blacklistfile << "\n";
 			}
 			blacklistfile << std::flush;
 			blacklistfile.close();
 			// Flip updated bool so that whitelist can be updated again
-			//updated_lock.lock();
+
 			updated = false;
-			//updated_lock.lock();
 		}
 
 		std::this_thread::sleep_for(std::chrono::seconds(1));

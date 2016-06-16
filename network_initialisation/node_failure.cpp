@@ -44,7 +44,7 @@ bool failed(std::tm timestamp, double timeout)
 }
 
 // Will continuously read in new data saved to file and update last seen/failures
-void update_last_seen(std::ifstream &logfile, std::map<std::string, std::tm> &last_seen, std::set<std::string> &failures)
+void update_last_seen(std::ifstream &logfile, std::map<std::string, std::tm> &last_seen, std::set<std::string> &failures, std::vector<std::string> &db_sensors, std::vector<std::string> &db_transceivers)
 {
 	
 	std::string timestamp, transcode, payload;
@@ -55,18 +55,26 @@ void update_last_seen(std::ifstream &logfile, std::map<std::string, std::tm> &la
 
 		while (logfile >> timestamp >> transcode >> payload)
 		{
-			// Update last seen
+
 			std::string sensorID = payload;
 			sensorID.erase(16, 2).erase(0, 8);
-			last_seen[sensorID] = convert_timestamp(timestamp);
-			
 			std::string transID = split(transcode, '_')[2];
-			last_seen[transID] = convert_timestamp(timestamp);
 
-			// Remove id from vector of failures
-			failures.erase(sensorID);
-			failures.erase(transID);
-			// TODO send message to db saying node is not failed
+			// If one of our nodes
+			if (std::find(db_sensors.begin(), db_sensors.end(), sensorID) != db_sensors.end() && std::find(db_transceivers.begin(), db_transceivers.end(), transID) != db_transceivers.end())
+			{
+				// Update last seen
+
+				last_seen[sensorID] = convert_timestamp(timestamp);
+
+
+				last_seen[transID] = convert_timestamp(timestamp);
+
+				// Remove id from vector of failures
+				failures.erase(sensorID);
+				failures.erase(transID);
+				// TODO send message to db saying node is not failed
+			}
 		}
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 		if (!logfile.eof())
@@ -75,7 +83,7 @@ void update_last_seen(std::ifstream &logfile, std::map<std::string, std::tm> &la
 	}
 }
 
-// TODO add code that removes failed transceiver's sensors from every blacklist to find new route
+
 void add_failures(std::set<std::string> &failures, const std::map<std::string, std::tm> &last_seen, double timeout)
 {
 
