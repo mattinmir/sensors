@@ -3,7 +3,8 @@
 # of ID in the packet will be different
 # Perhaps consult a list of sensor IDs?
 
-import subprocess
+import os
+import sys
 import time
 
 
@@ -45,7 +46,7 @@ while True:
             execute_string = 'perl ' + perlfile + ' "' + sensor_id + '" "' + timestamp + '" ' + str(decoded_value)
             try:
                 print(execute_string)
-                subprocess.call(execute_string)
+                os.system(execute_string)
 
             except:
-                print "Something went wrong!"
+                print "Something went wrong:", sys.exc_info()[0]

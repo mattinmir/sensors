@@ -1,63 +1,38 @@
-#include "connection.h"
+#include "Connection.h"
 #include <string>
 #include <iostream>
 #include "NoConnectionException.h"
 
 
 /********* Connection *********/
-Connection::Connection(std::string _transID, double _rssi) : transID(_transID), rssi(_rssi){}
+Connection::Connection(std::string _transID) : transID(_transID){}
 
 bool Connection::operator>(Connection c2)
 {
-	return (rssi > c2.rssi);
+	return (this->rssis.median() > c2.rssis.median());
 }
 
 bool Connection::operator<(Connection c2)
 {
-	return (rssi < c2.rssi);
+	return (this->rssis.median() < c2.rssis.median());
 }
 
-std::string Connection::get_transID()
+std::string Connection::get_transID() const
 {
 	return transID;
 }
 
-
-
-/********** Sensor **************/
-Sensor::Sensor(std::string _id) : id(_id){}
-
-
-
-std::string Sensor::getSensorID()
+bool operator>(Connection c1, Connection c2)
 {
-	return id;
+	return (c1.rssis.median() > c2.rssis.median());
 }
 
-std::string Sensor::strongestLink()
+bool operator<(Connection c1, Connection c2)
 {
-	if (connections.size() == 0)
-	{
-		std::cerr << "Error with sensor " << id << ":\n";
-		NoConnectionException e;
-		throw e;
-	}
-
-	else if (connections.size() == 1)
-		return connections[0].get_transID();
-
-	else
-	{
-		Connection strongest = connections[0];
-
-		for (int i = 1; i < connections.size(); ++i)
-			strongest = (strongest > connections[i]) ? strongest : connections[i];
-		
-		return strongest.get_transID();
-	}
+	return (c1.rssis.median() < c2.rssis.median());
 }
 
-void Sensor::add_connection(Connection c)
+void Connection::add_rssi(double val)
 {
-	connections.push_back(c);
+	rssis.push_back(val);
 }
