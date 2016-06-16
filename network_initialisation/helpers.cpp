@@ -211,7 +211,9 @@ void check_for_update(std::string blacklistfilename, std::map<std::string,  std:
 			// Write blacklist to file
 			for (auto output_iter = blacklist.begin(); output_iter != blacklist.end(); ++output_iter)
 			{
-				blacklistfile << output_iter->first << " " << output_iter->second << "\n";
+				blacklistfile << output_iter->first;
+				for (auto &id : output_iter->second)
+					blacklistfile << " " << id;
 			}
 			blacklistfile << std::flush;
 			blacklistfile.close();
