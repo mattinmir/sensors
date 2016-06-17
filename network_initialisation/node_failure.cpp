@@ -70,8 +70,10 @@ void update_last_seen(std::ifstream &logfile, std::map<std::string, std::tm> &la
 				last_seen[transID] = convert_timestamp(timestamp);
 
 				if (DEBUG)
+				{
+					std::lock_guard<std::mutex> lock_cout(mutex_cout);
 					std::cout << "Just seen " << sensorID << " and" << transID << std::endl;
-
+				}
 				// Remove id from vector of failures
 				failures.erase(sensorID);
 				failures.erase(transID);
@@ -109,10 +111,13 @@ void add_failures(std::set<std::string> &failures, const std::map<std::string, s
 			if (failed(time_last_seen, timeout))
 			{
 				failures.insert(nodeID);
-
+				
 				if (DEBUG)
+				{
+					std::lock_guard<std::mutex> lock_cout(mutex_cout);
 					std::cout << nodeID << " failed" << std::endl;
-				// Send message to DB saying node failed
+				}
+					// Send message to DB saying node failed
 				std::string exec = "python node_failed.py " + nodeID;
 				system(exec.c_str());
 			}

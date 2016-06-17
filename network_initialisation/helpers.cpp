@@ -161,8 +161,10 @@ void update_whitelist(std::map<std::string, std::vector<std::string>> &whitelist
 							sensors[sensorID].del_connection(transID);
 
 							if (DEBUG)
+							{
+								std::lock_guard<std::mutex> lock_cout(mutex_cout);
 								std::cout << "update_whitelist: " << transID << " removed from " << sensorID << "'s connectionsn" << std::endl;
-
+							}
 							// Remove the sensor in the transceiver's whitelist
 							// Assign a null value now and remove later as removing elements while iterating over the container mixes up the iteration
 							std::find(whitelist[transID].begin(), whitelist[transID].end(), sensorID)->assign("null");
@@ -171,7 +173,10 @@ void update_whitelist(std::map<std::string, std::vector<std::string>> &whitelist
 							if (sensors[sensorID].connectionList().size() == 0)
 							{
 								if (DEBUG)
+								{
+									std::lock_guard<std::mutex> lock_cout(mutex_cout);
 									std::cout << sensorID << " no longer connected to anything" << std::endl;
+								}
 								// Add the sensor to the whitelist of all transceivers to try to find a new route
 								for (auto &transceiver : whitelist)
 								{
@@ -185,7 +190,10 @@ void update_whitelist(std::map<std::string, std::vector<std::string>> &whitelist
 											transceiver.second.push_back(sensorID);
 
 											if (DEBUG)
+											{
+												std::lock_guard<std::mutex> lock_cout(mutex_cout);
 												std::cout << sensorID << " added to " << transceiver.first << "'s whitelist" << std::endl;
+											}
 										}
 									}
 								}
@@ -196,7 +204,10 @@ void update_whitelist(std::map<std::string, std::vector<std::string>> &whitelist
 							{
 								whitelist[sensors[sensorID].connectionList()[0]].push_back(sensorID);
 								if (DEBUG)
+								{
+									std::lock_guard<std::mutex> lock_cout(mutex_cout);
 									std::cout << sensorID << " added to " << sensors[sensorID].connectionList()[0] << "'s whitelist" << std::endl;
+								}
 							}
 						}
 
@@ -206,7 +217,10 @@ void update_whitelist(std::map<std::string, std::vector<std::string>> &whitelist
 						// Mark a flag so that check_for_updates() knows to send out a new whitelist
 						updated = true;
 						if (DEBUG)
+						{
+							std::lock_guard<std::mutex> lock_cout(mutex_cout);
 							std::cout << "Updated set true" << std::endl;
+						}
 					}
 				}
 			}
@@ -268,7 +282,10 @@ void check_for_update(std::string blacklistfilename, std::map<std::string,  std:
 			// Flip updated bool so that whitelist can be updated again
 			updated = false;
 			if (DEBUG)
+			{
+				std::lock_guard<std::mutex> lock_cout(mutex_cout);
 				std::cout << "Updated set false (wrote blacklist out)" << std::endl;
+			}
 			// Send out new blacklists
 			std::string exec = "python distribute_blacklist.py " + blacklistfilename;
 			system(exec.c_str());
@@ -299,7 +316,10 @@ void update_rssis(std::map<std::string, Sensor> &sensors, std::string logfile_na
 				// Add new data about rssi between sensor and transceiver
 				sensors[sensorID].add_rssi(transID, rssi);
 				if (DEBUG)
+				{
+					std::lock_guard<std::mutex> lock_cout(mutex_cout);
 					std::cout << sensorID << " connected to " << transID << " with rssi" << rssi << std::endl;
+				}
 			}
 		}
 		std::this_thread::sleep_for(std::chrono::seconds(5));
@@ -323,7 +343,10 @@ void add_new_sensors(std::string sensorsfilename, std::set<std::string> &db_sens
 			db_sensors.insert(sensorID);
 			sensors[sensorID] = Sensor(sensorID, 10);
 			if (DEBUG)
+			{
+				std::lock_guard<std::mutex> lock_cout(mutex_cout);
 				std::cout << sensorID << " read from DB" << std::endl;
+			}
 		}
 		std::this_thread::sleep_for(std::chrono::seconds(300));
 		if (!sensorsfile.eof())
@@ -343,7 +366,10 @@ void add_new_trans(std::string transfilename, std::set<std::string> &db_transcei
 			db_transceivers.insert(transID);
 			whitelist[transID];
 			if (DEBUG)
+			{
+				std::lock_guard<std::mutex> lock_cout(mutex_cout);
 				std::cout << transID << " read from DB" << std::endl;
+			}
 		}
 		std::this_thread::sleep_for(std::chrono::seconds(300));
 		if (!transfile.eof())
