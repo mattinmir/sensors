@@ -79,10 +79,10 @@ void update_last_seen(std::ifstream &logfile, std::map<std::string, std::tm> &la
 				failures.erase(transID);
 
 				// Send message to db saying nodes are not failed
-				std::string exec = "python node_active.py " + sensorID;
+				std::string exec = "python node_active.py " + sensorID + " &";
 				system(exec.c_str());
 
-				exec = "python node_active.py " + transID;
+				exec = "python node_active.py " + transID + " &";
 				system(exec.c_str());
 			}
 		}
@@ -118,7 +118,7 @@ void add_failures(std::set<std::string> &failures, const std::map<std::string, s
 					std::cout << nodeID << " failed" << std::endl;
 				}
 					// Send message to DB saying node failed
-				std::string exec = "python node_failed.py " + nodeID;
+				std::string exec = "python node_failed.py " + nodeID + " &";
 				system(exec.c_str());
 			}
 		}

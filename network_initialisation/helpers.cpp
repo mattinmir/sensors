@@ -104,7 +104,7 @@ void update_whitelist(std::map<std::string, std::vector<std::string>> &whitelist
 				std::stringstream ss;
 				int size = connectionList.size();
 				ss << size;
-				std::string exec = "python update_connections.py " + sensorID + " " + ss.str();
+				std::string exec = "python update_connections.py " + sensorID + " " + ss.str() + " &";
 				system(exec.c_str());
 
 				
@@ -287,7 +287,7 @@ void check_for_update(std::string blacklistfilename, std::map<std::string,  std:
 				std::cout << "Updated set false (wrote blacklist out)" << std::endl;
 			}
 			// Send out new blacklists
-			std::string exec = "python distribute_blacklist.py " + blacklistfilename;
+			std::string exec = "python distribute_blacklist.py " + blacklistfilename + " &";
 			system(exec.c_str());
 		}
 

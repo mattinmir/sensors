@@ -47,7 +47,7 @@ int main()
 
 
 	// Read in node info from DB
-	system("python get_sensor_info.py");
+	system("python get_sensor_info.py &");
 
 	// Importing DB node data into our data structures
 	thread(add_new_sensors, "sensors.txt", ref(db_sensors), ref(sensors)).detach();
@@ -59,7 +59,7 @@ int main()
 		thread(update_rssis, ref(sensors), logfiles[i], ref(db_sensors), ref(db_transceivers)).detach();
 
 		// Send logfile data to DB
-		string exec = "python readlog.py " + logfiles[i];
+		string exec = "python readlog.py " + logfiles[i] + " &";
 		system(exec.c_str());
 	}
 
@@ -97,7 +97,7 @@ int main()
 				opened_logfiles.push_back(new_logfiles[i]);
 
 				// Send data to DB
-				string exec = "python readlog.py " + new_logfiles[i];
+				string exec = "python readlog.py " + new_logfiles[i] + " &";
 				system(exec.c_str());
 			}
 		}
