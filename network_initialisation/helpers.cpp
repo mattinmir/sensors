@@ -23,6 +23,7 @@
 #include <dirent.h>
 #endif
 
+extern bool DEBUG;
 extern std::mutex mutex_cout, mutex_whitelist_updated, mutex_failures, mutex_sensors;
 
 std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems)
@@ -159,6 +160,9 @@ void update_whitelist(std::map<std::string, std::vector<std::string>> &whitelist
 							// Remove the connection in the sensor's connection list
 							sensors[sensorID].del_connection(transID);
 
+							if (DEBUG)
+								std::cout << "update_whitelist: " << transID << " removed from " << sensorID << "'s connections\n";
+
 							// Remove the sensor in the transceiver's whitelist
 							// Assign a null value now and remove later as removing elements while iterating over the container mixes up the iteration
 							std::find(whitelist[transID].begin(), whitelist[transID].end(), sensorID)->assign("null");
@@ -166,6 +170,8 @@ void update_whitelist(std::map<std::string, std::vector<std::string>> &whitelist
 							// If that sensor is no longer connected to any transcievers as a result of the above pruning
 							if (sensors[sensorID].connectionList().size() == 0)
 							{
+								if (DEBUG)
+									std::cout << sensorID << " no longer connected to anything\n";
 								// Add the sensor to the whitelist of all transceivers to try to find a new route
 								for (auto &transceiver : whitelist)
 								{
@@ -177,6 +183,9 @@ void update_whitelist(std::map<std::string, std::vector<std::string>> &whitelist
 										{
 											// Add it
 											transceiver.second.push_back(sensorID);
+
+											if (DEBUG)
+												std::cout << sensorID << " added to " << transceiver.first << "'s whitelist\n";
 										}
 									}
 								}
@@ -186,6 +195,8 @@ void update_whitelist(std::map<std::string, std::vector<std::string>> &whitelist
 							else
 							{
 								whitelist[sensors[sensorID].connectionList()[0]].push_back(sensorID);
+								if (DEBUG)
+									std::cout << sensorID << " added to " << sensors[sensorID].connectionList()[0] << "'s whitelist\n";
 							}
 						}
 
@@ -194,6 +205,8 @@ void update_whitelist(std::map<std::string, std::vector<std::string>> &whitelist
 
 						// Mark a flag so that check_for_updates() knows to send out a new whitelist
 						updated = true;
+						if (DEBUG)
+							std::cout << "Updated set true\n";
 					}
 				}
 			}
@@ -254,7 +267,8 @@ void check_for_update(std::string blacklistfilename, std::map<std::string,  std:
 
 			// Flip updated bool so that whitelist can be updated again
 			updated = false;
-
+			if (DEBUG)
+				std::cout << "Updated set false (wrote blacklist out)\n";
 			// Send out new blacklists
 			std::string exec = "python distribute_blacklist.py " + blacklistfilename;
 			system(exec.c_str());
@@ -284,6 +298,8 @@ void update_rssis(std::map<std::string, Sensor> &sensors, std::string logfile_na
 			{
 				// Add new data about rssi between sensor and transceiver
 				sensors[sensorID].add_rssi(transID, rssi);
+				if (DEBUG)
+					std::cout << sensorID << " connected to " << transID << " with rssi" << rssi << "\n";
 			}
 		}
 		std::this_thread::sleep_for(std::chrono::seconds(5));
@@ -306,6 +322,8 @@ void add_new_sensors(std::string sensorsfilename, std::set<std::string> &db_sens
 		{
 			db_sensors.insert(sensorID);
 			sensors[sensorID] = Sensor(sensorID, 10);
+			if (DEBUG)
+				std::cout << sensorID <<" read from DB\n";
 		}
 		std::this_thread::sleep_for(std::chrono::seconds(300));
 		if (!sensorsfile.eof())
@@ -324,6 +342,8 @@ void add_new_trans(std::string transfilename, std::set<std::string> &db_transcei
 		{
 			db_transceivers.insert(transID);
 			whitelist[transID];
+			if (DEBUG)
+				std::cout << transID << " read from DB\n";
 		}
 		std::this_thread::sleep_for(std::chrono::seconds(300));
 		if (!transfile.eof())

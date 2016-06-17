@@ -9,6 +9,7 @@
 #include "node_failure.h"
 #include <mutex>
 
+extern bool DEBUG;
 extern std::mutex mutex_cout, mutex_whitelist, mutex_updated, mutex_failures, mutex_sensors, mutex_last_seen;
 
 // Timestamp of format 2016-05-31_16:34:50
@@ -66,9 +67,10 @@ void update_last_seen(std::ifstream &logfile, std::map<std::string, std::tm> &la
 				// Update last seen
 
 				last_seen[sensorID] = convert_timestamp(timestamp);
-
-
 				last_seen[transID] = convert_timestamp(timestamp);
+
+				if (DEBUG)
+					std::cout << "Just seen " << sensorID << " and" << transID << "\n";
 
 				// Remove id from vector of failures
 				failures.erase(sensorID);
@@ -108,6 +110,8 @@ void add_failures(std::set<std::string> &failures, const std::map<std::string, s
 			{
 				failures.insert(nodeID);
 
+				if (DEBUG)
+					std::cout << nodeID << " failed\n";
 				// Send message to DB saying node failed
 				std::string exec = "python node_failed.py " + nodeID;
 				system(exec.c_str());

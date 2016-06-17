@@ -18,6 +18,8 @@
 #include <dirent.h>
 #endif
 
+bool DEBUG = true;
+
 using namespace std;
 
 mutex mutex_cout, mutex_whitelist_updated, mutex_failures, mutex_sensors, mutex_last_seen;
