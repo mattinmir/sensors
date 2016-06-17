@@ -40,5 +40,5 @@ while True:
             continue
         else:
             decoded_value = decode(int(value,16))
-            requests.post('http://www.smartlandlords.co.uk/api/api.php/data/', json = {"auth":"YWRtaW46Z2lyYWZmZXM=","data":[{"sensorID":sensor_id, "timestamp":timestamp, "value":str(decoded_value)}]})
+            requests.post('http://api..smartlandlords.co.uk/api.php/data/', json = {"auth":"YWRtaW46Z2lyYWZmZXM=","data":[{"sensorID":sensor_id, "timestamp":timestamp, "value":str(decoded_value)}]})
 

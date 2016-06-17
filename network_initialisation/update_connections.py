@@ -14,8 +14,8 @@ import sys
 
 sensorID = sys.argv[1]
 connections = sys.argv[2]
-r = requests.post('https://www.smartlandlords.co.uk/api.php/update/' + sensorID + '/trans_connections/' + connections + '/')
+r = requests.post('http://api.smartlandlords.co.uk/api.php/update/' + sensorID + '/trans_connections/' + connections + '/')
 
 # Keep trying until it wokrs
 while (r.status_code != requests.codes.ok):
-   r = requests.post('https://www.smartlandlords.co.uk/api.php/update/' + sensorID + '/trans_connections/' + connections + '/')
+   r = requests.post('http://api.smartlandlords.co.uk/api.php/update/' + sensorID + '/trans_connections/' + connections + '/')

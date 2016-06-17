@@ -1,3 +1,5 @@
+// TODO delete node from db files at start to avoid duplication
+
 #include "helpers.h"
 #include "Sensor.h"
 #include <vector>

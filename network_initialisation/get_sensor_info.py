@@ -27,6 +27,7 @@ while True:
             trans_list.append(t)
             transceivers.write(str(t))
             transceivers.write('\n')
+            print str('trans ' + t)
     transceivers.close()
 
 
@@ -43,7 +44,8 @@ while True:
             sensor_list.append(s)
             sensors.write(str(s))
             sensors.write('\n')
+            print str('sensor ' + s)
     sensors.close()
 
 
-    time.sleep(300)
+    time.sleep(1)
