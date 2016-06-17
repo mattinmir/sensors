@@ -1,5 +1,3 @@
-// TODO add threads which send data to DB via python file
-
 #include "helpers.h"
 #include "Sensor.h"
 #include <vector>
@@ -29,9 +27,9 @@ int main()
 	vector<thread> threads;
 	//map<string, string> thread_ids;
 
-	// TODO add threads which update these from the db and update sensors/whitelist
-	vector<string> db_transceivers;
-	vector<string> db_sensors;
+
+	set<string> db_transceivers;
+	set<string> db_sensors;
 
 	string current_dir = ".";
 	map<string, Sensor> sensors;
@@ -45,42 +43,36 @@ int main()
 	vector<string> logfiles = get_file_list(current_dir, ".log");
 	string blacklistfile("blacklist.txt");
 
-	/*
-	
-	TODO Read sensor info from DB
 
-	*/
-	for (auto &sensorID : db_sensors)
-		sensors[sensorID] = Sensor(sensorID, 10); 
+	// Read in node info from DB
+	system("python get_sensor_info.py");
 
-	for (auto &transID : db_transceivers)
-		whitelist[transID]; // Add new transceiver to whitelist
+	// Importing DB node data into our data structures
+	thread(add_new_sensors, "sensors.txt", ref(db_sensors), ref(sensors)).detach();
+	thread(add_new_trans, "transceivers.txt", ref(db_transceivers), ref(whitelist)).detach();
 
-	//for (unsigned int i = 0; i < logfiles.size(); i++)
-	//{
-	//	// Filename of format EnO_VLD_019FE089-2016.log
-	//	// Split filename string using '_' to get 3 elements {EnO, VLD, 019FE089-2016.log}
-	//	// Split 3rd element using '-' to get 2 elements, {019FE089, 2016.log}, first of which is transID
-	//	string transID = split(split(logfiles[i].c_str(), '_')[2], '-')[0];
-	//	whitelist[transID] = {}; // Add new transceiver to whitelist
+	for (unsigned int i = 0; i < logfiles.size(); i++)
+	{
+		// Checking logfiles for connection rssi values
+		thread(update_rssis, ref(sensors), logfiles[i], ref(db_sensors), ref(db_transceivers)).detach();
 
-	//							 // Start checking sensors for new rssi values
-	//	//thread(update_sensors, ref(sensors), logfiles[i]).detach();
-	//}
-
-	//this_thread::sleep_for(chrono::minutes(20));
+		// Send logfile data to DB
+		string exec = "python readlog.py " + logfiles[i];
+		system(exec.c_str());
+	}
 
 	// Need std::ref to pass items by reference to threads
 	threads.push_back(thread(update_whitelist, ref(whitelist), ref(sensors), ref(failures), ref(updated))); // Update whitelist
 
-	threads.push_back(thread(check_for_update, blacklistfile, ref(whitelist), ref(db_transceivers) ,ref(updated))); // Check for updated whitelist
+	threads.push_back(thread(check_for_update, blacklistfile, ref(whitelist), ref(db_transceivers) ,ref(updated))); // Check for updated whitelist and create blacklist file
 
 	vector<ifstream> infiles;
 	for (unsigned int i = 0; i < logfiles.size(); i++) 
 	{
 		infiles.push_back(ifstream(logfiles[i].c_str()));
-		threads.push_back(thread(update_last_seen, ref(infiles.back()), ref(last_seen), ref(failures), ref(db_sensors), ref(db_transceivers))); // update last seen for every logfile
+		threads.push_back(thread(update_last_seen, ref(infiles.back()), ref(last_seen), ref(failures), ref(db_sensors), ref(db_transceivers))); // update last seen for every node
 	}
+
 	threads.push_back(thread(add_failures, ref(failures), ref(last_seen), timeout)); // Adding failures to failure list based on last seen
 
 	for (auto &t : threads)
@@ -97,10 +89,14 @@ int main()
 			if (!(find(opened_logfiles.begin(), opened_logfiles.end(), new_logfiles[i]) != opened_logfiles.end()))
 			{
 				// Start checking it for new rssi values
-				thread(update_sensors, ref(sensors), new_logfiles[i]).detach();
+				thread(update_rssis, ref(sensors), new_logfiles[i], ref(db_sensors), ref(db_transceivers)).detach();
 				infiles.push_back(ifstream(new_logfiles[i].c_str()));
 				thread(update_last_seen, ref(infiles.back()), ref(last_seen), ref(failures), ref(db_sensors), ref(db_transceivers)).detach(); // update last seen
 				opened_logfiles.push_back(new_logfiles[i]);
+
+				// Send data to DB
+				string exec = "python readlog.py " + new_logfiles[i];
+				system(exec.c_str());
 			}
 		}
 

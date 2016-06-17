@@ -6,18 +6,15 @@
 import os
 import sys
 import time
-
+import requests
 
 def decode(value):
     value = -0.0006*value + 39.959 # Decoding function
     value -= -0.0179*value + 0.7199 # Function to minimise error caused by ASK
     return value
 
-perlfile = 'updatedb.pl'
-logfile = 'EnO_VLD_019FEE73.txt'
+logfile = sys.argv[1]
 log = open(logfile)
-
-#lines = [l for l in log if 'temperature' in l]
 
 # Go to end of file
 log.seek(0,2)
@@ -43,10 +40,5 @@ while True:
             continue
         else:
             decoded_value = decode(int(value,16))
-            execute_string = 'perl ' + perlfile + ' "' + sensor_id + '" "' + timestamp + '" ' + str(decoded_value)
-            try:
-                print(execute_string)
-                os.system(execute_string)
+            requests.post('http://www.smartlandlords.co.uk/api/api.php/data/', json = {"auth":"YWRtaW46Z2lyYWZmZXM=","data":[{"sensorID":sensor_id, "timestamp":timestamp, "value":str(decoded_value)}]})
 
-            except:
-                print "Something went wrong:", sys.exc_info()[0]

@@ -44,7 +44,7 @@ bool failed(std::tm timestamp, double timeout)
 }
 
 // Will continuously read in new data saved to file and update last seen/failures
-void update_last_seen(std::ifstream &logfile, std::map<std::string, std::tm> &last_seen, std::set<std::string> &failures, std::vector<std::string> &db_sensors, std::vector<std::string> &db_transceivers)
+void update_last_seen(std::ifstream &logfile, std::map<std::string, std::tm> &last_seen, std::set<std::string> &failures, std::set<std::string> &db_sensors, std::set<std::string> &db_transceivers)
 {
 	
 	std::string timestamp, transcode, payload;
@@ -61,7 +61,7 @@ void update_last_seen(std::ifstream &logfile, std::map<std::string, std::tm> &la
 			std::string transID = split(transcode, '_')[2];
 
 			// If one of our nodes
-			if (std::find(db_sensors.begin(), db_sensors.end(), sensorID) != db_sensors.end() && std::find(db_transceivers.begin(), db_transceivers.end(), transID) != db_transceivers.end())
+			if (db_sensors.find(sensorID) != db_sensors.end() && db_transceivers.find(transID) != db_transceivers.end())
 			{
 				// Update last seen
 
@@ -73,7 +73,13 @@ void update_last_seen(std::ifstream &logfile, std::map<std::string, std::tm> &la
 				// Remove id from vector of failures
 				failures.erase(sensorID);
 				failures.erase(transID);
-				// TODO send message to db saying node is not failed
+
+				// Send message to db saying nodes are not failed
+				std::string exec = "python node_active.py " + sensorID;
+				system(exec.c_str());
+
+				exec = "python node_active.py " + transID;
+				system(exec.c_str());
 			}
 		}
 		std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -101,6 +107,10 @@ void add_failures(std::set<std::string> &failures, const std::map<std::string, s
 			if (failed(time_last_seen, timeout))
 			{
 				failures.insert(nodeID);
+
+				// Send message to DB saying node failed
+				std::string exec = "python node_failed.py " + nodeID;
+				system(exec.c_str());
 			}
 		}
 

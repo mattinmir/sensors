@@ -37,8 +37,12 @@ void generate_whitelist(std::map<std::string, std::vector<std::string>> &whiteli
 void update_whitelist(std::map<std::string, std::vector<std::string>> &whitelist, std::map<std::string, Sensor> &sensors, std::set<std::string> &failures, bool &updated);
 
 // Checking for updated whitelist
-void check_for_update(std::string blacklistfilename, std::map<std::string, std::vector<std::string>> &whitelist, std::vector<std::string> &db_transceievers, bool &updated);
+void check_for_update(std::string blacklistfilename, std::map<std::string, std::vector<std::string>> &whitelist, std::set<std::string> &db_transceievers, bool &updated);
 
-void update_sensors(std::map<std::string, Sensor> &sensors, std::string logfile_name);
+void update_rssis(std::map<std::string, Sensor> &sensors, std::string logfile_name, std::set<std::string> &db_sensors, std::set<std::string> &db_transceivers);
+
+void add_new_sensors(std::string sensorsfilename, std::set<std::string> &db_sensors, std::map<std::string, Sensor> &sensors);
+
+void add_new_trans(std::string transfilename, std::set<std::string> &db_transceivers, std::map<std::string, std::vector<std::string>> &whitelist);
 
 #endif // !HELPERS_H

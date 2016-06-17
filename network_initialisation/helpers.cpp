@@ -79,7 +79,7 @@ std::vector<std::string> get_file_list(std::string directory, std::string extens
 }
 
 
-// TODO add transceiver ids to everyone's blacklist
+
 void update_whitelist(std::map<std::string, std::vector<std::string>> &whitelist, std::map<std::string, Sensor> &sensors, std::set<std::string> &failures, bool &updated)
 {
 	while (true)
@@ -98,8 +98,15 @@ void update_whitelist(std::map<std::string, std::vector<std::string>> &whitelist
 				std::string sensorID = s.first;
 				std::string strongest_trans;
 				std::vector<std::string> connectionList = s.second.connectionList();
-				// TODO send msg to db saying how many connections a sensor has
+
+				// Send msg to db saying how many connections a sensor has
+				std::stringstream ss;
 				int size = connectionList.size();
+				ss << size;
+				std::string exec = "python update_connections.py " + sensorID + " " + ss.str();
+				system(exec.c_str());
+
+				
 				if (size == 0)
 					continue;
 				else
@@ -199,7 +206,7 @@ void update_whitelist(std::map<std::string, std::vector<std::string>> &whitelist
 }
 
 // Checking for updated whitelist
-void check_for_update(std::string blacklistfilename, std::map<std::string,  std::vector<std::string>> &whitelist, std::vector<std::string> &db_transceievers, bool &updated)
+void check_for_update(std::string blacklistfilename, std::map<std::string,  std::vector<std::string>> &whitelist, std::set<std::string> &db_transceievers, bool &updated)
 {
 	while (true)
 	{
@@ -244,9 +251,13 @@ void check_for_update(std::string blacklistfilename, std::map<std::string,  std:
 			}
 			blacklistfile << std::flush;
 			blacklistfile.close();
-			// Flip updated bool so that whitelist can be updated again
 
+			// Flip updated bool so that whitelist can be updated again
 			updated = false;
+
+			// Send out new blacklists
+			std::string exec = "python distribute_blacklist.py " + blacklistfilename;
+			system(exec.c_str());
 		}
 
 		std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -254,7 +265,7 @@ void check_for_update(std::string blacklistfilename, std::map<std::string,  std:
 }
 
 // Read logfiles and adds most recent rssi values to respective sensor objects
-void update_sensors(std::map<std::string, Sensor> &sensors, std::string logfile_name)
+void update_rssis(std::map<std::string, Sensor> &sensors, std::string logfile_name, std::set<std::string> &db_sensors, std::set<std::string> &db_transceivers)
 {
 	std::string timestamp, transcode, payload;
 	std::ifstream logfile(logfile_name.c_str());
@@ -268,13 +279,56 @@ void update_sensors(std::map<std::string, Sensor> &sensors, std::string logfile_
 			double rssi = stoul(payload.erase(0, 16), nullptr, 16);
 			std::string transID = split(transcode, '_')[2];
 
-			// Add new data about rssi between sensor and transceiver
-			sensors[sensorID].add_rssi(transID, rssi);
+			// If one of our nodes
+			if (db_sensors.find(sensorID) != db_sensors.end() && db_transceivers.find(transID) != db_transceivers.end())
+			{
+				// Add new data about rssi between sensor and transceiver
+				sensors[sensorID].add_rssi(transID, rssi);
+			}
 		}
-		std::this_thread::sleep_for(std::chrono::seconds(1));
+		std::this_thread::sleep_for(std::chrono::seconds(5));
 		if (!logfile.eof())
 			break;
 		logfile.clear();
+	}
+
+}
+
+
+
+void add_new_sensors(std::string sensorsfilename, std::set<std::string> &db_sensors, std::map<std::string, Sensor> &sensors)
+{
+	std::ifstream sensorsfile(sensorsfilename.c_str());
+	std::string sensorID;
+	while (true)
+	{
+		while (sensorsfile >> sensorID)
+		{
+			db_sensors.insert(sensorID);
+			sensors[sensorID] = Sensor(sensorID, 10);
+		}
+		std::this_thread::sleep_for(std::chrono::seconds(300));
+		if (!sensorsfile.eof())
+			break;
+		sensorsfile.clear();
+	}
+}
+
+void add_new_trans(std::string transfilename, std::set<std::string> &db_transceivers, std::map<std::string, std::vector<std::string>> &whitelist)
+{
+	std::ifstream transfile(transfilename.c_str());
+	std::string transID;
+	while (true)
+	{
+		while (transfile >> transID)
+		{
+			db_transceivers.insert(transID);
+			whitelist[transID];
+		}
+		std::this_thread::sleep_for(std::chrono::seconds(300));
+		if (!transfile.eof())
+			break;
+		transfile.clear();
 	}
 
 }
