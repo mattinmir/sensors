@@ -14,7 +14,8 @@ def decode(value):
     return value
 
 logfile = sys.argv[1]
-log = open(logfile)
+dir = sys.argv[2]
+log = open(dir+logfile)
 
 # Go to end of file
 log.seek(0,2)
