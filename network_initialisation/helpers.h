@@ -40,8 +40,5 @@ void check_for_update(std::string blacklistfilename, std::map<std::string, std::
 
 void update_rssis(std::map<std::string, Sensor> &sensors, std::string logfile_name, std::set<std::string> &db_sensors, std::set<std::string> &db_transceivers);
 
-void add_new_sensors(std::string sensorsfilename, std::set<std::string> &db_sensors, std::map<std::string, Sensor> &sensors);
-
-void add_new_trans(std::string transfilename, std::set<std::string> &db_transceivers, std::map<std::string, std::vector<std::string>> &whitelist);
-
+void add_new_nodes(std::string sensorsfilename, std::set<std::string> &db_sensors, std::map<std::string, Sensor> &sensors, std::string transfilename, std::set<std::string> &db_transceivers, std::map<std::string, std::vector<std::string>> &whitelist);
 #endif // !HELPERS_H

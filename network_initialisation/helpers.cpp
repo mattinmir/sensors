@@ -332,49 +332,47 @@ void update_rssis(std::map<std::string, Sensor> &sensors, std::string logfile_na
 
 
 
-void add_new_sensors(std::string sensorsfilename, std::set<std::string> &db_sensors, std::map<std::string, Sensor> &sensors)
+void add_new_nodes(std::string sensorsfilename, std::set<std::string> &db_sensors, std::map<std::string, Sensor> &sensors, std::string transfilename, std::set<std::string> &db_transceivers, std::map<std::string, std::vector<std::string>> &whitelist)
 {
 	std::ifstream sensorsfile(sensorsfilename.c_str());
-	std::string sensorID;
-	while (true)
-	{
-		while (sensorsfile >> sensorID)
-		{
-			db_sensors.insert(sensorID);
-			sensors[sensorID] = Sensor(sensorID, 10);
-			if (DEBUG)
-			{
-				std::lock_guard<std::mutex> lock_cout(mutex_cout);
-				std::cout << sensorID << " read from DB" << std::endl;
-			}
-		}
-		std::this_thread::sleep_for(std::chrono::seconds(300));
-		if (!sensorsfile.eof())
-			break;
-		sensorsfile.clear();
-	}
-}
-
-void add_new_trans(std::string transfilename, std::set<std::string> &db_transceivers, std::map<std::string, std::vector<std::string>> &whitelist)
-{
 	std::ifstream transfile(transfilename.c_str());
+	std::string sensorID;
 	std::string transID;
 	while (true)
 	{
-		while (transfile >> transID)
+		system("python get_sensor_info.py &");
+
+		while (sensorsfile >> sensorID)
 		{
-			db_transceivers.insert(transID);
-			whitelist[transID];
-			if (DEBUG)
+			if (db_sensors.find(sensorID) == db_sensors.end())
 			{
-				std::lock_guard<std::mutex> lock_cout(mutex_cout);
-				std::cout << transID << " read from DB" << std::endl;
+				db_sensors.insert(sensorID);
+				sensors[sensorID] = Sensor(sensorID, 10);
+				if (DEBUG)
+				{
+					std::lock_guard<std::mutex> lock_cout(mutex_cout);
+					std::cout << sensorID << " read from DB" << std::endl;
+				}
 			}
 		}
-		std::this_thread::sleep_for(std::chrono::seconds(300));
-		if (!transfile.eof())
-			break;
-		transfile.clear();
-	}
 
+
+
+		while (transfile >> transID)
+		{
+			if (db_transceivers.find(transID) != db_transceivers.end())
+			{
+				db_transceivers.insert(transID);
+				whitelist[transID];
+				if (DEBUG)
+				{
+					std::lock_guard<std::mutex> lock_cout(mutex_cout);
+					std::cout << transID << " read from DB" << std::endl;
+				}
+			}
+		}
+
+
+		std::this_thread::sleep_for(std::chrono::seconds(300));
+	}
 }
