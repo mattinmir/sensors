@@ -58,7 +58,8 @@ int main()
 	
 	for (unsigned int i = 0; i < logfiles.size(); i++)
 	{
-		if (split(logfiles[i], '_')[1] == "VLD")
+		vector<string> logfilename = split(logfiles[i], '_');
+		if (logfilename.size() > 1 && logfilename[1] == "VLD")
 		{
 			// Checking logfiles for connection rssi values
 			thread(update_rssis, ref(sensors), logfiles[i], ref(db_sensors), ref(db_transceivers)).detach();
@@ -96,7 +97,8 @@ int main()
 			// If we have not previously seen this logfile
 			if (!(find(opened_logfiles.begin(), opened_logfiles.end(), new_logfiles[i]) != opened_logfiles.end()))
 			{
-				if (split(new_logfiles[i], '_')[1] == "VLD")
+				vector<string> logfilename = split(logfiles[i], '_');
+				if (logfilename.size() > 1 && logfilename[1] == "VLD")
 				{
 					// Start checking it for new rssi values
 					thread(update_rssis, ref(sensors), new_logfiles[i], ref(db_sensors), ref(db_transceivers)).detach();
