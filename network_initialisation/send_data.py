@@ -14,7 +14,7 @@ value = sys.argv[3]
 # Special code for teach in signal - can ignore packet
 if value != '08280B80':
     decoded_value = decode(int(value,16))
-    r = requests.post('http://api.smartlandlords.co.uk/api.php/data/', data = {"auth":"YWRtaW46Z2lyYWZmZXM=","data":[{"sensorID":sensor_id, "timestamp":timestamp, "value":str(decoded_value)}]})
+    r = requests.post('http://api.smartlandlords.co.uk/api.php/data/', data = {"auth":"YWRtaW46Z2lyYWZmZXM=","input":'[{"sensorID":"' + sensor_id + '","timestamp":"' + timestamp + '", "value":"' + str(decoded_value) + '"}]' })
 
     while r.status_code != requests.codes.ok:
-         r = requests.post('http://api.smartlandlords.co.uk/api.php/data/', data = {"auth":"YWRtaW46Z2lyYWZmZXM=","data":[{"sensorID":sensor_id, "timestamp":timestamp, "value":str(decoded_value)}]})
+         r = requests.post('http://api.smartlandlords.co.uk/api.php/data/', data = {"auth":"YWRtaW46Z2lyYWZmZXM=","input":'[{"sensorID":"' + sensor_id + '","timestamp":"' + timestamp + '", "value":"' + str(decoded_value) + '"}]' })

@@ -33,7 +33,6 @@ int main()
 	vector<thread> threads;
 	//map<string, string> thread_ids;
 
-
 	set<string> db_transceivers;
 	set<string> db_sensors;
 
@@ -48,7 +47,6 @@ int main()
 	double timeout = 30; // In seconds
 	vector<string> logfiles = get_file_list(log_dir, ".log");
 	string blacklistfile("blacklist.txt");
-
 
 	// Read in node info from DB
 	//system("python get_sensor_info.py &");
