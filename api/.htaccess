@@ -1,4 +1,0 @@
-RewriteEngine On
-# target with original URI being carried over
-RewriteCond %{HTTP_HOST} ^(www\.)?api\.smartlandlords\.co.uk$ [NC]
-RewriteRule ^ https://www.smartlandlords.co.uk/api/api.php%{REQUEST_URI} [NE,R=301,L]
