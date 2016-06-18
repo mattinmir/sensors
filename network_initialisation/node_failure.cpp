@@ -43,7 +43,7 @@ bool failed(std::tm timestamp, double timeout)
 	// Return true if difference between now and timestamp is more than timeout
 	return (now - ts) > timeout;
 }
-
+/*
 // Will continuously read in new data saved to file and update last seen/failures
 void update_last_seen(std::ifstream &logfile, std::map<std::string, std::tm> &last_seen, std::set<std::string> &failures, std::set<std::string> &db_sensors, std::set<std::string> &db_transceivers)
 {
@@ -93,16 +93,12 @@ void update_last_seen(std::ifstream &logfile, std::map<std::string, std::tm> &la
 	}
 }
 
-
+*/
 void add_failures(std::set<std::string> &failures, const std::map<std::string, std::tm> &last_seen, double timeout)
 {
 
 	while (true)
 	{
-		std::lock_guard<std::mutex> lock_last_seen(mutex_last_seen);
-		std::lock_guard<std::mutex> lock_failures(mutex_failures);
-
-		
 		for (auto &l : last_seen)
 		{
 			std::string nodeID = l.first;
@@ -110,6 +106,7 @@ void add_failures(std::set<std::string> &failures, const std::map<std::string, s
 
 			if (failed(time_last_seen, timeout))
 			{
+				std::lock_guard<std::mutex> lock_failures(mutex_failures);
 				failures.insert(nodeID);
 				
 				if (DEBUG)
@@ -123,7 +120,7 @@ void add_failures(std::set<std::string> &failures, const std::map<std::string, s
 			}
 		}
 
-		std::this_thread::sleep_for(std::chrono::seconds(1));
+		std::this_thread::sleep_for(std::chrono::seconds(10));
 
 	}
 }

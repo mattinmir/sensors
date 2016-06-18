@@ -18,6 +18,7 @@
 #include <dirent.h>
 #endif
 
+
 std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems);
 
 std::vector<std::string> split(const std::string &s, char delim);
@@ -41,4 +42,7 @@ void check_for_update(std::string blacklistfilename, std::map<std::string, std::
 void update_rssis(std::map<std::string, Sensor> &sensors, std::string logfile_name, std::set<std::string> &db_sensors, std::set<std::string> &db_transceivers);
 
 void add_new_nodes(std::string sensorsfilename, std::set<std::string> &db_sensors, std::map<std::string, Sensor> &sensors, std::string transfilename, std::set<std::string> &db_transceivers, std::map<std::string, std::vector<std::string>> &whitelist);
+
+void process_logfile(std::map<std::string, Sensor> &sensors, std::string logfile_name, std::set<std::string> &db_sensors, std::set<std::string> &db_transceivers, std::map<std::string, std::tm> &last_seen, std::set<std::string> &failures);
+
 #endif // !HELPERS_H

@@ -26,7 +26,7 @@ bool DEBUG = true;
 
 using namespace std;
 
-mutex mutex_cout, mutex_whitelist_updated, mutex_failures, mutex_sensors, mutex_last_seen;
+mutex mutex_cout, mutex_whitelist, mutex_updated, mutex_failures, mutex_sensors, mutex_last_seen;
 
 int main()
 {
@@ -37,7 +37,7 @@ int main()
 	set<string> db_transceivers;
 	set<string> db_sensors;
 
-	string log_dir = "/opt/fhem/log/";
+	string log_dir = "./";//"/opt/fhem/log/";
 	map<string, Sensor> sensors;
 	map<string, vector<string>> whitelist;
 	set<string> failures;
@@ -51,22 +51,18 @@ int main()
 
 
 	// Read in node info from DB
-	system("python get_sensor_info.py &");
+	//system("python get_sensor_info.py &");
 
 	// Importing DB node data into our data structures
-	thread(add_new_nodes, "sensors.txt", ref(db_sensors), ref(sensors), "transceievrs.txt", ref(db_transceivers), ref(whitelist)).detach();
+	thread(add_new_nodes, "sensors.txt", ref(db_sensors), ref(sensors), "transceivers.txt", ref(db_transceivers), ref(whitelist)).detach();
 	
+	vector<ifstream> infiles;
 	for (unsigned int i = 0; i < logfiles.size(); i++)
 	{
 		vector<string> logfilename = split(logfiles[i], '_');
 		if (logfilename.size() > 1 && logfilename[1] == "VLD")
 		{
-			// Checking logfiles for connection rssi values
-			thread(update_rssis, ref(sensors), logfiles[i], ref(db_sensors), ref(db_transceivers)).detach();
-
-			// Send logfile data to DB
-			string exec = "python readlog.py " + logfiles[i] + " " + log_dir +" &";
-			system(exec.c_str());
+			thread(process_logfile, ref(sensors), logfiles[i], ref(db_sensors), ref(db_transceivers), ref(last_seen), ref(failures)).detach();
 		}
 	}
 
@@ -74,13 +70,6 @@ int main()
 	threads.push_back(thread(update_whitelist, ref(whitelist), ref(sensors), ref(failures), ref(updated))); // Update whitelist
 
 	threads.push_back(thread(check_for_update, blacklistfile, ref(whitelist), ref(db_transceivers) ,ref(updated))); // Check for updated whitelist and create blacklist file
-
-	vector<ifstream> infiles;
-	for (unsigned int i = 0; i < logfiles.size(); i++) 
-	{
-		infiles.push_back(ifstream(logfiles[i].c_str()));
-		threads.push_back(thread(update_last_seen, ref(infiles.back()), ref(last_seen), ref(failures), ref(db_sensors), ref(db_transceivers))); // update last seen for every node
-	}
 
 	threads.push_back(thread(add_failures, ref(failures), ref(last_seen), timeout)); // Adding failures to failure list based on last seen
 
@@ -100,15 +89,8 @@ int main()
 				vector<string> logfilename = split(logfiles[i], '_');
 				if (logfilename.size() > 1 && logfilename[1] == "VLD")
 				{
-					// Start checking it for new rssi values
-					thread(update_rssis, ref(sensors), new_logfiles[i], ref(db_sensors), ref(db_transceivers)).detach();
-					infiles.push_back(ifstream(new_logfiles[i].c_str()));
-					thread(update_last_seen, ref(infiles.back()), ref(last_seen), ref(failures), ref(db_sensors), ref(db_transceivers)).detach(); // update last seen
+					thread(process_logfile, ref(sensors), logfiles[i], ref(db_sensors), ref(db_transceivers), ref(last_seen), ref(failures)).detach();
 					opened_logfiles.push_back(new_logfiles[i]);
-
-					// Send data to DB
-					string exec = "python readlog.py " + new_logfiles[i] + " " + log_dir + " &";
-					system(exec.c_str());
 				}
 			}
 		}
