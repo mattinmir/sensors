@@ -110,20 +110,6 @@ void update_whitelist(std::map<std::string, std::vector<std::string>> &whitelist
 				else
 				{
 					strongest_trans = connectionList[0];
-
-
-					//// Add to blacklist of all others
-					//for (auto &w : whitelist)
-					//{
-					//	std::vector<std::string> &sensorlist = w.second;
-					//	if (std::find(sensorlist.begin(), sensorlist.end(), sensorID) == sensorlist.end())
-					//		sensorlist.push_back(sensorID);
-					//}
-					//// Remove from blacklist of strongest_trans
-					//whitelist[strongest_trans].erase(std::remove(whitelist[strongest_trans].begin(), whitelist[strongest_trans].end(), sensorID), whitelist[strongest_trans].end());
-					//
-					//updated = true;
-
 				}
 				
 					// If the sensor is not yet found in the whitelist of its strongest connected transceiver
@@ -134,9 +120,21 @@ void update_whitelist(std::map<std::string, std::vector<std::string>> &whitelist
 					std::lock_guard<std::mutex> lock_whitelist(mutex_whitelist);
 					whitelist[strongest_trans].push_back(s.first);
 
+					if (DEBUG)
+					{
+						std::lock_guard<std::mutex> lock_cout(mutex_cout);
+						std::cout << "sensor " << sensorID << " added to trans" << strongest_trans << "'s whitelist" << std::endl;
+					}
+
 					// Mark a flag so that check_for_updates() knows to send out a new whitelist
 					std::lock_guard<std::mutex> lock_updated(mutex_updated);
 					updated = true;
+
+					if (DEBUG)
+					{
+						std::lock_guard<std::mutex> lock_cout(mutex_cout);
+						std::cout << "Updated set true" << std::endl;
+					}
 				}
 			}
 
@@ -154,18 +152,22 @@ void update_whitelist(std::map<std::string, std::vector<std::string>> &whitelist
 					if (whitelisted_sensors.size() > 0)
 					{
 						// For every sensor that was connected to it
-						for (auto &sensorID : whitelisted_sensors)
+						for (auto &s : whitelisted_sensors)
 						{
+							std::string sensorID = s;
+
 							// Remove the connection in the sensor's connection list
+							std::lock_guard<std::mutex> lock_sensors(mutex_sensors);
 							sensors[sensorID].del_connection(transID);
 
 							if (DEBUG)
 							{
 								std::lock_guard<std::mutex> lock_cout(mutex_cout);
-								std::cout << "update_whitelist: " << transID << " removed from " << sensorID << "'s connectionsn" << std::endl;
+								std::cout << "Trans " << transID << " removed from sensor " << sensorID << "'s connectionns" << std::endl;
 							}
 							// Remove the sensor in the transceiver's whitelist
 							// Assign a null value now and remove later as removing elements while iterating over the container mixes up the iteration
+							std::lock_guard<std::mutex> lock_whitelist(mutex_whitelist);
 							std::find(whitelist[transID].begin(), whitelist[transID].end(), sensorID)->assign("null");
 
 							// If that sensor is no longer connected to any transcievers as a result of the above pruning
@@ -174,7 +176,7 @@ void update_whitelist(std::map<std::string, std::vector<std::string>> &whitelist
 								if (DEBUG)
 								{
 									std::lock_guard<std::mutex> lock_cout(mutex_cout);
-									std::cout << sensorID << " no longer connected to anything" << std::endl;
+									std::cout << "Sensor " << sensorID << " no longer connected to any transceivers" << std::endl;
 								}
 								// Add the sensor to the whitelist of all transceivers to try to find a new route
 								for (auto &transceiver : whitelist)
@@ -191,7 +193,7 @@ void update_whitelist(std::map<std::string, std::vector<std::string>> &whitelist
 											if (DEBUG)
 											{
 												std::lock_guard<std::mutex> lock_cout(mutex_cout);
-												std::cout << sensorID << " added to " << transceiver.first << "'s whitelist" << std::endl;
+												std::cout << "Sensor " << sensorID << " added to trans " << transceiver.first << "'s whitelist" << std::endl;
 											}
 										}
 									}
@@ -205,7 +207,7 @@ void update_whitelist(std::map<std::string, std::vector<std::string>> &whitelist
 								if (DEBUG)
 								{
 									std::lock_guard<std::mutex> lock_cout(mutex_cout);
-									std::cout << sensorID << " added to " << sensors[sensorID].connectionList()[0] << "'s whitelist" << std::endl;
+									std::cout << "Sensor " << sensorID << " added to trans " << sensors[sensorID].connectionList()[0] << "'s whitelist" << std::endl;
 								}
 							}
 						}
@@ -225,7 +227,7 @@ void update_whitelist(std::map<std::string, std::vector<std::string>> &whitelist
 				}
 			}
 		}		
-		std::this_thread::sleep_for(std::chrono::seconds(60));
+		std::this_thread::sleep_for(std::chrono::seconds(10));
 	}
 }
 
@@ -337,53 +339,54 @@ void add_new_nodes(std::string sensorsfilename, std::set<std::string> &db_sensor
 	std::string transID;
 	while (true)
 	{
-		try
 		{
-			system("python get_sensor_info.py &");
-		}
-		catch(std::exception &e)
-		{
-			std::cerr << e.what() << std::endl;
-			continue;
-		}
-		while (sensorsfile >> sensorID)
-		{
-			// If we haven't already seen the node, add it to our list
-			if (db_sensors.find(sensorID) == db_sensors.end())
+			try
 			{
-				db_sensors.insert(sensorID);
-
-				std::lock_guard<std::mutex> lock_sensors(mutex_sensors);
-				sensors[sensorID] = Sensor(sensorID, 10);
-
-				if (DEBUG)
+				system("python get_sensor_info.py &");
+			}
+			catch (std::exception &e)
+			{
+				std::cerr << e.what() << std::endl;
+				continue;
+			}
+			while (sensorsfile >> sensorID)
+			{
+				// If we haven't already seen the node, add it to our list
+				if (db_sensors.find(sensorID) == db_sensors.end())
 				{
-					std::lock_guard<std::mutex> lock_cout(mutex_cout);
-					std::cout << "Sensor " << sensorID << " read from DB" << std::endl;
+					db_sensors.insert(sensorID);
+
+					std::lock_guard<std::mutex> lock_sensors(mutex_sensors);
+					sensors[sensorID] = Sensor(sensorID, 10);
+
+					if (DEBUG)
+					{
+						std::lock_guard<std::mutex> lock_cout(mutex_cout);
+						std::cout << "Sensor " << sensorID << " read from DB" << std::endl;
+					}
+				}
+			}
+
+
+
+			while (transfile >> transID)
+			{
+				// If we haven't already seen the node, add it to our list
+				if (db_transceivers.find(transID) == db_transceivers.end())
+				{
+					db_transceivers.insert(transID);
+
+					std::lock_guard<std::mutex> lock_whitelist(mutex_whitelist);
+					whitelist[transID];
+
+					if (DEBUG)
+					{
+						std::lock_guard<std::mutex> lock_cout(mutex_cout);
+						std::cout << "Trans " << transID << " read from DB" << std::endl;
+					}
 				}
 			}
 		}
-
-
-
-		while (transfile >> transID)
-		{
-			// If we haven't already seen the node, add it to our list
-			if (db_transceivers.find(transID) == db_transceivers.end())
-			{
-				db_transceivers.insert(transID);
-
-				std::lock_guard<std::mutex> lock_whitelist(mutex_whitelist);
-				whitelist[transID];
-
-				if (DEBUG)
-				{
-					std::lock_guard<std::mutex> lock_cout(mutex_cout);
-					std::cout << "Trans " << transID << " read from DB" << std::endl;
-				}
-			}
-		}
-
 
 		std::this_thread::sleep_for(std::chrono::seconds(300));
 	}
@@ -420,11 +423,7 @@ void process_logfile(std::map<std::string, Sensor> &sensors, std::string logfile
 				// Add new data about rssi between sensor and transceiver
 				std::lock_guard<std::mutex> lock_sensors(mutex_sensors);
 				sensors[sensorID].add_rssi(transID, rssi);
-				if (DEBUG)
-				{
-					std::lock_guard<std::mutex> lock_cout(mutex_cout);
-					std::cout << sensorID << " connected to " << transID << " with rssi" << rssi << std::endl;
-				}
+				
 
 				/*******************************************************/
 				/****************** Update Last seen *******************/
@@ -432,12 +431,13 @@ void process_logfile(std::map<std::string, Sensor> &sensors, std::string logfile
 
 				last_seen[sensorID] = convert_timestamp(timestamp);
 				last_seen[transID] = convert_timestamp(timestamp);
-
+				
 				if (DEBUG)
 				{
 					std::lock_guard<std::mutex> lock_cout(mutex_cout);
-					std::cout << "Just seen " << sensorID << " and" << transID << std::endl;
+					std::cout <<  sensorID << " alive\n" << transID << " alive\n Connected with rssi " << rssi << std::endl;
 				}
+
 				// Remove id from vector of failures
 				failures.erase(sensorID);
 				failures.erase(transID);
@@ -454,10 +454,15 @@ void process_logfile(std::map<std::string, Sensor> &sensors, std::string logfile
 				/*******************************************************/
 				exec = "python send_data.py " + sensorID + " " + timestamp + " " + data + " &";
 				system(exec.c_str());
+				if (DEBUG)
+				{
+					std::lock_guard<std::mutex> lock_cout(mutex_cout);
+					std::cout << "Sent to DB: " << timestamp << " " << sensorID << " " << data << std::endl;
+				}
 
 			}
 		}
-		std::this_thread::sleep_for(std::chrono::seconds(10));
+		std::this_thread::sleep_for(std::chrono::seconds(1));
 		if (!logfile.eof())
 			break;
 		logfile.clear();

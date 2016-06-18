@@ -107,16 +107,19 @@ void add_failures(std::set<std::string> &failures, const std::map<std::string, s
 			if (failed(time_last_seen, timeout))
 			{
 				std::lock_guard<std::mutex> lock_failures(mutex_failures);
-				failures.insert(nodeID);
-				
-				if (DEBUG)
+				bool inserted = failures.insert(nodeID).second; // True if insert worked, i.e. didnt exist before
+				if (inserted)
 				{
-					std::lock_guard<std::mutex> lock_cout(mutex_cout);
-					std::cout << nodeID << " failed" << std::endl;
-				}
+					if (DEBUG)
+					{
+						std::lock_guard<std::mutex> lock_cout(mutex_cout);
+						std::cout << nodeID << " failed" << std::endl;
+					}
+
 					// Send message to DB saying node failed
-				std::string exec = "python node_failed.py " + nodeID + " &";
-				system(exec.c_str());
+					std::string exec = "python node_failed.py " + nodeID + " &";
+					system(exec.c_str());
+				}
 			}
 		}
 

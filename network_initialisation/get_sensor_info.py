@@ -20,7 +20,7 @@ trans = requests.post('http://api.smartlandlords.co.uk/api.php/getdata/transceiv
 trans_json = trans.json()
 
 
-transIDs = [str(line['transceiverID']) for line in trans_json]
+transIDs = [str(line['deviceID']) for line in trans_json]
 transceivers = open("transceivers.txt", 'w')
 for t in transIDs:
     if t not in trans_list:
@@ -37,7 +37,7 @@ sensor = requests.post('http://api.smartlandlords.co.uk/api.php/getdata/sensors'
 sensor_json = sensor.json()
 
 
-sensorIDs = [str(line['sensorID']) for line in sensor_json]
+sensorIDs = [str(line['deviceID']) for line in sensor_json]
 sensors = open("sensors.txt", 'w')
 for s in sensorIDs:
     if s not in sensor_list:

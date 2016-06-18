@@ -2,9 +2,9 @@
 #include <deque>
 #include <algorithm>
 
-Fifo::Fifo(){}
+Fifo::Fifo():size(10){}
 
-Fifo::Fifo(int _size) : size(_size){}
+Fifo::Fifo(int _size=10) : size(_size){}
 
 void Fifo::push_back(double val)
 {
