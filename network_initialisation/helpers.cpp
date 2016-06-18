@@ -59,9 +59,6 @@ double median_rssi(std::vector<double> rssis)
 	}
 }
 
-
-
-
 // Gets names of all files in `directory` with `extension`
 std::vector<std::string> get_file_list(std::string directory, std::string extension)
 {
