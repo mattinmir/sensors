@@ -1,0 +1,38 @@
+<script src="assets/plugins/jquery.js"></script>
+<script type="text/javascript" src="assests/plugins/moment/moment.js"></script>
+sensor id:<input id="sid" type="text" value="sensor id"></input><br>
+sensor type:<input id="type" type="text" value="type"></input><br>
+multiplier:<input id="mult" type="text" value="100"></input><br>
+intervals:<input id="inter" type="text" value="1"></input><br>
+<button type="button" id="testapi">Test adding!</button>
+
+<script type="text/javascript">
+jQuery(document).ready(function ($)
+{	
+	$( "#testapi" ).click(function(event)
+	{
+		event.preventDefault();
+		var inputJSON = {};
+		var arrayJSON = [];
+		var date = moment().subtract(7, 'days');
+		
+		var sid = $( "#sid" ).val();
+		var type = $( "#type" ).val();
+		var inter = $( "#inter" ).val();
+		var mult = $( "#mult" ).val();
+		
+		for (var i=0; i<99; i++)
+		{
+			arrayJSON.push({"sensorID": sid,"timestamp": date.add(inter, 'h').format('YYYY-MM-DD HH:mm:ss'), "value":Math.round(Math.random()*mult)})
+		}
+		
+		inputJSON[type] = arrayJSON;
+		console.log(JSON.stringify(inputJSON));
+		$.ajax({
+			type:'POST', 
+			url:'API.php/data', 
+			data:'user=admin&pass=giraffes&data=' + JSON.stringify(inputJSON)
+		});
+	});
+});
+</script>
