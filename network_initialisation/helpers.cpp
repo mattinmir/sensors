@@ -104,6 +104,12 @@ void update_whitelist(std::map<std::string, std::vector<std::string>> &whitelist
 				std::string exec = "python update_connections.py " + sensorID + " " + ss.str() + " &";
 				system(exec.c_str());
 
+				if (DEBUG)
+				{
+					std::lock_guard<std::mutex> lock_cout(mutex_cout);
+					std::cout << " Tellinbg DB sensor " << sensorID << " has " << ss.str() << " connections" <<  std::endl;
+				}
+
 				
 				if (size == 0)
 					continue;
