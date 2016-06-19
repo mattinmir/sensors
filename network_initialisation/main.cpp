@@ -74,7 +74,7 @@ int main()
 	for (auto &t : threads)
 		t.detach(); // Begin concurrent execution
 
-					// Continue checking for new logfiles
+	// Continue checking for new logfiles
 	vector<string> opened_logfiles(logfiles);
 	while (true)
 	{

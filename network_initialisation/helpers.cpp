@@ -104,7 +104,7 @@ void update_whitelist(std::map<std::string, std::vector<std::string>> &whitelist
 				if (DEBUG)
 				{
 					std::lock_guard<std::mutex> lock_cout(mutex_cout);
-					std::cout << " Tellinbg DB sensor " << sensorID << " has " << ss.str() << " connections" <<  std::endl;
+					std::cout << " Telling DB sensor " << sensorID << " has " << ss.str() << " connections" <<  std::endl;
 				}
 
 				
@@ -230,7 +230,7 @@ void update_whitelist(std::map<std::string, std::vector<std::string>> &whitelist
 				}
 			}
 		}		
-		std::this_thread::sleep_for(std::chrono::seconds(10));
+		std::this_thread::sleep_for(std::chrono::seconds(60));
 	}
 }
 
@@ -292,7 +292,7 @@ void check_for_update(std::string blacklistfilename, std::map<std::string,  std:
 			system(exec.c_str());
 		}
 
-		std::this_thread::sleep_for(std::chrono::seconds(1));
+		std::this_thread::sleep_for(std::chrono::seconds(60));
 	}
 }
 /*
@@ -465,7 +465,7 @@ void process_logfile(std::map<std::string, Sensor> &sensors, std::string logfile
 
 			}
 		}
-		std::this_thread::sleep_for(std::chrono::seconds(1));
+		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 		if (!logfile.eof())
 			break;
 		logfile.clear();
