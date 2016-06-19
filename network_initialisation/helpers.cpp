@@ -345,7 +345,7 @@ void add_new_nodes(std::string sensorsfilename, std::set<std::string> &db_sensor
 		{
 			try
 			{
-				system("python get_sensor_info.py &");
+				system("python get_sensor_info.py");
 			}
 			catch (std::exception &e)
 			{
@@ -465,7 +465,7 @@ void process_logfile(std::map<std::string, Sensor> &sensors, std::string logfile
 
 			}
 		}
-		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+		std::this_thread::sleep_for(std::chrono::seconds(1));
 		if (!logfile.eof())
 			break;
 		logfile.clear();

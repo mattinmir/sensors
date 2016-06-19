@@ -65,14 +65,14 @@ int main()
 	}
 
 	// Need std::ref to pass items by reference to threads
-	threads.push_back(thread(update_whitelist, ref(whitelist), ref(sensors), ref(failures), ref(updated))); // Update whitelist
+	thread(update_whitelist, ref(whitelist), ref(sensors), ref(failures), ref(updated)).detach(); // Update whitelist
 
-	threads.push_back(thread(check_for_update, blacklistfile, ref(whitelist), ref(db_transceivers) ,ref(updated))); // Check for updated whitelist and create blacklist file
+	thread(check_for_update, blacklistfile, ref(whitelist), ref(db_transceivers), ref(updated)).detach(); // Check for updated whitelist and create blacklist file
 
-	threads.push_back(thread(add_failures, ref(failures), ref(last_seen), timeout)); // Adding failures to failure list based on last seen
+	thread(add_failures, ref(failures), ref(last_seen), timeout).detach(); // Adding failures to failure list based on last seen
 
-	for (auto &t : threads)
-		t.detach(); // Begin concurrent execution
+	//for (auto &t : threads)
+	//	t.detach(); // Begin concurrent execution
 
 	// Continue checking for new logfiles
 	vector<string> opened_logfiles(logfiles);
