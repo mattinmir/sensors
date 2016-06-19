@@ -401,9 +401,18 @@ void process_logfile(std::map<std::string, Sensor> &sensors, std::string logfile
 	std::ifstream logfile(logfile_name.c_str());
 	while (true)
 	{
-		
+		if (DEBUG)
+		{
+			std::lock_guard<std::mutex> lock_cout(mutex_cout);
+			std::cout << "Checking log file " << logfile_name.c_str() << std::endl;
+		}
 		while (logfile >> timestamp >> transcode >> payload)
 		{
+			if (DEBUG)
+			{
+				std::lock_guard<std::mutex> lock_cout(mutex_cout);
+				std::cout << "Reading: " << timestamp << " " << transcode << " " << payload << std::endl;
+			}
 			std::string sensorID = payload;
 			sensorID.erase(16, 2).erase(0, 8);
 
@@ -467,7 +476,14 @@ void process_logfile(std::map<std::string, Sensor> &sensors, std::string logfile
 		}
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 		if (!logfile.eof())
+		{
+			if (DEBUG)
+			{
+				std::lock_guard<std::mutex> lock_cout(mutex_cout);
+				std::cout << "Breaking!" << std::endl;
+			}
 			break;
+		}
 		logfile.clear();
 	}
 }
