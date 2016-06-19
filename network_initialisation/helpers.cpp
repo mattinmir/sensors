@@ -406,8 +406,14 @@ void process_logfile(std::map<std::string, Sensor> &sensors, std::string logfile
 			std::lock_guard<std::mutex> lock_cout(mutex_cout);
 			std::cout << "Checking log file " << logfile_name.c_str() << std::endl;
 		}
-		while (logfile >> timestamp >> transcode >> payload)
+		std::string line;
+		while (std::getline(logfile, line))
 		{
+			std::vector<std::string> lines = split(line, ' ');
+			timestamp = lines[0];
+			transcode = lines[1];
+			payload = lines[2];
+
 			if (DEBUG)
 			{
 				std::lock_guard<std::mutex> lock_cout(mutex_cout);
