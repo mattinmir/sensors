@@ -36,7 +36,7 @@ int main()
 	set<string> db_transceivers;
 	set<string> db_sensors;
 
-	string log_dir = "./";//"/opt/fhem/log/";
+	string log_dir = "/opt/fhem/log/";
 	map<string, Sensor> sensors;
 	map<string, vector<string>> whitelist;
 	set<string> failures;
@@ -44,7 +44,7 @@ int main()
 	bool updated = false;
 
 	map<string, tm> last_seen;
-	double timeout = 30; // In seconds
+	double timeout = 180; // In seconds
 	vector<string> logfiles = get_file_list(log_dir, ".log");
 	string blacklistfile("blacklist.txt");
 

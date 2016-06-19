@@ -397,16 +397,20 @@ void add_new_nodes(std::string sensorsfilename, std::set<std::string> &db_sensor
 
 void process_logfile(std::map<std::string, Sensor> &sensors, std::string logfile_name, std::set<std::string> &db_sensors, std::set<std::string> &db_transceivers, std::map<std::string, std::tm> &last_seen, std::set<std::string> &failures)
 {
-	std::string timestamp, transcode, payload;
-	std::ifstream logfile(logfile_name.c_str());
+	std::string line, timestamp, transcode, payload;
+	std::streampos pos = 0;
 	while (true)
 	{
+		std::ifstream logfile(logfile_name.c_str());
+		logfile.seekg(pos);
+		logfile.clear();
+
 		if (DEBUG)
 		{
 			std::lock_guard<std::mutex> lock_cout(mutex_cout);
-			std::cout << "Checking log file " << logfile_name.c_str() << std::endl;
+			std::cout << "Checking log file " << logfile_name.c_str() << std::endl << "EOF and OPEN: " << logfile.eof() << logfile.is_open() << std::endl << "Current POS: " << (int)logfile.tellg() << std::endl;
 		}
-		std::string line;
+		
 		while (std::getline(logfile, line))
 		{
 			std::vector<std::string> lines = split(line, ' ');
@@ -480,8 +484,10 @@ void process_logfile(std::map<std::string, Sensor> &sensors, std::string logfile
 
 			}
 		}
+		pos = logfile.tellg();
+		logfile.close();
 		std::this_thread::sleep_for(std::chrono::seconds(1));
-		if (!logfile.eof())
+		/*if (!logfile.eof())
 		{
 			if (DEBUG)
 			{
@@ -489,7 +495,7 @@ void process_logfile(std::map<std::string, Sensor> &sensors, std::string logfile
 				std::cout << "Breaking!" << std::endl;
 			}
 			break;
-		}
+		}*/
 		logfile.clear();
 	}
 }
