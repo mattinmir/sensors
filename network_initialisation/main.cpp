@@ -1,7 +1,3 @@
-// TODO delete node from db files at start to avoid duplication
-// TODO replace python infinite loops with c++ infinite lops
-
-
 #include "helpers.h"
 #include "Sensor.h"
 #include <vector>
@@ -31,7 +27,6 @@ mutex mutex_cout, mutex_whitelist, mutex_updated, mutex_failures, mutex_sensors,
 int main()
 {
 	vector<thread> threads;
-	//map<string, string> thread_ids;
 
 	set<string> db_transceivers;
 	set<string> db_sensors;
@@ -47,9 +42,6 @@ int main()
 	double timeout = 180; // In seconds
 	vector<string> logfiles = get_file_list(log_dir, ".log");
 	string blacklistfile("blacklist.txt");
-
-	// Read in node info from DB
-	//system("python get_sensor_info.py &");
 
 	// Importing DB node data into our data structures
 	thread(add_new_nodes, "sensors.txt", ref(db_sensors), ref(sensors), "transceivers.txt", ref(db_transceivers), ref(whitelist)).detach();
@@ -70,9 +62,6 @@ int main()
 	thread(check_for_update, blacklistfile, ref(whitelist), ref(db_transceivers), ref(updated)).detach(); // Check for updated whitelist and create blacklist file
 
 	thread(add_failures, ref(failures), ref(last_seen), timeout).detach(); // Adding failures to failure list based on last seen
-
-	//for (auto &t : threads)
-	//	t.detach(); // Begin concurrent execution
 
 	// Continue checking for new logfiles
 	vector<string> opened_logfiles(logfiles);
