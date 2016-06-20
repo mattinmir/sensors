@@ -17,9 +17,6 @@ std::tm convert_timestamp(std::string timestamp);
 // Timeout in seconds
 bool failed(std::tm timestamp, double timeout);
 
-// Will continuously read in new data saved to file
-void update_last_seen(std::ifstream &logfile, std::map<std::string, std::tm> &last_seen, std::set<std::string> &failures, std::set<std::string> &db_sensors, std::set<std::string> &db_transceivers);
-
 void add_failures(std::set<std::string> &failures, const std::map<std::string, std::tm> &last_seen, double timeout);
 
 
