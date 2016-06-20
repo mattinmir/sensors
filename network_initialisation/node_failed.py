@@ -1,4 +1,4 @@
-# Tells DB nodeID is active
+# Tells DB nodeID is failed
 
 import requests
 import sys
