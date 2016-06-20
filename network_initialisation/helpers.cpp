@@ -27,6 +27,7 @@
 extern bool DEBUG;
 extern std::mutex mutex_cout, mutex_whitelist, mutex_updated, mutex_failures, mutex_sensors;
 
+// Split strings on delim
 std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems)
 {
 	std::stringstream ss(s);
@@ -37,26 +38,12 @@ std::vector<std::string> &split(const std::string &s, char delim, std::vector<st
 	return elems;
 }
 
+// Split strings on delim
 std::vector<std::string> split(const std::string &s, char delim)
 {
 	std::vector<std::string> elems;
 	split(s, delim, elems);
 	return elems;
-}
-
-double median_rssi(std::vector<double> rssis)
-{
-	size_t n = rssis.size() / 2;
-	std::nth_element(rssis.begin(), rssis.begin() + n, rssis.end());
-	double rssisn = rssis[n];
-
-	if (rssis.size() % 2 == 1)
-		return rssisn;
-	else
-	{
-		std::nth_element(rssis.begin(), rssis.begin() + n - 1, rssis.end());
-		return 0.5*(rssisn + rssis[n - 1]);
-	}
 }
 
 // Gets names of all files in `directory` with `extension`
@@ -77,8 +64,7 @@ std::vector<std::string> get_file_list(std::string directory, std::string extens
 	return logs;
 }
 
-
-
+// Updates whitelists based on recent node failures
 void update_whitelist(std::map<std::string, std::vector<std::string>> &whitelist, std::map<std::string, Sensor> &sensors, std::set<std::string> &failures, bool &updated)
 {
 	while (true)
@@ -98,6 +84,8 @@ void update_whitelist(std::map<std::string, std::vector<std::string>> &whitelist
 				std::stringstream ss;
 				int size = connectionList.size();
 				ss << size;
+				
+				// Sends connection numbers to database
 				std::string exec = "python update_connections.py " + sensorID + " " + ss.str() + " &";
 				system(exec.c_str());
 
@@ -107,15 +95,16 @@ void update_whitelist(std::map<std::string, std::vector<std::string>> &whitelist
 					std::cout << " Telling DB sensor " << sensorID << " has " << ss.str() << " connections" <<  std::endl;
 				}
 
-				
+				// Nothing to update if a sensor has no connections
 				if (size == 0)
 					continue;
 				else
 				{
+					// First in the list is the strongest
 					strongest_trans = connectionList[0];
 				}
 				
-					// If the sensor is not yet found in the whitelist of its strongest connected transceiver
+				// If the sensor is not yet found in the whitelist of its strongest connected transceiver
 				if (std::find(whitelist[strongest_trans].begin(), whitelist[strongest_trans].end(), s.first) == whitelist[strongest_trans].end())
 				{
 					
@@ -241,15 +230,16 @@ void check_for_update(std::string blacklistfilename, std::map<std::string,  std:
 	{
 		if (updated)
 		{
-			// Create blacklist here instead of creating in real time because new nodes may be added
+			// Create blacklist from whitelist because it's easier to think in terms of a whitelist
 			std::map<std::string, std::vector<std::string>> blacklist;
-			// Send out new blacklist
-
+			
+			/* Send out new blacklist */
 			// For every transciever in the whitelist
 			for (auto &wl_iter : whitelist)
 			{
 				std::string wl_transID = wl_iter.first;
 				std::vector<std::string> &wl_sensors = wl_iter.second;
+				
 				// Add its sensors to the blacklist of every other transciever
 				for (auto &bl_iter : whitelist)
 				{
@@ -290,7 +280,7 @@ void check_for_update(std::string blacklistfilename, std::map<std::string,  std:
 					}
 					blacklistfile << " " << id;
 				}
-				for (auto &t : db_transceievers) // Need to add all transceiver ids so messages are not duplicated
+				for (auto &t : db_transceievers) // Need to add all transceiver ids also, so messages are not duplicated
 				{
 					if (DEBUG)
 					{
@@ -312,7 +302,8 @@ void check_for_update(std::string blacklistfilename, std::map<std::string,  std:
 				std::lock_guard<std::mutex> lock_cout(mutex_cout);
 				std::cout << "\nUpdated set false (wrote blacklist out)" << std::endl;
 			}
-			// Send out new blacklists
+			
+			// Send out new blacklists via fhem
 			std::string exec = "python distribute_blacklist.py " + blacklistfilename + " &";
 			system(exec.c_str());
 		}
@@ -321,7 +312,7 @@ void check_for_update(std::string blacklistfilename, std::map<std::string,  std:
 	}
 }
 
-
+// Get new nodes from database
 void add_new_nodes(std::string sensorsfilename, std::set<std::string> &db_sensors, std::map<std::string, Sensor> &sensors, std::string transfilename, std::set<std::string> &db_transceivers, std::map<std::string, std::vector<std::string>> &whitelist)
 {
 	std::ifstream sensorsfile(sensorsfilename.c_str());
@@ -333,6 +324,7 @@ void add_new_nodes(std::string sensorsfilename, std::set<std::string> &db_sensor
 		{
 			try
 			{
+				// Requests all node IDs from DB and writes them to text files
 				system("python get_sensor_info.py");
 			}
 			catch (std::exception &e)
@@ -383,22 +375,20 @@ void add_new_nodes(std::string sensorsfilename, std::set<std::string> &db_sensor
 	}
 }
 
+// Does the following:
+// - RSSI values of connections
+// - Last seen times of nodes
+// - Sends data to DB
+
+// All of this in one thread so that only one thread has to read from the file, reducing data races
 void process_logfile(std::map<std::string, Sensor> &sensors, std::string logfile_name, std::set<std::string> &db_sensors, std::set<std::string> &db_transceivers, std::map<std::string, std::tm> &last_seen, std::set<std::string> &failures)
 {
-	std::string line, timestamp, transcode, payload;
-	std::streampos pos = 0;
+	std::string timestamp, transcode, payload;
 	std::ifstream logfile(logfile_name.c_str());
 	while (true)
 	{
-		
-		
 		while (logfile >> timestamp >> transcode >> payload)
 		{
-			//std::vector<std::string> lines = split(line, ' ');
-			//timestamp = lines[0];
-			//transcode = lines[1];
-			//payload = lines[2];
-
 			if (DEBUG)
 			{
 				std::lock_guard<std::mutex> lock_cout(mutex_cout);
@@ -413,8 +403,6 @@ void process_logfile(std::map<std::string, Sensor> &sensors, std::string logfile
 			double rssi = stoul(payload.erase(0, 16), nullptr, 16);
 
 			std::string transID = split(transcode, '_')[2];
-
-			
 
 			// If one of our nodes
 			if (db_sensors.find(sensorID) != db_sensors.end() && db_transceivers.find(transID) != db_transceivers.end())
@@ -431,7 +419,8 @@ void process_logfile(std::map<std::string, Sensor> &sensors, std::string logfile
 				/*******************************************************/
 				/****************** Update Last seen *******************/
 				/*******************************************************/
-
+				
+				// Update last seen with timestamp
 				last_seen[sensorID] = convert_timestamp(timestamp);
 				last_seen[transID] = convert_timestamp(timestamp);
 				
@@ -441,7 +430,7 @@ void process_logfile(std::map<std::string, Sensor> &sensors, std::string logfile
 					std::cout <<  sensorID << " alive\n" << transID << " alive\n Connected with rssi " << rssi << std::endl;
 				}
 
-				// Remove id from vector of failures
+				// Remove id from vector of failures since they transmitted so are not failed
 				failures.erase(sensorID);
 				failures.erase(transID);
 
@@ -455,6 +444,8 @@ void process_logfile(std::map<std::string, Sensor> &sensors, std::string logfile
 				/*******************************************************/
 				/****************** Send Data to DB ********************/
 				/*******************************************************/
+				
+				// Sends received data to DB
 				exec = "python send_data.py " + sensorID + " " + timestamp + " " + data + " &";
 				system(exec.c_str());
 				if (DEBUG)
@@ -465,19 +456,19 @@ void process_logfile(std::map<std::string, Sensor> &sensors, std::string logfile
 
 			}
 		}
-		/*
-		pos = logfile.tellg();
-		logfile.close();*/
+
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 		if (!logfile.eof())
 		{
 			if (DEBUG)
 			{
 				std::lock_guard<std::mutex> lock_cout(mutex_cout);
-				std::cout << "Breaking!" << std::endl;
+				std::cout << "Something went wrong!" << std::endl;
 			}
 			break;
 		}
+		
+		// Remove eof status
 		logfile.clear();
 	}
 }
