@@ -265,15 +265,40 @@ void check_for_update(std::string blacklistfilename, std::map<std::string,  std:
 				}
 			}
 
+			if (DEBUG)
+			{
+				std::lock_guard<std::mutex> lock_cout(mutex_cout);
+				std::cout << "Blacklist for ";
+			}
+
 			std::ofstream blacklistfile(blacklistfilename.c_str());
 			// Write blacklist to file
 			for (auto output_iter = blacklist.begin(); output_iter != blacklist.end(); ++output_iter)
 			{
+				if (DEBUG)
+				{
+					std::lock_guard<std::mutex> lock_cout(mutex_cout);
+					std::cout << output_iter->first << ": " ;
+				}
 				blacklistfile << output_iter->first;
 				for (auto &id : output_iter->second)
+				{
+					if (DEBUG)
+					{
+						std::lock_guard<std::mutex> lock_cout(mutex_cout);
+						std::cout << " " << id;
+					}
 					blacklistfile << " " << id;
+				}
 				for (auto &t : db_transceievers) // Need to add all transceiver ids so messages are not duplicated
+				{
+					if (DEBUG)
+					{
+						std::lock_guard<std::mutex> lock_cout(mutex_cout);
+						std::cout << " " << t;
+					}
 					blacklistfile << " " << t;
+				}
 				blacklistfile << "\n";
 			}
 			blacklistfile << std::flush;
@@ -295,44 +320,7 @@ void check_for_update(std::string blacklistfilename, std::map<std::string,  std:
 		std::this_thread::sleep_for(std::chrono::seconds(60));
 	}
 }
-/*
-// Read logfiles and adds most recent rssi values to respective sensor objects
-void update_rssis(std::map<std::string, Sensor> &sensors, std::string logfile_name, std::set<std::string> &db_sensors, std::set<std::string> &db_transceivers)
-{
-	std::string timestamp, transcode, payload;
-	std::ifstream logfile(logfile_name.c_str());
-	while (true)
-	{
-		
-		while (logfile >> timestamp >> transcode >> payload)
-		{
-			std::string sensorID = payload;
-			sensorID.erase(16, 2).erase(0, 8);
-			double rssi = stoul(payload.erase(0, 16), nullptr, 16);
-			std::string transID = split(transcode, '_')[2];
 
-			// If one of our nodes
-			if (db_sensors.find(sensorID) != db_sensors.end() && db_transceivers.find(transID) != db_transceivers.end())
-			{
-				std::lock_guard<std::mutex> lock_sensors(mutex_sensors);
-				// Add new data about rssi between sensor and transceiver
-				sensors[sensorID].add_rssi(transID, rssi);
-				if (DEBUG)
-				{
-					std::lock_guard<std::mutex> lock_cout(mutex_cout);
-					std::cout << sensorID << " connected to " << transID << " with rssi" << rssi << std::endl;
-				}
-			}
-		}
-		std::this_thread::sleep_for(std::chrono::seconds(5));
-		if (!logfile.eof())
-			break;
-		logfile.clear();
-	}
-
-}
-
-*/
 
 void add_new_nodes(std::string sensorsfilename, std::set<std::string> &db_sensors, std::map<std::string, Sensor> &sensors, std::string transfilename, std::set<std::string> &db_transceivers, std::map<std::string, std::vector<std::string>> &whitelist)
 {
@@ -402,11 +390,7 @@ void process_logfile(std::map<std::string, Sensor> &sensors, std::string logfile
 	std::ifstream logfile(logfile_name.c_str());
 	while (true)
 	{
-		if (DEBUG)
-		{
-			std::lock_guard<std::mutex> lock_cout(mutex_cout);
-			std::cout << "Checking log file " << logfile_name.c_str() << std::endl << "EOF and OPEN: " << logfile.eof() << logfile.is_open() << std::endl << "Current POS: " << (int)logfile.tellg() << std::endl;
-		}
+		
 		
 		while (logfile >> timestamp >> transcode >> payload)
 		{
