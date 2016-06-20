@@ -9,6 +9,7 @@
 #include <deque>
 #include "helpers.h"
 
+// Default constructor neccessary for use in std::map
 Sensor::Sensor() : rssi_queue_size(10){}
 
 Sensor::Sensor(std::string _id, int _rssi_queue_size = 10) : id(_id), rssi_queue_size(_rssi_queue_size){}
@@ -19,6 +20,8 @@ std::string Sensor::getSensorID() const
 	return id;
 }
 
+
+// Returns vector of transIDs in descending order of connection strength
 std::vector<std::string> Sensor::connectionList() 
 {
 	// No Connections
@@ -58,7 +61,6 @@ void Sensor::add_rssi(std::string transID, double rssi)
 	connections[transID].push_back(rssi);
 }
 
-// Deletes connection if it exists, returns false if not
 void Sensor::del_connection(std::string transID)
 {
 	connections.erase(transID);
