@@ -230,7 +230,7 @@ void update_whitelist(std::map<std::string, std::vector<std::string>> &whitelist
 				}
 			}
 		}		
-		std::this_thread::sleep_for(std::chrono::seconds(60));
+		std::this_thread::sleep_for(std::chrono::seconds(10));
 	}
 }
 
@@ -310,14 +310,14 @@ void check_for_update(std::string blacklistfilename, std::map<std::string,  std:
 			if (DEBUG)
 			{
 				std::lock_guard<std::mutex> lock_cout(mutex_cout);
-				std::cout << "Updated set false (wrote blacklist out)" << std::endl;
+				std::cout << "\nUpdated set false (wrote blacklist out)" << std::endl;
 			}
 			// Send out new blacklists
 			std::string exec = "python distribute_blacklist.py " + blacklistfilename + " &";
 			system(exec.c_str());
 		}
 
-		std::this_thread::sleep_for(std::chrono::seconds(60));
+		std::this_thread::sleep_for(std::chrono::seconds(10));
 	}
 }
 

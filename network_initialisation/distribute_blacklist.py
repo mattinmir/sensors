@@ -31,8 +31,9 @@ for line in lines:
         os.system(add_id)
         #print(add_id)
 		
-    add_Gateway = 'perl ' + fhemdir + 'fhem.pl localhost:7072 "set Gateway 4BS 01010101"'#
+    add_Gateway = 'perl ' + fhemdir + 'fhem.pl localhost:7072 "set Gateway 4BS 019D6A43"'#
     os.system(add_Gateway)
     #print(add_Gateway)
 
 	
+
