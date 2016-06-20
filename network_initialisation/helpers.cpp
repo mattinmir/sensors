@@ -399,24 +399,21 @@ void process_logfile(std::map<std::string, Sensor> &sensors, std::string logfile
 {
 	std::string line, timestamp, transcode, payload;
 	std::streampos pos = 0;
+	std::ifstream logfile(logfile_name.c_str());
 	while (true)
 	{
-		std::ifstream logfile(logfile_name.c_str());
-		logfile.seekg(pos);
-		logfile.clear();
-
 		if (DEBUG)
 		{
 			std::lock_guard<std::mutex> lock_cout(mutex_cout);
 			std::cout << "Checking log file " << logfile_name.c_str() << std::endl << "EOF and OPEN: " << logfile.eof() << logfile.is_open() << std::endl << "Current POS: " << (int)logfile.tellg() << std::endl;
 		}
 		
-		while (std::getline(logfile, line))
+		while (logfile >> timestamp >> transcode >> payload)
 		{
-			std::vector<std::string> lines = split(line, ' ');
-			timestamp = lines[0];
-			transcode = lines[1];
-			payload = lines[2];
+			//std::vector<std::string> lines = split(line, ' ');
+			//timestamp = lines[0];
+			//transcode = lines[1];
+			//payload = lines[2];
 
 			if (DEBUG)
 			{
@@ -484,10 +481,11 @@ void process_logfile(std::map<std::string, Sensor> &sensors, std::string logfile
 
 			}
 		}
+		/*
 		pos = logfile.tellg();
-		logfile.close();
+		logfile.close();*/
 		std::this_thread::sleep_for(std::chrono::seconds(1));
-		/*if (!logfile.eof())
+		if (!logfile.eof())
 		{
 			if (DEBUG)
 			{
@@ -495,7 +493,7 @@ void process_logfile(std::map<std::string, Sensor> &sensors, std::string logfile
 				std::cout << "Breaking!" << std::endl;
 			}
 			break;
-		}*/
+		}
 		logfile.clear();
 	}
 }
