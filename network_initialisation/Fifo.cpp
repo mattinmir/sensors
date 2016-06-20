@@ -6,6 +6,7 @@ Fifo::Fifo():size(10){}
 
 Fifo::Fifo(int _size=10) : size(_size){}
 
+// Adds value to fifo
 void Fifo::push_back(double val)
 {
 	fifo.push_back(val);
@@ -13,6 +14,7 @@ void Fifo::push_back(double val)
 		fifo.pop_front();
 } 
 
+// Returns median value in fifo
 double Fifo::median() 
 {
 	size_t n = fifo.size() / 2;
