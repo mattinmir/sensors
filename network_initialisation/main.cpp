@@ -36,7 +36,7 @@ int main()
 	set<string> db_transceivers;
 	set<string> db_sensors;
 
-	string log_dir = "./";//"/opt/fhem/log/";
+	string log_dir = "/opt/fhem/log/";
 	map<string, Sensor> sensors;
 	map<string, vector<string>> whitelist;
 	set<string> failures;
