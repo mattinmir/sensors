@@ -60,7 +60,7 @@ int main()
 		vector<string> logfilename = split(logfiles[i], '_');
 		if (logfilename.size() > 1 && logfilename[1] == "VLD")
 		{
-			thread(process_logfile, ref(sensors), logfiles[i], ref(db_sensors), ref(db_transceivers), ref(last_seen), ref(failures)).detach();
+			thread(process_logfile, ref(sensors), log_dir+logfiles[i], ref(db_sensors), ref(db_transceivers), ref(last_seen), ref(failures)).detach();
 		}
 	}
 
@@ -84,10 +84,10 @@ int main()
 			// If we have not previously seen this logfile
 			if (!(find(opened_logfiles.begin(), opened_logfiles.end(), new_logfiles[i]) != opened_logfiles.end()))
 			{
-				vector<string> logfilename = split(logfiles[i], '_');
+				vector<string> logfilename = split(new_logfiles[i], '_');
 				if (logfilename.size() > 1 && logfilename[1] == "VLD")
 				{
-					thread(process_logfile, ref(sensors), logfiles[i], ref(db_sensors), ref(db_transceivers), ref(last_seen), ref(failures)).detach();
+					thread(process_logfile, ref(sensors), log_dir+new_logfiles[i], ref(db_sensors), ref(db_transceivers), ref(last_seen), ref(failures)).detach();
 					opened_logfiles.push_back(new_logfiles[i]);
 				}
 			}
