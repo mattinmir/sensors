@@ -13,6 +13,7 @@ extern bool DEBUG;
 extern std::mutex mutex_cout, mutex_whitelist, mutex_updated, mutex_failures, mutex_sensors, mutex_last_seen;
 
 // Timestamp of format 2016-05-31_16:34:50
+// Converts timestamp to std::tm type
 std::tm convert_timestamp(std::string timestamp)
 {
 	std::tm converted;
@@ -43,69 +44,22 @@ bool failed(std::tm timestamp, double timeout)
 	// Return true if difference between now and timestamp is more than timeout
 	return (now - ts) > timeout;
 }
-/*
-// Will continuously read in new data saved to file and update last seen/failures
-void update_last_seen(std::ifstream &logfile, std::map<std::string, std::tm> &last_seen, std::set<std::string> &failures, std::set<std::string> &db_sensors, std::set<std::string> &db_transceivers)
-{
-	
-	std::string timestamp, transcode, payload;
-	while (true)
-	{
-		std::lock_guard<std::mutex> lock_last_seen(mutex_last_seen);
-		std::lock_guard<std::mutex> lock_failures(mutex_failures);
 
-		while (logfile >> timestamp >> transcode >> payload)
-		{
-
-			std::string sensorID = payload;
-			sensorID.erase(16, 2).erase(0, 8);
-			std::string transID = split(transcode, '_')[2];
-
-			// If one of our nodes
-			if (db_sensors.find(sensorID) != db_sensors.end() && db_transceivers.find(transID) != db_transceivers.end())
-			{
-				// Update last seen
-
-				last_seen[sensorID] = convert_timestamp(timestamp);
-				last_seen[transID] = convert_timestamp(timestamp);
-
-				if (DEBUG)
-				{
-					std::lock_guard<std::mutex> lock_cout(mutex_cout);
-					std::cout << "Just seen " << sensorID << " and" << transID << std::endl;
-				}
-				// Remove id from vector of failures
-				failures.erase(sensorID);
-				failures.erase(transID);
-
-				// Send message to db saying nodes are not failed
-				std::string exec = "python node_active.py " + sensorID + " &";
-				system(exec.c_str());
-
-				exec = "python node_active.py " + transID + " &";
-				system(exec.c_str());
-			}
-		}
-		std::this_thread::sleep_for(std::chrono::seconds(1));
-		if (!logfile.eof())
-			break;
-		logfile.clear();
-	}
-}
-
-*/
+// Marks nodes as failed if they have not transmitted for a long time
 void add_failures(std::set<std::string> &failures, const std::map<std::string, std::tm> &last_seen, double timeout)
 {
-
 	while (true)
 	{
+		// For every node
 		for (auto &l : last_seen)
 		{
 			std::string nodeID = l.first;
 			std::tm time_last_seen = l.second;
-
+			
+			// If it has failed
 			if (failed(time_last_seen, timeout))
 			{
+				// Mark it as failed
 				std::lock_guard<std::mutex> lock_failures(mutex_failures);
 				bool inserted = failures.insert(nodeID).second; // True if insert worked, i.e. didnt exist before
 				if (inserted)
