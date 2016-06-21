@@ -183,25 +183,19 @@ void update_whitelist(std::map<std::string, std::vector<std::string>> &whitelist
 									std::lock_guard<std::mutex> lock_cout(mutex_cout);
 									std::cout << "Sensor " << sensorID << " no longer connected to any transceivers" << std::endl;
 								}
-								// Add the sensor to the whitelist of all transceivers to try to find a new route
+								// Remove the sensor from the whitelist of all transceivers to try to find a new route
 								for (auto &transceiver : whitelist)
 								{
-									// For every transciever other than the current one
-									if (transceiver != w)
-									{
-										// If the sensor was not already in the whitelist
-										if (!(std::find(transceiver.second.begin(), transceiver.second.end(), sensorID) != transceiver.second.end()))
-										{
-											// Add it
-											transceiver.second.push_back(sensorID);
+									transceiver.second.erase(std::remove(transceiver.second.begin(), transceiver.second.end(), sensorID), transceiver.second.end());
+										
 
 											if (DEBUG)
 											{
 												std::lock_guard<std::mutex> lock_cout(mutex_cout);
-												std::cout << "Sensor " << sensorID << " added to trans " << transceiver.first << "'s whitelist" << std::endl;
+												std::cout << "Sensor " << sensorID << " removed from all whitelists" << std::endl;
 											}
-										}
-									}
+										
+									
 								}
 							}
 
