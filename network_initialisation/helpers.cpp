@@ -92,7 +92,7 @@ void update_whitelist(std::map<std::string, std::vector<std::string>> &whitelist
 				if (DEBUG)
 				{
 					std::lock_guard<std::mutex> lock_cout(mutex_cout);
-					std::cout << " Telling DB sensor " << sensorID << " has " << ss.str() << " connections" <<  std::endl;
+				std::cout << " Telling DB sensor " << sensorID << " has " << ss.str() << " connections" <<  std::endl;
 				}
 
 				// Nothing to update if a sensor has no connections
@@ -408,7 +408,7 @@ void process_logfile(std::map<std::string, Sensor> &sensors, std::string logfile
 			if (DEBUG)
 			{
 				std::lock_guard<std::mutex> lock_cout(mutex_cout);
-				std::cout << "Reading: " << timestamp << " " << transcode << " " << payload << std::endl;
+//				std::cout << "Reading: " << timestamp << " " << transcode << " " << payload << std::endl;
 			}
 			std::string sensorID = payload;
 			sensorID.erase(16, 2).erase(0, 8);
