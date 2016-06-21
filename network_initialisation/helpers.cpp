@@ -107,16 +107,29 @@ void update_whitelist(std::map<std::string, std::vector<std::string>> &whitelist
 				// If the sensor is not yet found in the whitelist of its strongest connected transceiver
 				if (std::find(whitelist[strongest_trans].begin(), whitelist[strongest_trans].end(), s.first) == whitelist[strongest_trans].end())
 				{
-					
-					// Add it there
+					// Remove from every whitelist
+					for (auto &w : whitelist)
+					{
+						w.second.erase(std::remove(w.second.begin(), w.second.end(), sensorID), w.second.end());
+
+						if (DEBUG)
+						{
+							std::lock_guard<std::mutex> lock_cout(mutex_cout);
+							std::cout << "Sensor " << sensorID << " removed from trans" << w.first << "'s whitelist" << std::endl;
+						}
+					}
+
+					// Add it to strongest trans' whitelist
 					std::lock_guard<std::mutex> lock_whitelist(mutex_whitelist);
 					whitelist[strongest_trans].push_back(s.first);
 
 					if (DEBUG)
 					{
 						std::lock_guard<std::mutex> lock_cout(mutex_cout);
-						std::cout << "sensor " << sensorID << " added to trans" << strongest_trans << "'s whitelist" << std::endl;
+						std::cout << "\nSensor " << sensorID << " added to trans" << strongest_trans << "'s whitelist" << std::endl;
 					}
+
+				
 
 					// Mark a flag so that check_for_updates() knows to send out a new whitelist
 					std::lock_guard<std::mutex> lock_updated(mutex_updated);
@@ -125,7 +138,7 @@ void update_whitelist(std::map<std::string, std::vector<std::string>> &whitelist
 					if (DEBUG)
 					{
 						std::lock_guard<std::mutex> lock_cout(mutex_cout);
-						std::cout << "Updated set true" << std::endl;
+						std::cout << "Updated set true\n" << std::endl;
 					}
 				}
 			}
