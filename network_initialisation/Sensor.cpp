@@ -45,6 +45,8 @@ std::vector<std::string> Sensor::connectionList()
 		for (avg_iter = averagedRssis.begin(); avg_iter != averagedRssis.end(); ++avg_iter) // Add transIDs to vector in correct order
 			transceiverList.push_back(avg_iter->second);
 		
+
+		// Returns in ascending order of RSSI, which is correct because rssi value is actually -ve that value since it is dB scale
 		return transceiverList;
 
 	}

@@ -237,8 +237,10 @@ void check_for_update(std::string blacklistfilename, std::map<std::string,  std:
 			// For every transciever in the whitelist
 			for (auto &wl_iter : whitelist)
 			{
+				
 				std::string wl_transID = wl_iter.first;
 				std::vector<std::string> &wl_sensors = wl_iter.second;
+				blacklist[wl_transID]; // Create an entry in the balcklist
 				
 				// Add its sensors to the blacklist of every other transciever
 				for (auto &bl_iter : whitelist)
@@ -255,11 +257,7 @@ void check_for_update(std::string blacklistfilename, std::map<std::string,  std:
 				}
 			}
 
-			if (DEBUG)
-			{
-				std::lock_guard<std::mutex> lock_cout(mutex_cout);
-				std::cout << "Blacklist for ";
-			}
+			
 
 			std::ofstream blacklistfile(blacklistfilename.c_str());
 			// Write blacklist to file
@@ -268,7 +266,7 @@ void check_for_update(std::string blacklistfilename, std::map<std::string,  std:
 				if (DEBUG)
 				{
 					std::lock_guard<std::mutex> lock_cout(mutex_cout);
-					std::cout << output_iter->first << ": " ;
+					std::cout << "Blacklist for " << output_iter->first << ": " ;
 				}
 				blacklistfile << output_iter->first;
 				for (auto &id : output_iter->second)
@@ -288,6 +286,11 @@ void check_for_update(std::string blacklistfilename, std::map<std::string,  std:
 						std::cout << " " << t;
 					}
 					blacklistfile << " " << t;
+				}
+				if (DEBUG)
+				{
+					std::lock_guard<std::mutex> lock_cout(mutex_cout);
+					std::cout << std::endl;
 				}
 				blacklistfile << "\n";
 			}
