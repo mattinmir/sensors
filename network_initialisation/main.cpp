@@ -19,13 +19,14 @@
 #endif
 
 bool DEBUG = true;
-
+bool DEMO = true;
 using namespace std;
 
 mutex mutex_cout, mutex_whitelist, mutex_updated, mutex_failures, mutex_sensors, mutex_last_seen;
 
 int main()
 {
+	system("python clearlists.py");
 	vector<thread> threads;
 
 	set<string> db_transceivers;

@@ -24,7 +24,7 @@
 #include <dirent.h>
 #endif
 
-extern bool DEBUG;
+extern bool DEBUG, DEMO;
 extern std::mutex mutex_cout, mutex_whitelist, mutex_updated, mutex_failures, mutex_sensors;
 
 // Split strings on delim
@@ -462,6 +462,28 @@ void process_logfile(std::map<std::string, Sensor> &sensors, std::string logfile
 				{
 					std::lock_guard<std::mutex> lock_cout(mutex_cout);
 					std::cout << "Sent to DB: " << timestamp << " " << sensorID << " " << data << std::endl;
+				}
+
+				if (DEMO)
+				{
+					if (sensorID == "FEFBFE03")
+					{
+						if (transID == "019FEE73")
+						{
+							if (data == "70FFFFFF")
+								system("perl /opt/fhem/fhem.pl localhost:7072 set MiLED on");
+							else if (data == "50FFFFFF")
+								system("perl /opt/fhem/fhem.pl localhost:7072 set MiLED off");
+						}
+
+						//else if (transID == "019FE089")
+						//{
+						//	if (data == "70FFFFFF")
+						//		system("perl /opt/fhem/fhem.pl localhost:7072 set MiLED on");
+						//	else if (data == "50FFFFFF")
+						//		system("perl /opt/fhem/fhem.pl localhost:7072 set MiLED off");
+						//}
+					}
 				}
 
 			}
